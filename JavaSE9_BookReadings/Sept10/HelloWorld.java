@@ -1,6 +1,6 @@
 // package ch01.sec01; --> this is the directory, package belongs to chapt1, section1 (from the book)
 // first JAva program
-import classroom.Person;
+package JavaSE9_BookReadings.Sept10;
 import java.util.Random;
 
 // public - can be called from other classes
@@ -13,7 +13,7 @@ public class HelloWorld {
 //
 //        int num = new Random().nextInt();
 //        System.out.println(num);
-        Person p = new Person("Katie");
+        classroom.Person p = new classroom.Person("Katie");
         p.sleep();
     }
 
