@@ -35,6 +35,17 @@ public class ChessBoard {
     }
 
     /**
+     * KTS personally created function
+     * @param position a new position that a chess piece could go
+     * @return bool to see if that new position will be out of the chess board
+     */
+    public boolean extendsBoard(ChessPosition position) {
+        int row = position.getRow();
+        int column = position.getColumn();
+        return row >= 0 && row < 8 && column >= 0 && column < 8;
+    }
+
+    /**
      * Sets the board to the default starting board
      * (How the game of chess normally starts)
      */
