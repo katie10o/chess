@@ -10,16 +10,15 @@ public class KingMovesCalc implements PieceMoveCalc {
 
 
     @Override
-    public Collection<ChessMove> PieceMoves(ChessBoard board, ChessPosition position) {
+    public void PieceMoves(ChessBoard board, ChessPosition position) {
         this.board = board;
         this.position = position;
         possibleMoves = new ArrayList<>();
-        validateMoves();
 
-        return this.possibleMoves;
     }
 
-    private enum typeOfMoves {
+
+    public enum typeOfMoves {
         UP,
         DOWN,
         LEFT,
@@ -44,13 +43,16 @@ public class KingMovesCalc implements PieceMoveCalc {
 
     }
 
-    private void validateMoves(){
+    public void validateMoves(){
         for (typeOfMoves move: typeOfMoves.values()){
             ChessPosition new_position = move.moves(position);
             if (board.getPiece(new_position) != null && board.extendsBoard(new_position)) {
                 this.possibleMoves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
             }
         }
+    }
+    public Collection<ChessMove> getPossibleMoves() {
+        return possibleMoves;
     }
 
 }

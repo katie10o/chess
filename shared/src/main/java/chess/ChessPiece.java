@@ -55,7 +55,16 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        switch (this.type) {
+            case KING:
+                KingMovesCalc king = new KingMovesCalc();
+                king.PieceMoves(board, myPosition);
+                king.validateMoves();
+                return king.getPossibleMoves();
+            case QUEEN:
 
+
+        }
         return new ArrayList<>();
     }
 }
