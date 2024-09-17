@@ -56,15 +56,19 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         switch (this.type) {
-            case KING:
-                KingMovesCalc king = new KingMovesCalc();
-                king.PieceMoves(board, myPosition);
-                king.validateMoves();
-                return king.getPossibleMoves();
-            case QUEEN:
-
+            case BISHOP:
+//                System.out.println("bishop selected");
+                BishopMovesCalc bishop = new BishopMovesCalc();
+                bishop.PieceMoves(board, myPosition);
+                bishop.validateMoves();
+                return bishop.getPossibleMoves();
+            default:
+                System.out.println("bishop not selected");
+                return new ArrayList<>();
 
         }
-        return new ArrayList<>();
+    }
+    public String toString() {
+        return "type: " + this.type.toString() + "color: " + this.pieceColor;
     }
 }

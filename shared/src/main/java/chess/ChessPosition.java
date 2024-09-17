@@ -30,4 +30,9 @@ public class ChessPosition {
     public int getColumn() {
         return this.column;
     }
+
+    @Override
+    public String toString() {
+        return "row: " + this.row + ", column: " + this.column;
+    }
 }

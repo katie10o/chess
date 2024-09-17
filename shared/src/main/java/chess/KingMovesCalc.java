@@ -18,7 +18,7 @@ public class KingMovesCalc implements PieceMoveCalc {
     }
 
 
-    public enum typeOfMoves {
+    private enum typeOfMoves {
         UP,
         DOWN,
         LEFT,
@@ -44,11 +44,23 @@ public class KingMovesCalc implements PieceMoveCalc {
     }
 
     public void validateMoves(){
+//        need to implement a danger checker
         for (typeOfMoves move: typeOfMoves.values()){
             ChessPosition new_position = move.moves(position);
-            if (board.getPiece(new_position) != null && board.extendsBoard(new_position)) {
+            if (board.extendsBoard(new_position)){
+                if (board.getPiece(new_position) == null){
+                    this.possibleMoves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
+                }
+//                else if (board.getPiece(new_position) == )
+
+            }
+            if (board.getPiece(new_position) == null && board.extendsBoard(new_position)) {
                 this.possibleMoves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
             }
+
+            this.possibleMoves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
+
+
         }
     }
     public Collection<ChessMove> getPossibleMoves() {
