@@ -57,13 +57,17 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         switch (this.type) {
             case BISHOP:
-//                System.out.println("bishop selected");
                 BishopMovesCalc bishop = new BishopMovesCalc();
                 bishop.PieceMoves(board, myPosition);
                 bishop.validateMoves();
                 return bishop.getPossibleMoves();
+            case KNIGHT:
+                KnightMovesCalc knight = new KnightMovesCalc();
+                knight.PieceMoves(board, myPosition);
+                knight.validateMoves();
+                return knight.getPossibleMoves();
             default:
-                System.out.println("bishop not selected");
+                System.out.println("Chess Piece class, switch case default");
                 return new ArrayList<>();
 
         }

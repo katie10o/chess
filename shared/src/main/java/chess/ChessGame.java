@@ -9,8 +9,14 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
+    private Boolean check;
+    private Boolean checkMate;
+    private Boolean staleMate;
 
     public ChessGame() {
+        this.check = false;
+        this.checkMate = false;
+        this.staleMate = false;
 
     }
 
@@ -68,8 +74,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-
-        throw new RuntimeException("Not implemented");
+        return check;
     }
 
     /**
@@ -80,7 +85,7 @@ public class ChessGame {
      */
     public boolean isInCheckmate(TeamColor teamColor) {
 
-        throw new RuntimeException("Not implemented");
+        return checkMate;
     }
 
     /**
@@ -92,7 +97,7 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
 
-        throw new RuntimeException("Not implemented");
+        return staleMate;
     }
 
     /**

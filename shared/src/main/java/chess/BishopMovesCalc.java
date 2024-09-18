@@ -23,12 +23,8 @@ public class BishopMovesCalc implements PieceMoveCalc {
     for (TypeOfMoves.moves move : possibleMoves) {
         ChessPosition new_pos = move.movePositions(position);
         while (board.extendsBoard(new_pos)){
-//            System.out.println("inside the while loop");
-//            System.out.printf("current position: %s\n",position.toString());
-//            System.out.printf("new position: %s\n", new_pos);
             ChessPiece new_pos_type = board.getPiece(new_pos);
             if (new_pos_type != null && new_pos_type.getTeamColor() != piece.getTeamColor()) {
-//                System.out.println("Enemy in pos");
                 moves.add(new ChessMove(position, new_pos, null));
                 break;
             }
