@@ -80,22 +80,22 @@ public class TypeOfMoves {
 
         public ChessPosition movePositions(ChessPosition pos) {
             return switch (this) {
-                case UP -> new ChessPosition(pos.getRow() - 1, pos.getColumn());
-                case DOWN -> new ChessPosition(pos.getRow() + 1, pos.getColumn());
+                case UP -> new ChessPosition(pos.getRow() + 1, pos.getColumn());
+                case DOWN -> new ChessPosition(pos.getRow() - 1, pos.getColumn());
                 case LEFT -> new ChessPosition(pos.getRow(), pos.getColumn() - 1);
                 case RIGHT -> new ChessPosition(pos.getRow(), pos.getColumn() + 1);
-                case DIAGONAL_LEFT_UP -> new ChessPosition(pos.getRow() - 1, pos.getColumn() - 1);
-                case DIAGONAL_LEFT_DOWN -> new ChessPosition(pos.getRow() + 1, pos.getColumn() - 1);
-                case DIAGONAL_RIGHT_UP -> new ChessPosition(pos.getRow() - 1, pos.getColumn() + 1);
-                case DIAGONAL_RIGHT_DOWN -> new ChessPosition(pos.getRow() + 1, pos.getColumn() + 1);
-                case UP_TWO_RIGHT_ONE -> new ChessPosition(pos.getRow() - 2, pos.getColumn() + 1);
-                case UP_TWO_LEFT_ONE -> new ChessPosition(pos.getRow() - 2, pos.getColumn() - 1);
-                case DOWN_TWO_RIGHT_ONE -> new ChessPosition(pos.getRow() + 2, pos.getColumn() + 1);
-                case DOWN_TWO_LEFT_ONE -> new ChessPosition(pos.getRow() + 2, pos.getColumn() - 1);
-                case UP_ONE_RIGHT_TWO -> new ChessPosition(pos.getRow() - 1, pos.getColumn() + 2);
-                case UP_ONE_LEFT_TWO -> new ChessPosition(pos.getRow() - 1, pos.getColumn() - 2);
-                case DOWN_ONE_RIGHT_TWO -> new ChessPosition(pos.getRow() + 1, pos.getColumn() + 2);
-                case DOWN_ONE_LEFT_TWO -> new ChessPosition(pos.getRow() + 1, pos.getColumn() - 2);
+                case DIAGONAL_LEFT_UP -> new ChessPosition(pos.getRow() + 1, pos.getColumn() - 1);
+                case DIAGONAL_LEFT_DOWN -> new ChessPosition(pos.getRow() - 1, pos.getColumn() - 1);
+                case DIAGONAL_RIGHT_UP -> new ChessPosition(pos.getRow() + 1, pos.getColumn() + 1);
+                case DIAGONAL_RIGHT_DOWN -> new ChessPosition(pos.getRow() - 1, pos.getColumn() + 1);
+                case UP_TWO_RIGHT_ONE -> new ChessPosition(pos.getRow() + 2, pos.getColumn() + 1);
+                case UP_TWO_LEFT_ONE -> new ChessPosition(pos.getRow() + 2, pos.getColumn() - 1);
+                case DOWN_TWO_RIGHT_ONE -> new ChessPosition(pos.getRow() - 2, pos.getColumn() + 1);
+                case DOWN_TWO_LEFT_ONE -> new ChessPosition(pos.getRow() - 2, pos.getColumn() - 1);
+                case UP_ONE_RIGHT_TWO -> new ChessPosition(pos.getRow() + 1, pos.getColumn() + 2);
+                case UP_ONE_LEFT_TWO -> new ChessPosition(pos.getRow() + 1, pos.getColumn() - 2);
+                case DOWN_ONE_RIGHT_TWO -> new ChessPosition(pos.getRow() - 1, pos.getColumn() + 2);
+                case DOWN_ONE_LEFT_TWO -> new ChessPosition(pos.getRow() - 1, pos.getColumn() - 2);
             };
         }
     }

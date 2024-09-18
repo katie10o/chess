@@ -33,6 +33,20 @@ public class ChessPosition {
 
     @Override
     public String toString() {
-        return "row: " + this.row + ", column: " + this.column;
+        return this.row + "," + this.column;
     }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPosition that = (ChessPosition) o;
+        return row == that.row && column == that.column;
+    }
+
+    @Override
+    public int hashCode() {
+        return 71 * (row +  column);
+
+    }
+
 }

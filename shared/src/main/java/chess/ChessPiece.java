@@ -71,4 +71,17 @@ public class ChessPiece {
     public String toString() {
         return "type: " + this.type.toString() + "color: " + this.pieceColor;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return 71 * (pieceColor.hashCode() + type.hashCode());
+    }
 }
