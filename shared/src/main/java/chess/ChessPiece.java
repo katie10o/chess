@@ -71,6 +71,12 @@ public class ChessPiece {
                 queen.PieceMoves(board, myPosition);
                 queen.validateMoves();
                 return queen.getPossibleMoves();
+            case ROOK:
+                RookMovesCalc rook = new RookMovesCalc();
+                rook.PieceMoves(board, myPosition);
+                rook.validateMoves();
+                return rook.getPossibleMoves();
+
             default:
                 System.out.println("Chess Piece class, switch case default");
                 return new ArrayList<>();
