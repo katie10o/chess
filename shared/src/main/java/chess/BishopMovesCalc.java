@@ -30,12 +30,12 @@ public class BishopMovesCalc implements PieceMoveCalc {
             if (new_pos_type != null && new_pos_type.getTeamColor() != piece.getTeamColor()) {
 //                System.out.println("Enemy in pos");
                 moves.add(new ChessMove(position, new_pos, null));
+                break;
+            }
+            else if (new_pos_type != null && new_pos_type.getTeamColor() == piece.getTeamColor()) {
+                break;
             }
             else if (new_pos_type == null){
-//                System.out.println("nothing in pos");
-                ChessMove hello = new ChessMove(position, new_pos, null);
-
-//                System.out.printf("new chess move obj: %s\n", hello);
                 moves.add(new ChessMove(position, new_pos, null));
             }
             new_pos = move.movePositions(new_pos);
