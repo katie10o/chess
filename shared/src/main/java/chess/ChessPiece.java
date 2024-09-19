@@ -81,6 +81,11 @@ public class ChessPiece {
                 pawn.PieceMoves(board, myPosition);
                 pawn.validateMoves();
                 return pawn.getPossibleMoves();
+            case KING:
+                KingMovesCalc king = new KingMovesCalc();
+                king.PieceMoves(board, myPosition);
+                king.validateMoves();
+                return king.getPossibleMoves();
 
             default:
                 System.out.println("Chess Piece class, switch case default");

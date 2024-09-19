@@ -21,27 +21,18 @@ public class KingMovesCalc implements PieceMoveCalc {
 
 
     public void validateMoves(){
-//        need to implement a danger checker
         ArrayList<TypeOfMoves.moves> possibleMoves = TypeOfMoves.getPieceWithMoves(ChessPiece.PieceType.KING);
         for (TypeOfMoves.moves move : possibleMoves) {
             ChessPosition new_position = move.movePositions(position);
-
-
-
             if (board.extendsBoard(new_position)){
                 if (board.getPiece(new_position) == null){
-                    this.moves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
+                    this.moves.add(new ChessMove(position, new_position, null));
                 }
-//                else if (board.getPiece(new_position) == )
+                else if (board.getPiece(new_position) != null && piece.getTeamColor() != board.getPiece(new_position).getTeamColor()){
+                    this.moves.add(new ChessMove(position, new_position, null));
+                }
 
             }
-            if (board.getPiece(new_position) == null && board.extendsBoard(new_position)) {
-                this.moves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
-            }
-
-            this.moves.add(new ChessMove(position, new_position, ChessPiece.PieceType.KING));
-
-
         }
     }
     public Collection<ChessMove> getPossibleMoves() {
