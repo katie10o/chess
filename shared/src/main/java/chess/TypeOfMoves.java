@@ -54,7 +54,10 @@ public class TypeOfMoves {
             put(ChessPiece.PieceType.PAWN, new ArrayList<>(Arrays.asList(
                     moves.UP,
                     moves.DIAGONAL_RIGHT_UP,
-                    moves.DIAGONAL_LEFT_UP
+                    moves.DIAGONAL_LEFT_UP,
+                    moves.DOWN,
+                    moves.DIAGONAL_LEFT_DOWN,
+                    moves.DIAGONAL_RIGHT_DOWN
             )));
         }};
 

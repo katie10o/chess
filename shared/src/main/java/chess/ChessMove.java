@@ -47,8 +47,8 @@ public class ChessMove {
     @Override
     public String toString() {
         var p = (promotionPiece == null ? "" : " promotion: " + promotionPiece);
-//        return String.format("[%s] to [%s].%s", startPosition.toString(), endPosition.toString(), p);
-        return String.format("[%s]", endPosition.toString());
+        return String.format("[%s] to [%s].%s", startPosition.toString(), endPosition.toString(), p);
+//        return String.format("[%s]", endPosition.toString());
     }
 
     @Override
