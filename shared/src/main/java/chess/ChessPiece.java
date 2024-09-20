@@ -94,7 +94,12 @@ public class ChessPiece {
         }
     }
     public String toString() {
-        return "type: " + this.type.toString() + "color: " + this.pieceColor;
+        if (this.pieceColor == ChessGame.TeamColor.BLACK) {
+            return this.type.toString().toLowerCase();
+        }
+        else  {
+            return this.type.toString().toUpperCase();
+        }
     }
 
     @Override
@@ -107,6 +112,6 @@ public class ChessPiece {
 
     @Override
     public int hashCode() {
-        return 71 * (pieceColor.hashCode() + type.hashCode());
+        return 71 * (37 * pieceColor.hashCode() + 89 * type.hashCode());
     }
 }
