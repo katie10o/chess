@@ -48,7 +48,6 @@ public class ChessMove {
     public String toString() {
         var p = (promotionPiece == null ? "" : " promotion: " + promotionPiece);
         return String.format("[%s] to [%s].%s", startPosition.toString(), endPosition.toString(), p);
-//        return String.format("[%s]", endPosition.toString());
     }
 
     @Override
@@ -56,10 +55,20 @@ public class ChessMove {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChessMove that = (ChessMove) o;
-        return startPosition.equals(that.startPosition) && endPosition.equals(that.endPosition) && (promotionPiece == null || promotionPiece.equals(that.promotionPiece));
+        boolean start = startPosition.equals(that.startPosition);
+        boolean end = endPosition.equals(that.endPosition);
+        boolean promotion = false;
+        if (promotionPiece == null && that.promotionPiece == null) {
+            promotion = true;
+        }
+        else if (promotionPiece != null && promotionPiece.equals(that.promotionPiece)) {
+            promotion = true;
+        }
+
+        return start && end && promotion;
     }
     @Override
     public int hashCode() {
-        return 71 * (13 * startPosition.hashCode() +  23 * endPosition.hashCode() + (promotionPiece == null ? 0 : 41 * promotionPiece.hashCode()));
+        return 71 * (13 * startPosition.hashCode() +  23 * endPosition.hashCode() + 53 * (promotionPiece == null ? 47 : promotionPiece.hashCode()));
     }
 }
