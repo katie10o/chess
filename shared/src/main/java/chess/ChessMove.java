@@ -64,11 +64,10 @@ public class ChessMove {
         else if (promotionPiece != null && promotionPiece.equals(that.promotionPiece)) {
             promotion = true;
         }
-
         return start && end && promotion;
     }
     @Override
     public int hashCode() {
-        return 71 * (13 * startPosition.hashCode() +  23 * endPosition.hashCode() + 53 * (promotionPiece == null ? 47 : promotionPiece.hashCode()));
+        return 71 *  startPosition.hashCode() +  endPosition.hashCode() + (promotionPiece == null ? 47 : promotionPiece.hashCode());
     }
 }

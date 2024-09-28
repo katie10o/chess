@@ -7,8 +7,8 @@ package chess;
  * signature of the existing methods.
  */
 public class ChessPosition {
-    private int row;
-    private int column;
+    private final int row;
+    private final int column;
 
     public ChessPosition(int row, int col) {
         this.row = row;
@@ -45,7 +45,7 @@ public class ChessPosition {
 
     @Override
     public int hashCode() {
-        return 71 * (59 * row +  29 * column);
+        return 71 *  row +  column;
 
     }
 

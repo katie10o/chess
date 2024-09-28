@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 public class TypeOfMoves {
-    private static HashMap<ChessPiece.PieceType, ArrayList<moves>> pieceWithMoves = new HashMap<>();
-
+    private static final HashMap<ChessPiece.PieceType, ArrayList<moves>> pieceWithMoves;
     static {
         pieceWithMoves = new HashMap<>()  {{
             put(ChessPiece.PieceType.KING, new ArrayList<>(Arrays.asList(
@@ -106,4 +105,5 @@ public class TypeOfMoves {
     public static ArrayList<moves> getPieceWithMoves(ChessPiece.PieceType type) {
         return pieceWithMoves.get(type);
     }
+
 }

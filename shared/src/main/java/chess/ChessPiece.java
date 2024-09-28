@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -55,43 +54,14 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        switch (this.type) {
-            case BISHOP:
-                BishopMovesCalc bishop = new BishopMovesCalc();
-                bishop.PieceMoves(board, myPosition);
-                bishop.validateMoves();
-                return bishop.getPossibleMoves();
-            case KNIGHT:
-                KnightMovesCalc knight = new KnightMovesCalc();
-                knight.PieceMoves(board, myPosition);
-                knight.validateMoves();
-                return knight.getPossibleMoves();
-            case QUEEN:
-                QueenMovesCalc queen = new QueenMovesCalc();
-                queen.PieceMoves(board, myPosition);
-                queen.validateMoves();
-                return queen.getPossibleMoves();
-            case ROOK:
-                RookMovesCalc rook = new RookMovesCalc();
-                rook.PieceMoves(board, myPosition);
-                rook.validateMoves();
-                return rook.getPossibleMoves();
-            case PAWN:
-                PawnMovesCalc pawn = new PawnMovesCalc();
-                pawn.PieceMoves(board, myPosition);
-                pawn.validateMoves();
-                return pawn.getPossibleMoves();
-            case KING:
-                KingMovesCalc king = new KingMovesCalc();
-                king.PieceMoves(board, myPosition);
-                king.validateMoves();
-                return king.getPossibleMoves();
-
-            default:
-                System.out.println("Chess Piece class, switch case default");
-                return new ArrayList<>();
-
-        }
+        return switch (this.type) {
+            case BISHOP -> new BishopMovesCalc(board, myPosition).getPossibleMoves();
+            case KNIGHT -> new KnightMovesCalc(board,myPosition).getPossibleMoves();
+            case QUEEN -> new QueenMovesCalc(board,myPosition).getPossibleMoves();
+            case ROOK -> new RookMovesCalc(board,myPosition).getPossibleMoves();
+            case PAWN -> new PawnMovesCalc(board,myPosition).getPossibleMoves();
+            case KING -> new KingMovesCalc(board,myPosition).getPossibleMoves();
+        };
     }
     public String toString() {
         if (this.pieceColor == ChessGame.TeamColor.BLACK) {

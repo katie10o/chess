@@ -4,18 +4,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class KingMovesCalc implements PieceMoveCalc {
-    private ChessBoard board;
-    private ChessPosition position;
-    private ArrayList<ChessMove> moves;
-    private ChessPiece piece;
+    private final ChessBoard board;
+    private final ChessPosition position;
+    private final ArrayList<ChessMove> moves;
+    private final ChessPiece piece;
 
 
-    @Override
-    public void PieceMoves(ChessBoard board, ChessPosition position) {
+    public KingMovesCalc(ChessBoard board, ChessPosition position) {
         this.board = board;
         this.position = position;
         moves = new ArrayList<>();
         piece = board.getPiece(position);
+        validateMoves();
 
     }
 
