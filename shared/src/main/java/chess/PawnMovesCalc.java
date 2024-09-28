@@ -2,8 +2,9 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
-public class PawnMovesCalc implements PieceMoveCalc {
+public class PawnMovesCalc extends PieceMoveCalc {
     private final ChessBoard board;
     private final ChessPiece piece;
     private final ChessPosition position;
@@ -55,7 +56,7 @@ public class PawnMovesCalc implements PieceMoveCalc {
 
     @Override
     public void validateMoves() {
-        ArrayList<TypeOfMoves.moves> possibleMoves = TypeOfMoves.getPieceWithMoves(ChessPiece.PieceType.PAWN);
+        List<TypeOfMoves.moves> possibleMoves = TypeOfMoves.getPieceWithMoves(ChessPiece.PieceType.PAWN);
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
             possibleMoves = new ArrayList<>(possibleMoves.subList(0,3));
         } else if (piece.getTeamColor() == ChessGame.TeamColor.BLACK){

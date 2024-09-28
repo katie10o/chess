@@ -134,7 +134,7 @@ public class ChessBoard {
                     boardString.append("      |");
                 }
                 else {
-                    boardString.append(String.format("%s|", piece.toString()));
+                    boardString.append(String.format("%s|", piece));
                 }
             }
                 boardString.append("\n");

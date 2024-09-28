@@ -1,14 +1,10 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 public class TypeOfMoves {
-    private static final HashMap<ChessPiece.PieceType, ArrayList<moves>> pieceWithMoves;
-    static {
-        pieceWithMoves = new HashMap<>()  {{
-            put(ChessPiece.PieceType.KING, new ArrayList<>(Arrays.asList(
+    private static final Map<ChessPiece.PieceType, List<moves>> pieceWithMoves = Map.of(
+            ChessPiece.PieceType.KING, Arrays.asList(
                     moves.UP,
                     moves.DOWN,
                     moves.LEFT,
@@ -17,8 +13,8 @@ public class TypeOfMoves {
                     moves.DIAGONAL_LEFT_DOWN,
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_RIGHT_DOWN
-            )));
-            put(ChessPiece.PieceType.QUEEN, new ArrayList<>(Arrays.asList(
+            ),
+            ChessPiece.PieceType.QUEEN, Arrays.asList(
                     moves.UP,
                     moves.DOWN,
                     moves.LEFT,
@@ -27,8 +23,8 @@ public class TypeOfMoves {
                     moves.DIAGONAL_LEFT_DOWN,
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_RIGHT_DOWN
-            )));
-            put(ChessPiece.PieceType.KNIGHT, new ArrayList<>(Arrays.asList(
+            ),
+            ChessPiece.PieceType.KNIGHT, Arrays.asList(
                     moves.UP_TWO_RIGHT_ONE,
                     moves.UP_TWO_LEFT_ONE,
                     moves.DOWN_TWO_RIGHT_ONE,
@@ -37,30 +33,28 @@ public class TypeOfMoves {
                     moves.UP_ONE_LEFT_TWO,
                     moves.DOWN_ONE_RIGHT_TWO,
                     moves.DOWN_ONE_LEFT_TWO
-            )));
-            put(ChessPiece.PieceType.BISHOP, new ArrayList<>(Arrays.asList(
+            ),
+            ChessPiece.PieceType.BISHOP, Arrays.asList(
                     moves.DIAGONAL_LEFT_UP,
                     moves.DIAGONAL_LEFT_DOWN,
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_RIGHT_DOWN
-            )));
-            put(ChessPiece.PieceType.ROOK, new ArrayList<>(Arrays.asList(
+            ),
+            ChessPiece.PieceType.ROOK, Arrays.asList(
                     moves.UP,
                     moves.DOWN,
                     moves.LEFT,
                     moves.RIGHT
-            )));
-            put(ChessPiece.PieceType.PAWN, new ArrayList<>(Arrays.asList(
+            ),
+            ChessPiece.PieceType.PAWN, Arrays.asList(
                     moves.UP,
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_LEFT_UP,
                     moves.DOWN,
                     moves.DIAGONAL_LEFT_DOWN,
                     moves.DIAGONAL_RIGHT_DOWN
-            )));
-        }};
-
-    }
+            )
+            );
 
     public enum moves {
         UP,
@@ -102,7 +96,7 @@ public class TypeOfMoves {
         }
     }
 
-    public static ArrayList<moves> getPieceWithMoves(ChessPiece.PieceType type) {
+    public static List<moves> getPieceWithMoves(ChessPiece.PieceType type) {
         return pieceWithMoves.get(type);
     }
 
