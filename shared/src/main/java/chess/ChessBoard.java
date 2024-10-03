@@ -10,6 +10,7 @@ import java.util.*;
  */
 public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[9][9];
+    private HashMap<ChessPiece, ChessPosition> kingLocations = new HashMap<>();
     private final HashMap<ChessPiece, ArrayList<ChessPosition>> startingPositions = new HashMap<>() {{
             put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING)), new ArrayList<>(List.of(
                     new ChessPosition(1, 5)
@@ -84,6 +85,9 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
+        if (piece.getPieceType() == ChessPiece.PieceType.KING){
+            kingLocations.put(piece, position);
+        }
         board[position.getRow()][position.getColumn()] = piece;
     }
 
@@ -108,6 +112,16 @@ public class ChessBoard {
         int column = position.getColumn();
         return row >= 1 && row < 9 && column >= 1 && column < 9;
     }
+    public ChessPosition getKingPosition(ChessGame.TeamColor color){
+        for (Map.Entry<ChessPiece, ChessPosition> entry : kingLocations.entrySet()){
+            ChessPiece piece = entry.getKey();
+            ChessPosition pos = entry.getValue();
+            if (piece.getTeamColor() == color){
+                return pos;
+            }
+        }
+        return null;
+    }
 
     /**
      * Sets the board to the default starting board
@@ -124,6 +138,8 @@ public class ChessBoard {
         }
     }
 
+
+
     @Override
     public String toString() {
         StringBuilder boardString = new StringBuilder();
@@ -131,7 +147,7 @@ public class ChessBoard {
             boardString.append("|");
             for (ChessPiece piece : row) {
                 if (piece == null) {
-                    boardString.append("      |");
+                    boardString.append(" |");
                 }
                 else {
                     boardString.append(String.format("%s|", piece));

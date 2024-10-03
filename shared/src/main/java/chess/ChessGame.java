@@ -1,6 +1,11 @@
 package chess;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.*;
+
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -9,14 +14,13 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private Boolean check;
-    private Boolean checkMate;
-    private Boolean staleMate;
+    private Boolean check = false;
+    private Boolean checkMate = false;
+    private Boolean staleMate = false;
+    private ChessBoard board = null;
+    private ArrayList<ChessPosition> dangerPositions = new ArrayList<>();
 
     public ChessGame() {
-        this.check = false;
-        this.checkMate = false;
-        this.staleMate = false;
 
     }
 
@@ -45,6 +49,43 @@ public class ChessGame {
         WHITE,
         BLACK
     }
+    
+    
+
+
+    private ArrayList<ChessPosition> kingSafety(ChessPiece currPiece){
+        ChessPosition kingPos = board.getKingPosition(currPiece.getTeamColor());
+        AttackMoves attackMoves = new AttackMoves();
+
+        Map<ChessPiece.PieceType, Collection<ChessMove>> typesAndPossibleMoves = Map.of(
+                ChessPiece.PieceType.KNIGHT, new KnightMovesCalc(board, kingPos).getPossibleMoves(),
+                ChessPiece.PieceType.PAWN, new PawnMovesCalc(board, kingPos).getPossibleMoves(),
+                ChessPiece.PieceType.BISHOP, new BishopMovesCalc(board, kingPos).getPossibleMoves(),
+                ChessPiece.PieceType.QUEEN, new QueenMovesCalc(board, kingPos).getPossibleMoves(),
+                ChessPiece.PieceType.ROOK, new RookMovesCalc(board, kingPos).getPossibleMoves()
+                );
+
+        for (Map.Entry<ChessPiece.PieceType, Collection<ChessMove>> entry : typesAndPossibleMoves.entrySet()){
+            ChessPiece.PieceType type = entry.getKey();
+            Collection<ChessMove> moves = entry.getValue();
+            for (ChessMove move : moves){
+                ChessPiece new_piece = board.getPiece(move.getEndPosition());
+                if (new_piece != null && new_piece.getPieceType() == type){
+                    if (type == ChessPiece.PieceType.KNIGHT){
+                        attackMoves.knightAttach(move.getEndPosition(), kingPos);
+                    }
+                   else {
+                       attackMoves.validAttackMoves(type, kingPos, move.getEndPosition());
+                    }
+                }
+            }
+        }
+
+        
+        ArrayList<ChessPosition> temp = (ArrayList<ChessPosition>) dangerPositions.clone();
+        dangerPositions.clear();
+        return temp;
+    }
 
     /**
      * Gets a valid moves for a piece at the given location
@@ -53,8 +94,26 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
+
+
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+        ArrayList<ChessPosition> dangerPositions = kingSafety(piece);
+
+        ArrayList<ChessMove> tempList = new ArrayList<>();
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+
+        for (ChessMove move : possibleMoves){
+            ChessPosition new_position = move.getEndPosition();
+            if (dangerPositions.isEmpty()){
+                tempList.add(move);
+            }
+            else if (dangerPositions.contains(new_position)){
+                tempList.add(move);
+            }
+        }
+
+        return tempList;
     }
 
     /**
@@ -106,8 +165,8 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-
-        throw new RuntimeException("Not implemented");
+        this.board = board;
+        System.out.println(board.toString());
     }
 
     /**

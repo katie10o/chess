@@ -64,12 +64,20 @@ public class ChessPiece {
         };
     }
     public String toString() {
+        char result;
         if (this.pieceColor == ChessGame.TeamColor.BLACK) {
-            return this.type.toString().toLowerCase();
+            if (this.type == PieceType.KNIGHT){
+                return "n";
+            }
+            result = this.type.toString().toLowerCase().charAt(0);
         }
         else  {
-            return this.type.toString().toUpperCase();
+            if (this.type == PieceType.KNIGHT){
+                return "N";
+            }
+            result = this.type.toString().toUpperCase().charAt(0);
         }
+        return Character.toString(result);
     }
 
     @Override
