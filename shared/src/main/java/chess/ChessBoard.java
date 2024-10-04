@@ -85,10 +85,13 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (piece.getPieceType() == ChessPiece.PieceType.KING){
+        if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING){
             kingLocations.put(piece, position);
         }
         board[position.getRow()][position.getColumn()] = piece;
+    }
+    public void removePiece(ChessPosition position){
+        board[position.getRow()][position.getColumn()] = null;
     }
 
     /**
@@ -143,9 +146,10 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder boardString = new StringBuilder();
-        for (ChessPiece[] row : board) {
+        for (int i = board.length -1; i >= 0; i--){
             boardString.append("|");
-            for (ChessPiece piece : row) {
+            for (int j = 0; j <= board[i].length -1; j++) {
+                ChessPiece piece = board[i][j];
                 if (piece == null) {
                     boardString.append(" |");
                 }

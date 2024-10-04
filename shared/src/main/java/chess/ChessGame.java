@@ -3,8 +3,6 @@ package chess;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.*;
 
 
 /**
@@ -18,7 +16,6 @@ public class ChessGame {
     private Boolean checkMate = false;
     private Boolean staleMate = false;
     private ChessBoard board = null;
-    private ArrayList<ChessPosition> dangerPositions = new ArrayList<>();
 
     public ChessGame() {
 
@@ -49,43 +46,7 @@ public class ChessGame {
         WHITE,
         BLACK
     }
-    
-    
 
-
-    private ArrayList<ChessPosition> kingSafety(ChessPiece currPiece){
-        ChessPosition kingPos = board.getKingPosition(currPiece.getTeamColor());
-        AttackMoves attackMoves = new AttackMoves();
-
-        Map<ChessPiece.PieceType, Collection<ChessMove>> typesAndPossibleMoves = Map.of(
-                ChessPiece.PieceType.KNIGHT, new KnightMovesCalc(board, kingPos).getPossibleMoves(),
-                ChessPiece.PieceType.PAWN, new PawnMovesCalc(board, kingPos).getPossibleMoves(),
-                ChessPiece.PieceType.BISHOP, new BishopMovesCalc(board, kingPos).getPossibleMoves(),
-                ChessPiece.PieceType.QUEEN, new QueenMovesCalc(board, kingPos).getPossibleMoves(),
-                ChessPiece.PieceType.ROOK, new RookMovesCalc(board, kingPos).getPossibleMoves()
-                );
-
-        for (Map.Entry<ChessPiece.PieceType, Collection<ChessMove>> entry : typesAndPossibleMoves.entrySet()){
-            ChessPiece.PieceType type = entry.getKey();
-            Collection<ChessMove> moves = entry.getValue();
-            for (ChessMove move : moves){
-                ChessPiece new_piece = board.getPiece(move.getEndPosition());
-                if (new_piece != null && new_piece.getPieceType() == type){
-                    if (type == ChessPiece.PieceType.KNIGHT){
-                        attackMoves.knightAttach(move.getEndPosition(), kingPos);
-                    }
-                   else {
-                       attackMoves.validAttackMoves(type, kingPos, move.getEndPosition());
-                    }
-                }
-            }
-        }
-
-        
-        ArrayList<ChessPosition> temp = (ArrayList<ChessPosition>) dangerPositions.clone();
-        dangerPositions.clear();
-        return temp;
-    }
 
     /**
      * Gets a valid moves for a piece at the given location
@@ -96,24 +57,35 @@ public class ChessGame {
      */
 
 
+
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
-        ArrayList<ChessPosition> dangerPositions = kingSafety(piece);
-
-        ArrayList<ChessMove> tempList = new ArrayList<>();
+        ChessGame.TeamColor color = piece.getTeamColor();
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
+//        possibleMoves.add(new ChessMove(startPosition, startPosition, null));
+
+
+        SafetyChecker safetyChecker;
+
+        ArrayList<ChessMove> safeMoves = new ArrayList<>();
 
         for (ChessMove move : possibleMoves){
-            ChessPosition new_position = move.getEndPosition();
-            if (dangerPositions.isEmpty()){
-                tempList.add(move);
+            ChessPiece removedPiece = board.getPiece(move.getEndPosition());
+            board.addPiece(move.getEndPosition(), piece);
+            board.removePiece(move.getStartPosition());
+//            System.out.println(board.toString());
+            ChessPosition kingPos = board.getKingPosition(piece.getTeamColor());
+            safetyChecker = new SafetyChecker(board, kingPos, color);
+            safetyChecker.dangerChecker();
+            boolean kingStatus = safetyChecker.kingCheck();
+            if (kingStatus){
+                safeMoves.add(move);
             }
-            else if (dangerPositions.contains(new_position)){
-                tempList.add(move);
-            }
+            board.addPiece(move.getEndPosition(), removedPiece);
         }
-
-        return tempList;
+        board.addPiece(startPosition, piece);
+//        System.out.println(board.toString());
+        return safeMoves;
     }
 
     /**
@@ -123,8 +95,14 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        Collection<ChessMove> dangerMoves = validMoves(move.getStartPosition());
+        if (!dangerMoves.isEmpty() && !dangerMoves.contains(move.getEndPosition())){
+            throw new InvalidMoveException("something wrong in makeMove");
+        }
+
+        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
     }
+
 
     /**
      * Determines if the given team is in check
@@ -166,7 +144,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        System.out.println(board.toString());
     }
 
     /**
@@ -175,7 +152,6 @@ public class ChessGame {
      * @return the chessboard
      */
     public ChessBoard getBoard() {
-
-        throw new RuntimeException("Not implemented");
+        return board;
     }
 }
