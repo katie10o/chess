@@ -4,7 +4,7 @@ import java.util.*;
 
 public class TypeOfMoves {
     private static final Map<ChessPiece.PieceType, List<moves>> pieceWithMoves = Map.of(
-            ChessPiece.PieceType.KING, Arrays.asList(
+            ChessPiece.PieceType.KING, List.of(
                     moves.UP,
                     moves.DOWN,
                     moves.LEFT,
@@ -14,7 +14,7 @@ public class TypeOfMoves {
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_RIGHT_DOWN
             ),
-            ChessPiece.PieceType.QUEEN, Arrays.asList(
+            ChessPiece.PieceType.QUEEN,  List.of(
                     moves.UP,
                     moves.DOWN,
                     moves.LEFT,
@@ -24,7 +24,7 @@ public class TypeOfMoves {
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_RIGHT_DOWN
             ),
-            ChessPiece.PieceType.KNIGHT, Arrays.asList(
+            ChessPiece.PieceType.KNIGHT,  List.of(
                     moves.UP_TWO_RIGHT_ONE,
                     moves.UP_TWO_LEFT_ONE,
                     moves.DOWN_TWO_RIGHT_ONE,
@@ -34,19 +34,19 @@ public class TypeOfMoves {
                     moves.DOWN_ONE_RIGHT_TWO,
                     moves.DOWN_ONE_LEFT_TWO
             ),
-            ChessPiece.PieceType.BISHOP, Arrays.asList(
+            ChessPiece.PieceType.BISHOP,  List.of(
                     moves.DIAGONAL_LEFT_UP,
                     moves.DIAGONAL_LEFT_DOWN,
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_RIGHT_DOWN
             ),
-            ChessPiece.PieceType.ROOK, Arrays.asList(
+            ChessPiece.PieceType.ROOK,  List.of(
                     moves.UP,
                     moves.DOWN,
                     moves.LEFT,
                     moves.RIGHT
             ),
-            ChessPiece.PieceType.PAWN, Arrays.asList(
+            ChessPiece.PieceType.PAWN,  List.of(
                     moves.UP,
                     moves.DIAGONAL_RIGHT_UP,
                     moves.DIAGONAL_LEFT_UP,

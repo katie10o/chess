@@ -2,6 +2,8 @@ package chess;
 
 import java.util.*;
 
+import static java.util.Map.entry;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
@@ -10,45 +12,46 @@ import java.util.*;
  */
 public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[9][9];
-    private HashMap<ChessPiece, ChessPosition> kingLocations = new HashMap<>();
-    private final HashMap<ChessPiece, ArrayList<ChessPosition>> startingPositions = new HashMap<>() {{
-            put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING)), new ArrayList<>(List.of(
+    private HashMap<ChessGame.TeamColor, HashMap<ChessPiece.PieceType, ArrayList<ChessPosition>>> piecesOnBoard = new HashMap<>();
+
+    private static final Map<ChessPiece, List<ChessPosition>> startingPositions = Map.ofEntries(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING), List.of(
                     new ChessPosition(1, 5)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING), List.of(
                     new ChessPosition(8, 5)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN), List.of(
                     new ChessPosition(1, 4)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN), List.of(
                     new ChessPosition(8, 4)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP), List.of(
                     new ChessPosition(1, 3),
                     new ChessPosition(1, 6)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP), List.of(
                     new ChessPosition(8, 3),
                     new ChessPosition(8, 6)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT), List.of(
                     new ChessPosition(1, 2),
                     new ChessPosition(1, 7)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT), List.of(
                     new ChessPosition(8, 2),
                     new ChessPosition(8, 7)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK), List.of(
                     new ChessPosition(1, 1),
                     new ChessPosition(1, 8)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK), List.of(
                     new ChessPosition(8, 1),
                     new ChessPosition(8, 8)
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN), List.of(
                     new ChessPosition(2, 1),
                     new ChessPosition(2, 2),
                     new ChessPosition(2, 3),
@@ -57,9 +60,8 @@ public class ChessBoard {
                     new ChessPosition(2, 6),
                     new ChessPosition(2, 7),
                     new ChessPosition(2, 8)
-
-            )));
-            put((new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN)), new ArrayList<>(List.of(
+            )),
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN), List.of(
                     new ChessPosition(7, 1),
                     new ChessPosition(7, 2),
                     new ChessPosition(7, 3),
@@ -68,14 +70,27 @@ public class ChessBoard {
                     new ChessPosition(7, 6),
                     new ChessPosition(7, 7),
                     new ChessPosition(7, 8)
-            )));
-
-
-        }};
+            ))
+    );
 
 
     public ChessBoard() {
-        
+        piecesOnBoard.put(ChessGame.TeamColor.BLACK, new HashMap<>());
+        piecesOnBoard.put(ChessGame.TeamColor.WHITE, new HashMap<>());
+
+        piecesOnBoard.get(ChessGame.TeamColor.BLACK).put(ChessPiece.PieceType.KING, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.WHITE).put(ChessPiece.PieceType.KING, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.BLACK).put(ChessPiece.PieceType.QUEEN, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.WHITE).put(ChessPiece.PieceType.QUEEN, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.BLACK).put(ChessPiece.PieceType.BISHOP, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.WHITE).put(ChessPiece.PieceType.BISHOP, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.BLACK).put(ChessPiece.PieceType.ROOK, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.WHITE).put(ChessPiece.PieceType.ROOK, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.BLACK).put(ChessPiece.PieceType.KNIGHT, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.WHITE).put(ChessPiece.PieceType.KNIGHT, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.BLACK).put(ChessPiece.PieceType.PAWN, new ArrayList<>());
+        piecesOnBoard.get(ChessGame.TeamColor.WHITE).put(ChessPiece.PieceType.PAWN, new ArrayList<>());
+
     }
 
     /**
@@ -85,12 +100,19 @@ public class ChessBoard {
      * @param piece    the piece to add
      */
     public void addPiece(ChessPosition position, ChessPiece piece) {
-        if (piece != null && piece.getPieceType() == ChessPiece.PieceType.KING){
-            kingLocations.put(piece, position);
+        if (piece != null){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            ChessPiece.PieceType type = piece.getPieceType();
+            piecesOnBoard.get(color).get(type).add(position);
         }
         board[position.getRow()][position.getColumn()] = piece;
     }
-    public void removePiece(ChessPosition position){
+    public void removePiece(ChessPosition position, ChessPiece piece){
+        if (piece != null){
+            ChessGame.TeamColor color = piece.getTeamColor();
+            ChessPiece.PieceType type = piece.getPieceType();
+            piecesOnBoard.get(color).get(type).remove(position);
+        }
         board[position.getRow()][position.getColumn()] = null;
     }
 
@@ -116,14 +138,11 @@ public class ChessBoard {
         return row >= 1 && row < 9 && column >= 1 && column < 9;
     }
     public ChessPosition getKingPosition(ChessGame.TeamColor color){
-        for (Map.Entry<ChessPiece, ChessPosition> entry : kingLocations.entrySet()){
-            ChessPiece piece = entry.getKey();
-            ChessPosition pos = entry.getValue();
-            if (piece.getTeamColor() == color){
-                return pos;
-            }
+        try{
+            return piecesOnBoard.get(color).get(ChessPiece.PieceType.KING).getFirst();
+        } catch (Exception e){
+            return null;
         }
-        return null;
     }
 
     /**
@@ -132,9 +151,9 @@ public class ChessBoard {
      */
     public void resetBoard() {
         board = new ChessPiece[9][9];
-        for (Map.Entry<ChessPiece, ArrayList<ChessPosition>> entry : startingPositions.entrySet() ){
+        for (Map.Entry<ChessPiece, List<ChessPosition>> entry : startingPositions.entrySet() ){
             ChessPiece piece = entry.getKey();
-            ArrayList<ChessPosition> positions = entry.getValue();
+            List<ChessPosition> positions = entry.getValue();
             for (ChessPosition position : positions) {
                 addPiece(position, piece);
             }

@@ -23,7 +23,9 @@ abstract class PieceMoveCalc {
             for (TypeOfMoves.moves move : possibleMoves) {
                 ChessPosition new_position = move.movePositions(currPosition);
                 if (board.insideBoard(new_position)){
-                    if (nullPiece(board, new_position) || notNullPiece(board, currPosition, new_position )){
+                    if (nullPiece(board, new_position)){
+                        moves.add(new ChessMove(currPosition, new_position, null ));
+                    } else if (notNullPiece(board, currPosition, new_position)){
                         moves.add(new ChessMove(currPosition, new_position, null ));
                     }
                 }
