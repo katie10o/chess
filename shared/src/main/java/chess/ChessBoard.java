@@ -115,6 +115,9 @@ public class ChessBoard {
         }
         board[position.getRow()][position.getColumn()] = null;
     }
+    public HashMap<ChessPiece.PieceType, ArrayList<ChessPosition>> getTeamPieces(ChessGame.TeamColor color){
+        return piecesOnBoard.get(color);
+    }
 
     /**
      * Gets a chess piece on the chessboard

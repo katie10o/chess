@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -18,7 +15,6 @@ public class ChessGame {
     private Map<ChessGame.TeamColor, Boolean> staleMate = new HashMap<>();
     private ChessBoard board;
     private ChessGame.TeamColor teamTurn;
-    private boolean kingSafe = true;
 
     public ChessGame() {
         board = new ChessBoard();
@@ -57,29 +53,14 @@ public class ChessGame {
         WHITE,
         BLACK
     }
-    private void checkKingStatus(ChessGame.TeamColor color){
+    private boolean checkKingStatus(ChessGame.TeamColor color){
         if (board.getKingPosition(color) == null){
-            return;
+            return true;
         }
-        System.out.println(board.toString());
 
         ChessPosition kingPos = board.getKingPosition(color);
         SafetyChecker safetyChecker = new SafetyChecker(board, color);
-        kingSafe = safetyChecker.dangerChecker(kingPos);
-
-
-
-//        Collection<ChessMove> kingValidMoves = validMoves(board.getKingPosition(color));
-//
-//        if (kingValidMoves.isEmpty() && !kingStatus){
-//            checkMate.get(color);
-//        }
-//        else if (kingValidMoves.isEmpty()){
-//            staleMate.get(color);
-//        }
-//        else if (!kingStatus){
-//            check.get(color);
-//        }
+        return safetyChecker.dangerChecker(kingPos);
 
     }
 
@@ -97,6 +78,7 @@ public class ChessGame {
         ChessGame.TeamColor color = piece.getTeamColor();
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
 
+
         ArrayList<ChessMove> safeMoves = new ArrayList<>();
 
         for (ChessMove move : possibleMoves){
@@ -108,10 +90,9 @@ public class ChessGame {
             board.removePiece(future, pieceToRemove);
 
             board.addPiece(future, piece);
-            System.out.println(board.toString());
+//            System.out.println(board.toString());
 
-            checkKingStatus(color);
-            if (kingSafe){
+            if (checkKingStatus(color)){
                 safeMoves.add(move);
             }
             board.removePiece(future, piece);
@@ -180,6 +161,11 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        boolean kingSafe = checkKingStatus(teamColor);
+        if (kingSafe){
+            return check.get(teamColor);
+        }
+        runChecks(teamColor);
         return check.get(teamColor);
     }
 
@@ -190,8 +176,12 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
+        boolean kingSafe = checkKingStatus(teamColor);
+        if (kingSafe){
+            return checkMate.get(teamColor);
+        }
+        runChecks(teamColor);
         return checkMate.get(teamColor);
-
     }
 
     /**
@@ -202,6 +192,12 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
+        ChessBoard startingBoard = new ChessBoard();
+        startingBoard.resetBoard();
+        if (board.equals(startingBoard)){
+            return staleMate.get(teamColor);
+        }
+        runChecks(teamColor);
         return staleMate.get(teamColor);
 
     }
@@ -213,8 +209,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        checkKingStatus(TeamColor.WHITE);
-        checkKingStatus(TeamColor.BLACK);
+//        checkKingStatus(TeamColor.WHITE);
+//        checkKingStatus(TeamColor.BLACK);
     }
 
     /**
@@ -224,6 +220,33 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    private void runChecks(ChessGame.TeamColor teamColor){
+        boolean kingSafe = checkKingStatus(teamColor);
+        ArrayList<ChessMove> allValidMoves = new ArrayList<>();
+        ArrayList<ChessPosition> startingPositions = new ArrayList<>();
+        HashMap<ChessPiece.PieceType, ArrayList<ChessPosition>> allPieces = board.getTeamPieces(teamColor);
+        for (Map.Entry<ChessPiece.PieceType, ArrayList<ChessPosition>> entry : allPieces.entrySet()){
+            ArrayList<ChessPosition> positions = entry.getValue();
+            startingPositions.addAll(positions);
+        }
+
+        for (ChessPosition pos : startingPositions){
+            Collection<ChessMove> positionValidMoves = validMoves(pos);
+            allValidMoves.addAll(positionValidMoves);
+        }
+
+        if (allValidMoves.isEmpty() && !kingSafe){
+            checkMate.put(teamColor, true);
+        }
+        if (!allValidMoves.isEmpty() && !kingSafe){
+            check.put(teamColor, true);
+        }
+        if (allValidMoves.isEmpty() && kingSafe){
+            staleMate.put(teamColor, true);
+        }
+
     }
 
 
