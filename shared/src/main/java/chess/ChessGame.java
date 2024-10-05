@@ -1,7 +1,6 @@
 package chess;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 
@@ -16,17 +15,19 @@ public class ChessGame {
     private Boolean checkMate = false;
     private Boolean staleMate = false;
     private ChessBoard board = null;
+    private ChessGame.TeamColor teamTurn;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        board.resetBoard();
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
+        return teamTurn;
 
-        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -35,8 +36,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-
-        throw new RuntimeException("Not implemented");
+        this.teamTurn = team;
     }
 
     /**
@@ -75,6 +75,10 @@ public class ChessGame {
             board.removePiece(move.getStartPosition());
 //            System.out.println(board.toString());
             ChessPosition kingPos = board.getKingPosition(piece.getTeamColor());
+            if (kingPos == null){
+                safeMoves.add(move);
+                continue;
+            }
             safetyChecker = new SafetyChecker(board, kingPos, color);
             safetyChecker.dangerChecker();
             boolean kingStatus = safetyChecker.kingCheck();
@@ -95,12 +99,44 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        Collection<ChessMove> dangerMoves = validMoves(move.getStartPosition());
-        if (!dangerMoves.isEmpty() && !dangerMoves.contains(move.getEndPosition())){
-            throw new InvalidMoveException("something wrong in makeMove");
+        if (board.getPiece(move.getStartPosition()) == null){
+            throw new InvalidMoveException("cannot move null piece");
         }
 
-        board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+        Collection<ChessMove> safeMoves = validMoves(move.getStartPosition());
+        ChessGame.TeamColor currColor = board.getPiece(move.getStartPosition()).getTeamColor();
+
+        if (!board.insideBoard(move.getEndPosition())){
+            throw new InvalidMoveException("Move outside of chess board");
+        }
+        else if (!safeMoves.isEmpty() && !safeMoves.contains(move)){
+            throw new InvalidMoveException("Cannot make move, puts king in danger");
+        }
+        else if (safeMoves.isEmpty()){
+            throw new InvalidMoveException("No save moves available");
+        }
+        else if (this.teamTurn != currColor){
+            throw new InvalidMoveException("Not teams color");
+        }
+
+        if (move.getPromotionPiece() != null){
+            ChessPiece promo = new ChessPiece(currColor, move.getPromotionPiece());
+            board.addPiece(move.getEndPosition(), promo);
+            board.removePiece(move.getStartPosition());
+            if (currColor == TeamColor.WHITE){
+                setTeamTurn(TeamColor.BLACK);
+            }
+        }
+        else {
+            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
+            board.removePiece(move.getStartPosition());
+        }
+        if (currColor == TeamColor.WHITE){
+            setTeamTurn(TeamColor.BLACK);
+        }
+        else{
+            setTeamTurn(TeamColor.WHITE);
+        }
     }
 
 

@@ -110,7 +110,7 @@ public class ChessBoard {
      * @param position a new position that a chess piece could go
      * @return bool to see if that new position will be out of the chess board
      */
-    public boolean extendsBoard(ChessPosition position) {
+    public boolean insideBoard(ChessPosition position) {
         int row = position.getRow();
         int column = position.getColumn();
         return row >= 1 && row < 9 && column >= 1 && column < 9;
@@ -146,9 +146,9 @@ public class ChessBoard {
     @Override
     public String toString() {
         StringBuilder boardString = new StringBuilder();
-        for (int i = board.length -1; i >= 0; i--){
+        for (int i = board.length -1; i >= 1; i--){
             boardString.append("|");
-            for (int j = 0; j <= board[i].length -1; j++) {
+            for (int j = 1; j <= board[i].length -1; j++) {
                 ChessPiece piece = board[i][j];
                 if (piece == null) {
                     boardString.append(" |");

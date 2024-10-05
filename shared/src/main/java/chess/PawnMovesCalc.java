@@ -64,7 +64,7 @@ public class PawnMovesCalc extends PieceMoveCalc {
 
         for (TypeOfMoves.moves move : possibleMoves) {
             ChessPosition new_position = move.movePositions(position);
-            if (board.extendsBoard(new_position)){
+            if (board.insideBoard(new_position)){
                 if (piece.getTeamColor() == ChessGame.TeamColor.WHITE){
                     validateHelper(move, TypeOfMoves.moves.UP, new_position, 2, 8);
                 }

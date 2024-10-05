@@ -16,7 +16,7 @@ public class SafetyChecker {
     }
 
     private boolean pawnCheck(ChessPosition pawn){
-        if ( !board.extendsBoard(pawn) || board.getPiece(pawn) == null){
+        if ( !board.insideBoard(pawn) || board.getPiece(pawn) == null){
             return false;
         }
 

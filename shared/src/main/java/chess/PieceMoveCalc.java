@@ -22,7 +22,7 @@ abstract class PieceMoveCalc {
         if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT){
             for (TypeOfMoves.moves move : possibleMoves) {
                 ChessPosition new_position = move.movePositions(currPosition);
-                if (board.extendsBoard(new_position)){
+                if (board.insideBoard(new_position)){
                     if (nullPiece(board, new_position) || notNullPiece(board, currPosition, new_position )){
                         moves.add(new ChessMove(currPosition, new_position, null ));
                     }
@@ -33,7 +33,7 @@ abstract class PieceMoveCalc {
         else {
             for (TypeOfMoves.moves move : possibleMoves) {
                 ChessPosition new_position = move.movePositions(currPosition);
-                while (board.extendsBoard(new_position)) {
+                while (board.insideBoard(new_position)) {
                     if (nullPiece(board, new_position)){
                         moves.add(new ChessMove(currPosition, new_position, null));
                     }
