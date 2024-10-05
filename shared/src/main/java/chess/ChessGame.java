@@ -110,12 +110,17 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        if (board.getPiece(move.getStartPosition()) == null){
+        ChessPiece myPiece = board.getPiece(move.getStartPosition());
+        ChessPiece enemyPiece = board.getPiece(move.getEndPosition());
+
+
+        if (myPiece == null){
             throw new InvalidMoveException("cannot move null piece");
         }
 
         Collection<ChessMove> safeMoves = validMoves(move.getStartPosition());
         ChessGame.TeamColor currColor = board.getPiece(move.getStartPosition()).getTeamColor();
+
 
         if (!board.insideBoard(move.getEndPosition())){
             throw new InvalidMoveException("Move outside of chess board");
@@ -132,15 +137,22 @@ public class ChessGame {
 
         if (move.getPromotionPiece() != null){
             ChessPiece promo = new ChessPiece(currColor, move.getPromotionPiece());
+
+            board.removePiece(move.getStartPosition(), myPiece);
+            board.removePiece(move.getEndPosition(), enemyPiece);
             board.addPiece(move.getEndPosition(), promo);
-            board.removePiece(move.getStartPosition(), board.getPiece(move.getStartPosition()));
+
             if (currColor == TeamColor.WHITE){
                 setTeamTurn(TeamColor.BLACK);
             }
         }
         else {
-            board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
-            board.removePiece(move.getStartPosition(), board.getPiece(move.getStartPosition()));
+            board.removePiece(move.getStartPosition(), myPiece);
+            board.removePiece(move.getEndPosition(), enemyPiece);
+            board.addPiece(move.getEndPosition(), myPiece);
+
+
+
         }
         checkKingStatus(currColor);
 
@@ -239,6 +251,8 @@ public class ChessGame {
 
         if (allValidMoves.isEmpty() && !kingSafe){
             checkMate.put(teamColor, true);
+            check.put(teamColor, true);
+
         }
         if (!allValidMoves.isEmpty() && !kingSafe){
             check.put(teamColor, true);
