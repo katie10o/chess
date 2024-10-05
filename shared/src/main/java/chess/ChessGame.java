@@ -11,15 +11,25 @@ import java.util.Collection;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private Boolean check = false;
-    private Boolean checkMate = false;
-    private Boolean staleMate = false;
-    private ChessBoard board = null;
+    private Boolean checkWhite;
+    private Boolean checkMateWhite;
+    private Boolean staleMateWhite;
+    private Boolean checkBlack;
+    private Boolean checkMateBlack;
+    private Boolean staleMateBlack;
+    private ChessBoard board;
     private ChessGame.TeamColor teamTurn;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
+        teamTurn = TeamColor.WHITE;
+        checkWhite = false;
+        checkMateWhite = false;
+        staleMateWhite = false;
+        checkBlack = false;
+        checkMateBlack = false;
+        staleMateBlack = false;
     }
 
     /**
@@ -46,6 +56,35 @@ public class ChessGame {
         WHITE,
         BLACK
     }
+    private void checkKingStatus(ChessGame.TeamColor color){
+        ChessPosition kingPos = board.getKingPosition(color);
+
+        SafetyChecker safetyChecker = new SafetyChecker(board, kingPos, color);
+        safetyChecker.dangerChecker();
+        boolean kingStatus = safetyChecker.kingCheck();
+
+        Collection<ChessMove> kingValidMoves = validMoves(board.getKingPosition(color));
+
+        if (kingValidMoves.isEmpty() && !kingStatus){
+            if (color == TeamColor.BLACK){
+                checkMateBlack = true;
+            }
+            else{checkMateWhite = true;}
+        }
+        else if (kingValidMoves.isEmpty()){
+            if (color == TeamColor.BLACK){
+                staleMateBlack = true;
+            }
+            else{staleMateWhite = true;}
+        }
+        else if (!kingStatus){
+            if (color == TeamColor.BLACK){
+                checkBlack = true;
+            }
+            else{checkWhite = true;}
+        }
+
+    }
 
 
     /**
@@ -55,8 +94,6 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
-
-
 
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         ChessPiece piece = board.getPiece(startPosition);
@@ -131,6 +168,8 @@ public class ChessGame {
             board.addPiece(move.getEndPosition(), board.getPiece(move.getStartPosition()));
             board.removePiece(move.getStartPosition());
         }
+        checkKingStatus(currColor);
+
         if (currColor == TeamColor.WHITE){
             setTeamTurn(TeamColor.BLACK);
         }
@@ -147,7 +186,10 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        return check;
+        if (teamColor == TeamColor.BLACK){
+            return checkBlack;
+        }
+        return checkWhite;
     }
 
     /**
@@ -157,8 +199,10 @@ public class ChessGame {
      * @return True if the specified team is in checkmate
      */
     public boolean isInCheckmate(TeamColor teamColor) {
-
-        return checkMate;
+        if (teamColor == TeamColor.BLACK){
+            return checkMateBlack;
+        }
+        return checkMateWhite;
     }
 
     /**
@@ -169,9 +213,10 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-
-        return staleMate;
-    }
+        if (teamColor == TeamColor.BLACK){
+            return staleMateBlack;
+        }
+        return staleMateWhite;    }
 
     /**
      * Sets this game's chessboard with a given board
@@ -180,6 +225,8 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
+        checkKingStatus(TeamColor.WHITE);
+        checkKingStatus(TeamColor.BLACK);
     }
 
     /**
@@ -190,4 +237,6 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
+
 }
