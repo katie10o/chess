@@ -1,23 +1,29 @@
-package chess;
+package chess.PieceMovesCalc;
+
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BishopMovesCalc extends PieceMoveCalc {
+public class RookMovesCalc extends PieceMoveCalc {
     private final ChessBoard board;
     private final ChessPosition position;
     private final ArrayList<ChessMove> moves;
 
-    public BishopMovesCalc(ChessBoard board, ChessPosition position) {
+    public RookMovesCalc(ChessBoard board, ChessPosition position) {
         this.board = board;
         this.position = position;
-        moves = new ArrayList<>();
+        this.moves = new ArrayList<>();
         validateMoves();
     }
 
     @Override
     public void validateMoves() {
-        addMoves(ChessPiece.PieceType.BISHOP, board, position, moves);
+        addMoves(ChessPiece.PieceType.ROOK, board, position, moves);
+
 
     }
 

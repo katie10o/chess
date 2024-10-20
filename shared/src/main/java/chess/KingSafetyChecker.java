@@ -1,14 +1,16 @@
 package chess;
 
+import chess.PieceMovesCalc.*;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SafetyChecker {
+public class KingSafetyChecker {
     ChessBoard board;
     ChessGame.TeamColor color;
 
-    public SafetyChecker(ChessBoard board, ChessGame.TeamColor color) {
+    public KingSafetyChecker(ChessBoard board, ChessGame.TeamColor color) {
         this.board = board;
         this.color = color;
     }
@@ -42,7 +44,6 @@ public class SafetyChecker {
             for (ChessMove move : moves){
                 ChessPiece enemy_piece = board.getPiece(move.getEndPosition());
                 if (enemy_piece != null && enemy_piece.getPieceType() == type && enemy_piece.getTeamColor() != color){
-//                    kingSafe = false;
                     return false;
                 }
             }
@@ -53,12 +54,10 @@ public class SafetyChecker {
             ChessPosition pawnLeft = new ChessPosition(kingPos.getRow()+1, kingPos.getColumn()-1) ;
             ChessPosition pawnRight = new ChessPosition(kingPos.getRow()+1, kingPos.getColumn()+1);
             if (pawnCheck(pawnRight)){
-//                kingSafe = false;
                 return false;
 
             }
             else if (pawnCheck(pawnLeft)) {
-//                kingSafe = false;
                 return false;
 
             }
@@ -67,12 +66,10 @@ public class SafetyChecker {
             ChessPosition pawnLeft = new ChessPosition(kingPos.getRow()-1, kingPos.getColumn()-1);
             ChessPosition pawnRight = new ChessPosition(kingPos.getRow()-1, kingPos.getColumn()+1);
             if (pawnCheck(pawnRight)){
-//                kingSafe = false;
                 return false;
 
             }
             else if (pawnCheck(pawnLeft)) {
-//                kingSafe = false;
                 return false;
 
             }

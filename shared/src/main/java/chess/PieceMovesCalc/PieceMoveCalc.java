@@ -1,4 +1,6 @@
-package chess;
+package chess.PieceMovesCalc;
+
+import chess.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,7 +19,7 @@ abstract class PieceMoveCalc {
     }
 
     void addMoves(ChessPiece.PieceType type, ChessBoard board, ChessPosition currPosition,
-                         ArrayList<ChessMove> moves){
+                  ArrayList<ChessMove> moves){
         List<TypeOfMoves.moves> possibleMoves = TypeOfMoves.getPieceWithMoves(type);
         if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT){
             for (TypeOfMoves.moves move : possibleMoves) {

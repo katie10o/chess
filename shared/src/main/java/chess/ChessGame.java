@@ -57,9 +57,8 @@ public class ChessGame {
         if (board.getKingPosition(color) == null){
             return true;
         }
-
         ChessPosition kingPos = board.getKingPosition(color);
-        SafetyChecker safetyChecker = new SafetyChecker(board, color);
+        KingSafetyChecker safetyChecker = new KingSafetyChecker(board, color);
         return safetyChecker.dangerChecker(kingPos);
 
     }
@@ -77,21 +76,14 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         ChessGame.TeamColor color = piece.getTeamColor();
         Collection<ChessMove> possibleMoves = piece.pieceMoves(board, startPosition);
-
-
         ArrayList<ChessMove> safeMoves = new ArrayList<>();
-
         for (ChessMove move : possibleMoves){
             ChessPosition current = move.getStartPosition();
             ChessPosition future = move.getEndPosition();
             ChessPiece pieceToRemove = board.getPiece(move.getEndPosition());
-
             board.removePiece(current, piece);
             board.removePiece(future, pieceToRemove);
-
             board.addPiece(future, piece);
-//            System.out.println(board.toString());
-
             if (checkKingStatus(color)){
                 safeMoves.add(move);
             }
@@ -99,7 +91,6 @@ public class ChessGame {
             board.addPiece(future, pieceToRemove);
             board.addPiece(current, piece);
         }
-//        System.out.println(board.toString());
         return safeMoves;
     }
 
@@ -150,9 +141,6 @@ public class ChessGame {
             board.removePiece(move.getStartPosition(), myPiece);
             board.removePiece(move.getEndPosition(), enemyPiece);
             board.addPiece(move.getEndPosition(), myPiece);
-
-
-
         }
         checkKingStatus(currColor);
 
@@ -211,7 +199,6 @@ public class ChessGame {
         }
         runChecks(teamColor);
         return staleMate.get(teamColor);
-
     }
 
     /**
@@ -221,8 +208,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-//        checkKingStatus(TeamColor.WHITE);
-//        checkKingStatus(TeamColor.BLACK);
     }
 
     /**
@@ -243,16 +228,13 @@ public class ChessGame {
             ArrayList<ChessPosition> positions = entry.getValue();
             startingPositions.addAll(positions);
         }
-
         for (ChessPosition pos : startingPositions){
             Collection<ChessMove> positionValidMoves = validMoves(pos);
             allValidMoves.addAll(positionValidMoves);
         }
-
         if (allValidMoves.isEmpty() && !kingSafe){
             checkMate.put(teamColor, true);
             check.put(teamColor, true);
-
         }
         if (!allValidMoves.isEmpty() && !kingSafe){
             check.put(teamColor, true);
@@ -260,7 +242,6 @@ public class ChessGame {
         if (allValidMoves.isEmpty() && kingSafe){
             staleMate.put(teamColor, true);
         }
-
     }
 
 
