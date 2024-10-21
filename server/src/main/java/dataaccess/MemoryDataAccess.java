@@ -19,7 +19,11 @@ public class MemoryDataAccess implements DataAccess{
         return userInfo.containsKey(username);
     }
     public void addAuthToken(AuthTokenData tokenData){
-        authTokenInfo.put(tokenData.username(), tokenData);
+        authTokenInfo.put(tokenData.authToken(), tokenData);
+    }
+
+    public boolean getAuthToken(String authToken){
+        return authTokenInfo.containsKey(authToken);
     }
 
     @Override
@@ -35,7 +39,8 @@ public class MemoryDataAccess implements DataAccess{
 
     }
 
-    public AuthTokenData getUserAndToken(String username){
-        return authTokenInfo.get(username);
+    @Override
+    public void clearAuthToken(String authToken) {
+        authTokenInfo.remove(authToken);
     }
 }

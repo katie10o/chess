@@ -83,20 +83,22 @@ public class Server {
             return new Gson().toJson(message);
         }
     }
-    private Object logOut(Request request, Response response) {
-        System.out.println(request.headers());
-        return null;
-//        try{
-//            request.headers();
-////            UserData usrData = new Gson().fromJson(request.headers(), AuthTokenData.class);
-////            Object tokenData = service.logInUser(usrData);
-////            return new Gson().toJson(tokenData);
-//        }
-//        catch (ResponseException e){
-//            int statusCode = e.StatusCode();
-//            var message = e.getErrorMessage();
-//            response.status(statusCode);
-//            return new Gson().toJson(message);
-//        }
+    private Object logOut(Request request, Response response) throws ResponseException {
+        try{
+            var authToken = request.headers("Authorization");
+            if (authToken == null){
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            else {
+                service.logOutUser(authToken);
+            }
+        }
+        catch (ResponseException e){
+            int statusCode = e.StatusCode();
+            var message = e.getErrorMessage();
+            response.status(statusCode);
+            return new Gson().toJson(message);
+        }
+        return new Gson().toJson(new HashMap<>());
     }
 }

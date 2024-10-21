@@ -10,6 +10,8 @@ public interface DataAccess {
     void addAuthToken(AuthTokenData tokenData);
     void clearDB();
     String getUserPassword(String userName);
+    void clearAuthToken(String authToken);
+    boolean getAuthToken(String authToken);
 
 
 }

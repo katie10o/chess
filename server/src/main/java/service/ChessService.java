@@ -63,6 +63,24 @@ public class ChessService {
         }
     }
 
+    public void logOutUser(String authToken) throws ResponseException{
+        try{
+            if(dataAccess.getAuthToken(authToken)){
+                dataAccess.clearAuthToken(authToken);
+            }
+            else {
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+        }
+        catch (ResponseException e){
+            throw e;
+        }
+        catch (Exception e){
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+
     private static String generateToken(){
         return UUID.randomUUID().toString();
     }
