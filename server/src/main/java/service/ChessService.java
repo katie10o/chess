@@ -110,18 +110,18 @@ public class ChessService {
                 throw new ResponseException(401, "Error: unauthorized");
             }
             if (!dataAccess.checkGameID(gameData)){
-                throw new ResponseException(500, "Error: game does not exist");
+                throw new ResponseException(400, "Error: bad request");
             }
             else {
                 GameData currentGameData = dataAccess.getGameData(gameData);
                 String userName = dataAccess.getUserName(authToken);
-                if (currentGameData.whiteUserName() == null && gameData.playerColor().equals("WHITE")){
-                    gameData = new GameData(currentGameData.gameID(), userName, currentGameData.blackUserName(),
+                if (currentGameData.whiteUsername() == null && gameData.playerColor().equals("WHITE")){
+                    gameData = new GameData(currentGameData.gameID(), userName, currentGameData.blackUsername(),
                             currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor() );
                     dataAccess.editGame(gameData);
                 }
-                else if (currentGameData.blackUserName() == null && gameData.playerColor().equals("BLACK")){
-                    gameData = new GameData(currentGameData.gameID(), currentGameData.whiteUserName(), userName,
+                else if (currentGameData.blackUsername() == null && gameData.playerColor().equals("BLACK")){
+                    gameData = new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), userName,
                             currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor() );
                     dataAccess.editGame(gameData);
                 }
