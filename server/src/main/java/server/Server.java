@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.MemoryDataAccess;
 import exception.ResponseException;
 import model.AuthTokenData;
+import model.GameData;
 import model.UserData;
 import service.ChessService;
 import spark.*;
@@ -21,6 +22,9 @@ public class Server {
         Spark.delete("/db", this::clear);
         Spark.post("/session", this::logIn);
         Spark.delete("/session", this::logOut);
+        Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
+        Spark.get("/game", this::getGames);
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
 
@@ -83,7 +87,7 @@ public class Server {
             return new Gson().toJson(message);
         }
     }
-    private Object logOut(Request request, Response response) throws ResponseException {
+    private Object logOut(Request request, Response response) {
         try{
             var authToken = request.headers("Authorization");
             if (authToken == null){
@@ -92,6 +96,8 @@ public class Server {
             else {
                 service.logOutUser(authToken);
             }
+            return new Gson().toJson(new HashMap<>());
+
         }
         catch (ResponseException e){
             int statusCode = e.StatusCode();
@@ -99,6 +105,60 @@ public class Server {
             response.status(statusCode);
             return new Gson().toJson(message);
         }
-        return new Gson().toJson(new HashMap<>());
+    }
+    private Object createGame(Request request, Response response) {
+        try{
+            var authToken = request.headers("Authorization");
+            if (authToken == null){
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            else {
+                GameData gameData = new Gson().fromJson(request.body(), GameData.class);
+                int gameID = service.createGame(gameData, authToken);
+                return String.format("{ \"gameID\": \"%s\" }", gameID);
+            }
+        }
+        catch (ResponseException e){
+            int statusCode = e.StatusCode();
+            var message = e.getErrorMessage();
+            response.status(statusCode);
+            return new Gson().toJson(message);
+        }
+    }
+    private Object joinGame(Request request, Response response){
+        try{
+            var authToken = request.headers("Authorization");
+            if (authToken == null){
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            else {
+                GameData gameData = new Gson().fromJson(request.body(), GameData.class);
+                service.joinGame(gameData, authToken);
+            }
+            return new Gson().toJson(new HashMap<>());
+        }
+        catch (ResponseException e){
+            int statusCode = e.StatusCode();
+            var message = e.getErrorMessage();
+            response.status(statusCode);
+            return new Gson().toJson(message);
+        }
+    }
+    private Object getGames(Request request, Response response) {
+        try{
+            var authToken = request.headers("Authorization");
+            if (authToken == null){
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+            else {
+                return new Gson().toJson(service.getGames(authToken));
+            }
+        }
+        catch (ResponseException e){
+            int statusCode = e.StatusCode();
+            var message = e.getErrorMessage();
+            response.status(statusCode);
+            return new Gson().toJson(message);
+        }
     }
 }
