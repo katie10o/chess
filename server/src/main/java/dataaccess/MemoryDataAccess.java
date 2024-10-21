@@ -1,25 +1,35 @@
 package dataaccess;
 
+import model.AuthTokenData;
 import model.UserData;
 
 import java.util.HashMap;
 
 public class MemoryDataAccess implements DataAccess{
-    HashMap<String, HashMap<String, String>> userInfo = new HashMap<>();
-    @Override
-    public void addUser(String username, String password, String email) {
-        HashMap<String, String> tempUserDetail = new HashMap<>();
-        tempUserDetail.put("password", password);
-        tempUserDetail.put("email", email);
-        tempUserDetail.put("AuthToken", null);
+    HashMap<String, UserData> userInfo = new HashMap<>();
+    HashMap<String, String> gameInfo = new HashMap<>();
+    HashMap<String, AuthTokenData> authTokenInfo = new HashMap<>();
 
-        userInfo.put(username, tempUserDetail);
+    @Override
+    public void addUser(UserData usrData) {
+        userInfo.put(usrData.username(), usrData);
     }
 
     public boolean getUserData(String username){
         return userInfo.containsKey(username);
     }
-    public void addAuthToken(String username, String token){
-        userInfo.get(username).put("AuthToken", token);
+    public void addAuthToken(AuthTokenData tokenData){
+        authTokenInfo.put(tokenData.username(), tokenData);
+    }
+
+    @Override
+    public void clearDB() {
+        userInfo.clear();
+        gameInfo.clear();
+        authTokenInfo.clear();
+    }
+
+    public AuthTokenData getUserAndToken(String username){
+        return authTokenInfo.get(username);
     }
 }
