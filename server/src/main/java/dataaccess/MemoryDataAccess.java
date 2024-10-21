@@ -77,9 +77,13 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
-    public String getUserPassword(String username) {
-        return userInfo.get(username).password();
-
+    public String getUserPassword(String username) throws DataAccessException {
+        try {
+            return userInfo.get(username).password();
+        }
+        catch (Exception e){
+            throw new DataAccessException("Error: " + e);
+        }
     }
 
     @Override

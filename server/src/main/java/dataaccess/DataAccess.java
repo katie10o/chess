@@ -13,7 +13,7 @@ public interface DataAccess {
     boolean checkUserName(String username);
     void addAuthToken(AuthTokenData tokenData);
     void clearDB();
-    String getUserPassword(String userName);
+    String getUserPassword(String userName) throws DataAccessException;
     void clearAuthToken(String authToken);
     boolean getAuthToken(String authToken);
     int addGame(GameData gameData);

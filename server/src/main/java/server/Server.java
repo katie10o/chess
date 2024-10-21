@@ -3,16 +3,26 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.MemoryDataAccess;
 import exception.ResponseException;
-import model.AuthTokenData;
 import model.GameData;
 import model.UserData;
 import service.ChessService;
 import spark.*;
 
+import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Map.entry;
 
 public class Server {
-    ChessService service = new ChessService(new MemoryDataAccess());
+    private final ChessService service = new ChessService(new MemoryDataAccess());
+//    private static final Map<String, List<String>> methodRequestRequirements = Map.ofEntries(
+//            entry("register", List.of("username", "password", "email")),
+//            entry("logIn", List.of("username", "password")),
+//            entry("createGame", List.of("gameName")),
+//            entry("joinGame", List.of("playerColor", "gameID"))
+//    );
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -25,15 +35,9 @@ public class Server {
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.get("/game", this::getGames);
+
         Spark.exception(ResponseException.class, this::exceptionHandler);
-
-
-        // Register your endpoints and handle exceptions here.
-        //This line initializes the server and can be removed once you have a functioning endpoint
-//        Spark.init();
-
         Spark.awaitInitialization();
-
         return Spark.port();
     }
 
@@ -64,6 +68,10 @@ public class Server {
     private Object register(Request request, Response response) {
         try{
             UserData usrData = new Gson().fromJson(request.body(), UserData.class);
+            if (usrData.password() == null || usrData.password().isEmpty() || usrData.username() == null ||
+                    usrData.username().isEmpty() || usrData.email() == null || usrData.email().isEmpty()){
+                throw new ResponseException(400, "Error: bad request");
+            }
             Object tokenData = service.addUser(usrData);
             return new Gson().toJson(tokenData);
         }
@@ -77,6 +85,11 @@ public class Server {
     private Object logIn(Request request, Response response) {
         try{
             UserData usrData = new Gson().fromJson(request.body(), UserData.class);
+
+            if (usrData.password() == null || usrData.password().isEmpty() ||
+                    usrData.username() == null || usrData.username().isEmpty()){
+                throw new ResponseException(400, "Error: bad request");
+            }
             Object tokenData = service.logInUser(usrData);
             return new Gson().toJson(tokenData);
         }
@@ -90,6 +103,7 @@ public class Server {
     private Object logOut(Request request, Response response) {
         try{
             var authToken = request.headers("Authorization");
+
             if (authToken == null){
                 throw new ResponseException(401, "Error: unauthorized");
             }
@@ -97,7 +111,6 @@ public class Server {
                 service.logOutUser(authToken);
             }
             return new Gson().toJson(new HashMap<>());
-
         }
         catch (ResponseException e){
             int statusCode = e.StatusCode();
@@ -108,12 +121,16 @@ public class Server {
     }
     private Object createGame(Request request, Response response) {
         try{
+            GameData gameData = new Gson().fromJson(request.body(), GameData.class);
             var authToken = request.headers("Authorization");
+
+            if (gameData.gameName() == null || gameData.gameName().isEmpty()){
+                throw new ResponseException(400, "Error: bad request");
+            }
             if (authToken == null){
                 throw new ResponseException(401, "Error: unauthorized");
             }
             else {
-                GameData gameData = new Gson().fromJson(request.body(), GameData.class);
                 int gameID = service.createGame(gameData, authToken);
                 return String.format("{ \"gameID\": \"%s\" }", gameID);
             }
@@ -127,12 +144,16 @@ public class Server {
     }
     private Object joinGame(Request request, Response response){
         try{
+            GameData gameData = new Gson().fromJson(request.body(), GameData.class);
             var authToken = request.headers("Authorization");
+
+            if (gameData.playerColor() == null || gameData.playerColor().isEmpty()){
+                throw new ResponseException(400, "Error: bad request");
+            }
             if (authToken == null){
                 throw new ResponseException(401, "Error: unauthorized");
             }
             else {
-                GameData gameData = new Gson().fromJson(request.body(), GameData.class);
                 service.joinGame(gameData, authToken);
             }
             return new Gson().toJson(new HashMap<>());
@@ -161,4 +182,5 @@ public class Server {
             return new Gson().toJson(message);
         }
     }
+
 }

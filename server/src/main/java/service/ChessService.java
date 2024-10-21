@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthTokenData;
 import model.GameData;
@@ -61,6 +62,9 @@ public class ChessService {
         }
         catch (ResponseException e){
             throw e;
+        }
+        catch (DataAccessException e){
+            throw new ResponseException(401, "Error: unauthorized");
         }
         catch (Exception e){
             throw new ResponseException(500, e.getMessage());
