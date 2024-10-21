@@ -15,7 +15,7 @@ public class MemoryDataAccess implements DataAccess{
         userInfo.put(usrData.username(), usrData);
     }
 
-    public boolean getUserData(String username){
+    public boolean getUserName(String username){
         return userInfo.containsKey(username);
     }
     public void addAuthToken(AuthTokenData tokenData){
@@ -27,6 +27,12 @@ public class MemoryDataAccess implements DataAccess{
         userInfo.clear();
         gameInfo.clear();
         authTokenInfo.clear();
+    }
+
+    @Override
+    public String getUserPassword(String username) {
+        return userInfo.get(username).password();
+
     }
 
     public AuthTokenData getUserAndToken(String username){

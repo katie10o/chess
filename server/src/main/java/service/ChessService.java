@@ -16,7 +16,7 @@ public class ChessService {
 
     public Object addUser(UserData usrData) throws ResponseException {
         try {
-            if (!dataAccess.getUserData(usrData.username())){
+            if (!dataAccess.getUserName(usrData.username())){
                 dataAccess.addUser(usrData);
                 String token = generateToken();
                 AuthTokenData tokenData = new AuthTokenData(usrData.username(), token);
@@ -28,10 +28,9 @@ public class ChessService {
             }
         }
         catch (ResponseException e){
-            return e;
+            throw e;
         } catch (Exception e) {
-            System.out.println("New error, unsure");
-            return new ResponseException(500, "Error: unknown");
+            throw new ResponseException(500, e.getMessage());
         }
     }
     public void clearDB() throws ResponseException {
@@ -39,7 +38,28 @@ public class ChessService {
             dataAccess.clearDB();
         }
         catch (Exception e){
-            throw new ResponseException(500, "Error: cannot clear db");
+            throw new ResponseException(500, e.getMessage());
+        }
+    }
+
+    public Object logInUser(UserData usrData) throws ResponseException{
+        try{
+            String dataBasePassword = dataAccess.getUserPassword(usrData.username());
+            if (usrData.password().equals(dataBasePassword)){
+                String token = generateToken();
+                AuthTokenData tokenData = new AuthTokenData(usrData.username(), token);
+                dataAccess.addAuthToken(tokenData);
+                return tokenData;
+            }
+            else{
+                throw new ResponseException(401, "Error: unauthorized");
+            }
+        }
+        catch (ResponseException e){
+            throw e;
+        }
+        catch (Exception e){
+            throw new ResponseException(500, e.getMessage());
         }
     }
 

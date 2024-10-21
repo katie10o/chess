@@ -3,6 +3,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.MemoryDataAccess;
 import exception.ResponseException;
+import model.AuthTokenData;
 import model.UserData;
 import service.ChessService;
 import spark.*;
@@ -18,6 +19,8 @@ public class Server {
         Spark.staticFiles.location("web");
         Spark.post("/user", this::register);
         Spark.delete("/db", this::clear);
+        Spark.post("/session", this::logIn);
+        Spark.delete("/session", this::logOut);
         Spark.exception(ResponseException.class, this::exceptionHandler);
 
 
@@ -29,6 +32,7 @@ public class Server {
 
         return Spark.port();
     }
+
 
     private void exceptionHandler(ResponseException e, Request request, Response response) {
         response.status(e.StatusCode());
@@ -57,9 +61,6 @@ public class Server {
         try{
             UserData usrData = new Gson().fromJson(request.body(), UserData.class);
             Object tokenData = service.addUser(usrData);
-            if (tokenData instanceof ResponseException){
-                throw (ResponseException) tokenData;
-            }
             return new Gson().toJson(tokenData);
         }
         catch (ResponseException e){
@@ -68,5 +69,34 @@ public class Server {
             response.status(statusCode);
             return new Gson().toJson(message);
         }
+    }
+    private Object logIn(Request request, Response response) {
+        try{
+            UserData usrData = new Gson().fromJson(request.body(), UserData.class);
+            Object tokenData = service.logInUser(usrData);
+            return new Gson().toJson(tokenData);
+        }
+        catch (ResponseException e){
+            int statusCode = e.StatusCode();
+            var message = e.getErrorMessage();
+            response.status(statusCode);
+            return new Gson().toJson(message);
+        }
+    }
+    private Object logOut(Request request, Response response) {
+        System.out.println(request.headers());
+        return null;
+//        try{
+//            request.headers();
+////            UserData usrData = new Gson().fromJson(request.headers(), AuthTokenData.class);
+////            Object tokenData = service.logInUser(usrData);
+////            return new Gson().toJson(tokenData);
+//        }
+//        catch (ResponseException e){
+//            int statusCode = e.StatusCode();
+//            var message = e.getErrorMessage();
+//            response.status(statusCode);
+//            return new Gson().toJson(message);
+//        }
     }
 }
