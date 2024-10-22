@@ -1,28 +1,13 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import exception.ResponseException;
-import model.GameData;
-import model.UserData;
-import service.ChessService;
+import service.Service;
 import spark.*;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Map.entry;
-
 public class Server {
-    private final ChessService service = new ChessService(new MemoryDataAccess());
-//    private static final Map<String, List<String>> methodRequestRequirements = Map.ofEntries(
-//            entry("register", List.of("username", "password", "email")),
-//            entry("logIn", List.of("username", "password")),
-//            entry("createGame", List.of("gameName")),
-//            entry("joinGame", List.of("playerColor", "gameID"))
-//    );
+    private final ServerHandler handler = new ServerHandler(new Service(new MemoryDataAccess()));
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
@@ -41,11 +26,12 @@ public class Server {
         return Spark.port();
     }
 
-
-    private void exceptionHandler(ResponseException e, Request request, Response response) {
-        response.status(e.StatusCode());
+    private Object exceptionHandler(ResponseException e, Request request, Response response) {
+        int statusCode = e.StatusCode();
+        var message = e.getErrorMessage();
+        response.status(statusCode);
+        return new Gson().toJson(message);
     }
-
 
     public void stop() {
         Spark.stop();
@@ -55,131 +41,84 @@ public class Server {
     //handlers below
     private Object clear(Request request, Response response) {
         try{
-            service.clearDB();
-            return new Gson().toJson(new HashMap<>());
+            return handler.clear();
         } catch (ResponseException e) {
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
 
     private Object register(Request request, Response response) {
         try{
-            UserData usrData = new Gson().fromJson(request.body(), UserData.class);
-            if (usrData.password() == null || usrData.password().isEmpty() || usrData.username() == null ||
-                    usrData.username().isEmpty() || usrData.email() == null || usrData.email().isEmpty()){
-                throw new ResponseException(400, "Error: bad request");
-            }
-            Object tokenData = service.addUser(usrData);
-            return new Gson().toJson(tokenData);
+            return handler.register(request);
         }
-        catch (ResponseException e){
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
+
     private Object logIn(Request request, Response response) {
         try{
-            UserData usrData = new Gson().fromJson(request.body(), UserData.class);
-
-            if (usrData.password() == null || usrData.password().isEmpty() ||
-                    usrData.username() == null || usrData.username().isEmpty()){
-                throw new ResponseException(400, "Error: bad request");
-            }
-            Object tokenData = service.logInUser(usrData);
-            return new Gson().toJson(tokenData);
+            return handler.logIn(request);
         }
-        catch (ResponseException e){
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
+
     private Object logOut(Request request, Response response) {
         try{
-            var authToken = request.headers("Authorization");
-
-            if (authToken == null){
-                throw new ResponseException(401, "Error: unauthorized");
-            }
-            else {
-                service.logOutUser(authToken);
-            }
-            return new Gson().toJson(new HashMap<>());
+            return handler.logOut(request);
         }
-        catch (ResponseException e){
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
+
     private Object createGame(Request request, Response response) {
         try{
-            GameData gameData = new Gson().fromJson(request.body(), GameData.class);
-            var authToken = request.headers("Authorization");
-
-            if (gameData.gameName() == null || gameData.gameName().isEmpty()){
-                throw new ResponseException(400, "Error: bad request");
-            }
-            if (authToken == null){
-                throw new ResponseException(401, "Error: unauthorized");
-            }
-            else {
-                int gameID = service.createGame(gameData, authToken);
-                return String.format("{ \"gameID\": \"%s\" }", gameID);
-            }
+            return handler.createGame(request);
         }
-        catch (ResponseException e){
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
+
     private Object joinGame(Request request, Response response){
         try{
-            GameData gameData = new Gson().fromJson(request.body(), GameData.class);
-            var authToken = request.headers("Authorization");
-
-            if (gameData.playerColor() == null || gameData.playerColor().isEmpty()){
-                throw new ResponseException(400, "Error: bad request");
-            }
-            if (authToken == null){
-                throw new ResponseException(401, "Error: unauthorized");
-            }
-            else {
-                service.joinGame(gameData, authToken);
-            }
-            return new Gson().toJson(new HashMap<>());
+            return handler.joinGame(request);
         }
-        catch (ResponseException e){
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
+
     private Object getGames(Request request, Response response) {
         try{
-            var authToken = request.headers("Authorization");
-            if (authToken == null){
-                throw new ResponseException(401, "Error: unauthorized");
-            }
-            else {
-                return new Gson().toJson(service.getGames(authToken));
-            }
+            return handler.getGames(request);
         }
-        catch (ResponseException e){
-            int statusCode = e.StatusCode();
-            var message = e.getErrorMessage();
-            response.status(statusCode);
-            return new Gson().toJson(message);
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
         }
     }
 

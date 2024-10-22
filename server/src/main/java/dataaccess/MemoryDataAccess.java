@@ -14,80 +14,126 @@ public class MemoryDataAccess implements DataAccess{
     private int nextID = 1;
 
     @Override
-    public void addUser(UserData usrData) {
-        userInfo.put(usrData.username(), usrData);
-    }
-
-    public boolean checkUserName(String username){
-        return userInfo.containsKey(username);
-    }
-    public void addAuthToken(AuthTokenData tokenData){
-        authTokenInfo.put(tokenData.authToken(), tokenData);
-    }
-
-    public boolean getAuthToken(String authToken){
-        return authTokenInfo.containsKey(authToken);
-    }
-
-    @Override
-    public int addGame(GameData gameData) {
-        gameData = new GameData(nextID, null, null, gameData.gameName(), new ChessGame(), null);
-        gameInfo.put(nextID, gameData);
-        nextID ++;
-        return gameData.gameID();
-    }
-
-    @Override
-    public void editGame(GameData gameData) {
-        gameInfo.put(gameData.gameID(), gameData);
-
-    }
-
-    @Override
-    public GameData getGameData(GameData gameData) {
-        return gameInfo.get(gameData.gameID());
-    }
-
-    @Override
-    public boolean checkGameID(GameData gameData) {
-        return gameInfo.containsKey(gameData.gameID());
-    }
-
-    @Override
-    public String getUserName(String authToken) {
-        return authTokenInfo.get(authToken).username();
-    }
-
-    @Override
-    public HashMap<String, Collection<GameData>> listGames() {
-        HashMap<String, Collection<GameData>> games = new HashMap<>();
-        Collection<GameData> gameList = new ArrayList<>();
-        for (Map.Entry<Integer, GameData> entry : gameInfo.entrySet()){
-            gameList.add(entry.getValue());
+    public void addUser(UserData usrData) throws DataAccessException{
+        try{
+            userInfo.put(usrData.username(), usrData);
+        } catch (Exception e){
+            throw new DataAccessException(e.getMessage());
         }
-        games.put("games", gameList);
-        return games;
+    }
+
+    public boolean checkUserName(String username) throws DataAccessException{
+        try{
+            return userInfo.containsKey(username);
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+    public void addAuthToken(AuthTokenData tokenData) throws DataAccessException{
+        try{
+            authTokenInfo.put(tokenData.authToken(), tokenData);
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    public boolean getAuthToken(String authToken) throws DataAccessException{
+        try{
+            return authTokenInfo.containsKey(authToken);
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
-    public void clearDB() {
-        userInfo.clear();
-        gameInfo.clear();
-        authTokenInfo.clear();
+    public int addGame(GameData gameData) throws DataAccessException{
+        try{
+            gameData = new GameData(nextID, null, null, gameData.gameName(), new ChessGame(), null);
+            gameInfo.put(nextID, gameData);
+            nextID ++;
+            return gameData.gameID();
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
     }
 
     @Override
-    public String getUserPassword(String username) throws DataAccessException {
-        try {
+    public void editGame(GameData gameData) throws DataAccessException{
+        try{
+            gameInfo.put(gameData.gameID(), gameData);
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public GameData getGameData(GameData gameData) throws DataAccessException{
+        try{
+            return gameInfo.get(gameData.gameID());
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public boolean checkGameID(GameData gameData) throws DataAccessException{
+        try{
+            return gameInfo.containsKey(gameData.gameID());
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String getUserName(String authToken) throws DataAccessException{
+        try{
+            return authTokenInfo.get(authToken).username();
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public HashMap<String, Collection<GameData>> listGames() throws DataAccessException{
+        try{
+            HashMap<String, Collection<GameData>> games = new HashMap<>();
+            Collection<GameData> gameList = new ArrayList<>();
+            for (Map.Entry<Integer, GameData> entry : gameInfo.entrySet()){
+                gameList.add(entry.getValue());
+            }
+            games.put("games", gameList);
+            return games;
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void clearDB() throws DataAccessException{
+        try{
+            userInfo.clear();
+            gameInfo.clear();
+            authTokenInfo.clear();
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
+        }
+    }
+
+    @Override
+    public String getUserPassword(String username) throws DataAccessException{
+        try{
             return userInfo.get(username).password();
-        }
-        catch (Exception e){
-            throw new DataAccessException("Error: " + e);
+        }catch (Exception e){
+            throw new DataAccessException(e.getMessage());
         }
     }
 
     @Override
-    public void clearAuthToken(String authToken) {
-        authTokenInfo.remove(authToken);
+    public void clearAuthToken(String authToken) throws DataAccessException{
+           try{
+               authTokenInfo.remove(authToken);
+           }catch (Exception e){
+               throw new DataAccessException(e.getMessage());
+           }
     }
 }

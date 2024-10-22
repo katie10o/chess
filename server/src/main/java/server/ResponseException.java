@@ -1,4 +1,4 @@
-package exception;
+package server;
 
 
 import java.util.HashMap;
