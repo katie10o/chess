@@ -1,6 +1,6 @@
 package chess;
 
-import exception.InvalidMoveException;
+import InvalidMoveException;
 
 import java.util.*;
 

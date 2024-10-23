@@ -1,5 +1,3 @@
-package exception;
-
 /**
  * Indicates an invalid move was made in a game
  */
