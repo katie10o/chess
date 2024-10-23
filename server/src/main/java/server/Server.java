@@ -1,8 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import dataAccess.DataAccessException;
+import dataAccess.MemoryDataAccess;
 import service.Service;
 import spark.*;
 
