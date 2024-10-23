@@ -1,4 +1,4 @@
-package chess.piece_moves_calc;
+package chess.calc;
 
 import chess.*;
 

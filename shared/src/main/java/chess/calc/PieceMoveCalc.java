@@ -1,4 +1,4 @@
-package chess.piece_moves_calc;
+package chess.calc;
 
 import chess.*;
 
@@ -10,8 +10,8 @@ abstract class PieceMoveCalc {
     abstract void validateMoves();
     abstract Collection<ChessMove> getPossibleMoves();
 
-    boolean nullPiece(ChessBoard board, ChessPosition new_position){
-        return board.getPiece(new_position) == null;
+    boolean nullPiece(ChessBoard board, ChessPosition newPosition){
+        return board.getPiece(newPosition) == null;
 
     }
     boolean notNullPiece(ChessBoard board, ChessPosition currPosition, ChessPosition newPosition){
@@ -36,19 +36,19 @@ abstract class PieceMoveCalc {
 
         else {
             for (TypeOfMoves.Moves move : possibleMoves) {
-                ChessPosition new_position = move.movePositions(currPosition);
-                while (board.insideBoard(new_position)) {
-                    if (nullPiece(board, new_position)){
-                        moves.add(new ChessMove(currPosition, new_position, null));
+                ChessPosition newPosition = move.movePositions(currPosition);
+                while (board.insideBoard(newPosition)) {
+                    if (nullPiece(board, newPosition)){
+                        moves.add(new ChessMove(currPosition, newPosition, null));
                     }
-                    else if (notNullPiece(board, currPosition, new_position)){
-                        moves.add(new ChessMove(currPosition, new_position, null));
+                    else if (notNullPiece(board, currPosition, newPosition)){
+                        moves.add(new ChessMove(currPosition, newPosition, null));
                         break;
                     }
                     else{
                         break;
                     }
-                    new_position = move.movePositions(new_position);
+                    newPosition = move.movePositions(newPosition);
                 }
             }
         }

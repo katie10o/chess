@@ -1,4 +1,4 @@
-package data_access;
+package dataaccess;
 
 import chess.ChessGame;
 import model.AuthTokenData;

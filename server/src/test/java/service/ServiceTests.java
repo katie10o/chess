@@ -1,8 +1,8 @@
 package service;
 
 
-import data_access.DataAccessException;
-import data_access.MemoryDataAccess;
+import dataaccess.DataAccessException;
+import dataaccess.MemoryDataAccess;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;

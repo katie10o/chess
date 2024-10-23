@@ -1,6 +1,6 @@
 package chess;
 
-import chess.piece_moves_calc.*;
+import chess.calc.*;
 
 import java.util.Collection;
 import java.util.HashMap;

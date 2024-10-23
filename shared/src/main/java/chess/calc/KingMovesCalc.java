@@ -1,4 +1,4 @@
-package chess.piece_moves_calc;
+package chess.calc;
 
 import chess.ChessBoard;
 import chess.ChessMove;
@@ -8,12 +8,13 @@ import chess.ChessPosition;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class QueenMovesCalc extends PieceMoveCalc{
+public class KingMovesCalc extends PieceMoveCalc {
     private final ChessBoard board;
     private final ChessPosition position;
     private final ArrayList<ChessMove> moves;
 
-    public QueenMovesCalc(ChessBoard board, ChessPosition position) {
+
+    public KingMovesCalc(ChessBoard board, ChessPosition position) {
         this.board = board;
         this.position = position;
         moves = new ArrayList<>();
@@ -21,16 +22,14 @@ public class QueenMovesCalc extends PieceMoveCalc{
 
     }
 
-    @Override
-    public void validateMoves() {
-        addMoves(ChessPiece.PieceType.QUEEN, board, position, moves);
-        }
 
-    @Override
+    public void validateMoves(){
+        addMoves(ChessPiece.PieceType.KING, board, position, moves);
+
+    }
+
     public Collection<ChessMove> getPossibleMoves() {
         return moves;
     }
+
 }
-
-
-
