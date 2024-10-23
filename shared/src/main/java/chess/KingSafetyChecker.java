@@ -1,6 +1,6 @@
 package chess;
 
-import chess.PieceMovesCalc.*;
+import chess.piece_moves_calc.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -42,8 +42,8 @@ public class KingSafetyChecker {
             ChessPiece.PieceType type = entry.getKey();
             Collection<ChessMove> moves = entry.getValue();
             for (ChessMove move : moves){
-                ChessPiece enemy_piece = board.getPiece(move.getEndPosition());
-                if (enemy_piece != null && enemy_piece.getPieceType() == type && enemy_piece.getTeamColor() != color){
+                ChessPiece enemyPiece = board.getPiece(move.getEndPosition());
+                if (enemyPiece != null && enemyPiece.getPieceType() == type && enemyPiece.getTeamColor() != color){
                     return false;
                 }
             }

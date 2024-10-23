@@ -1,4 +1,4 @@
-package chess.PieceMovesCalc;
+package chess.piece_moves_calc;
 
 import chess.*;
 
@@ -20,22 +20,22 @@ abstract class PieceMoveCalc {
 
     void addMoves(ChessPiece.PieceType type, ChessBoard board, ChessPosition currPosition,
                   ArrayList<ChessMove> moves){
-        List<TypeOfMoves.moves> possibleMoves = TypeOfMoves.getPieceWithMoves(type);
+        List<TypeOfMoves.Moves> possibleMoves = TypeOfMoves.getPieceWithMoves(type);
         if (type == ChessPiece.PieceType.KING || type == ChessPiece.PieceType.KNIGHT){
-            for (TypeOfMoves.moves move : possibleMoves) {
-                ChessPosition new_position = move.movePositions(currPosition);
-                if (board.insideBoard(new_position)){
-                    if (nullPiece(board, new_position)){
-                        moves.add(new ChessMove(currPosition, new_position, null ));
-                    } else if (notNullPiece(board, currPosition, new_position)){
-                        moves.add(new ChessMove(currPosition, new_position, null ));
+            for (TypeOfMoves.Moves move : possibleMoves) {
+                ChessPosition newPosition = move.movePositions(currPosition);
+                if (board.insideBoard(newPosition)){
+                    if (nullPiece(board, newPosition)){
+                        moves.add(new ChessMove(currPosition, newPosition, null ));
+                    } else if (notNullPiece(board, currPosition, newPosition)){
+                        moves.add(new ChessMove(currPosition, newPosition, null ));
                     }
                 }
             }
         }
 
         else {
-            for (TypeOfMoves.moves move : possibleMoves) {
+            for (TypeOfMoves.Moves move : possibleMoves) {
                 ChessPosition new_position = move.movePositions(currPosition);
                 while (board.insideBoard(new_position)) {
                     if (nullPiece(board, new_position)){

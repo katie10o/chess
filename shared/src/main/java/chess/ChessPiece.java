@@ -1,6 +1,6 @@
 package chess;
 
-import chess.PieceMovesCalc.*;
+import chess.piece_moves_calc.*;
 
 import java.util.Collection;
 
@@ -84,8 +84,8 @@ public class ChessPiece {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
         ChessPiece that = (ChessPiece) o;
         return pieceColor == that.pieceColor && type == that.type;
     }

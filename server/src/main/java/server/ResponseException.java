@@ -9,7 +9,7 @@ public class ResponseException extends Exception {
         super(message);
         this.statusCode = statusCode;
     }
-    public int StatusCode(){return statusCode;}
+    public int statusCode(){return statusCode;}
 
     public HashMap<String, Object> getErrorMessage(){
         HashMap<String, Object> jsonObj = new HashMap<>();

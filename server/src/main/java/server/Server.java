@@ -1,8 +1,8 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
-import dataAccess.MemoryDataAccess;
+import data_access.DataAccessException;
+import data_access.MemoryDataAccess;
 import service.Service;
 import spark.*;
 
@@ -27,7 +27,7 @@ public class Server {
     }
 
     private Object exceptionHandler(ResponseException e, Request request, Response response) {
-        int statusCode = e.StatusCode();
+        int statusCode = e.statusCode();
         var message = e.getErrorMessage();
         response.status(statusCode);
         return new Gson().toJson(message);

@@ -1,8 +1,8 @@
 package service;
 
 
-import dataAccess.DataAccessException;
-import dataAccess.MemoryDataAccess;
+import data_access.DataAccessException;
+import data_access.MemoryDataAccess;
 import model.GameData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
@@ -53,7 +53,7 @@ public class ServiceTests {
                 () -> service.addUser(user2),
                 "Expected ResponseException when adding user without password"
         );
-        assertEquals(400, thrownException.StatusCode());
+        assertEquals(400, thrownException.statusCode());
         assertEquals("Error: bad request", thrownException.getMessage());
     }
 
@@ -68,7 +68,7 @@ public class ServiceTests {
                 () -> service.logInUser(user1),
                 "Expected ResponseException when trying to log in a user on a cleared db"
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertEquals("Error: username does not exist - unauthorized", thrownException.getMessage());
     }
 
@@ -84,7 +84,7 @@ public class ServiceTests {
                 () -> service.getGames(authTokenData.authToken()),
                 "Expected ResponseException when trying to log in a user on a cleared db"
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertEquals("Error: unauthorized", thrownException.getMessage());
     }
     @Test
@@ -110,7 +110,7 @@ public class ServiceTests {
                 () -> service.logInUser(new UserData("user1", "password2", "email1")),
                 "Expected ResponseException when trying to log in a user with bad password"
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertEquals("Error: unauthorized", thrownException.getMessage());
     }
     @Test
@@ -135,7 +135,7 @@ public class ServiceTests {
                 () -> service.logOutUser(authTokenData.authToken() + "11111"),
                 "Expected ResponseException when trying to log out a user with bad auth token"
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertEquals("Error: unauthorized", thrownException.getMessage());
     }
 
@@ -166,7 +166,7 @@ public class ServiceTests {
                 () -> service.logOutUser(null),
                 "Expected ResponseException when trying to get game lists without auth token"
         );
-        assertEquals(401, thrownException.StatusCode());
+        assertEquals(401, thrownException.statusCode());
         assertEquals("Error: unauthorized", thrownException.getMessage());
     }
 
@@ -194,7 +194,7 @@ public class ServiceTests {
                         null, null), authTokenData.authToken()),
         "Expected ResponseException when trying to create game without game name"
         );
-        assertEquals(400, thrownException.StatusCode());
+        assertEquals(400, thrownException.statusCode());
         assertEquals("Error: bad request", thrownException.getMessage());
     }
 
@@ -232,7 +232,7 @@ public class ServiceTests {
                         null, "WHITE"), authTokenData.authToken()),
                 "Expected ResponseException when trying to join a game while a user is already white player"
         );
-        assertEquals(403, thrownException.StatusCode());
+        assertEquals(403, thrownException.statusCode());
         assertEquals("Error: game taken", thrownException.getMessage());
 
         HashMap<String, Collection<GameData>> games = service.getGames(authTokenData.authToken());

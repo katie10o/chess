@@ -1,4 +1,4 @@
-package chess.PieceMovesCalc;
+package chess.piece_moves_calc;
 
 import chess.ChessPiece;
 import chess.ChessPosition;
@@ -6,60 +6,60 @@ import chess.ChessPosition;
 import java.util.*;
 
 public class TypeOfMoves {
-    private static final Map<ChessPiece.PieceType, List<moves>> pieceWithMoves = Map.of(
+    private static final Map<ChessPiece.PieceType, List<Moves>> PIECE_WITH_MOVES = Map.of(
             ChessPiece.PieceType.KING, List.of(
-                    moves.UP,
-                    moves.DOWN,
-                    moves.LEFT,
-                    moves.RIGHT,
-                    moves.DIAGONAL_LEFT_UP,
-                    moves.DIAGONAL_LEFT_DOWN,
-                    moves.DIAGONAL_RIGHT_UP,
-                    moves.DIAGONAL_RIGHT_DOWN
+                    Moves.UP,
+                    Moves.DOWN,
+                    Moves.LEFT,
+                    Moves.RIGHT,
+                    Moves.DIAGONAL_LEFT_UP,
+                    Moves.DIAGONAL_LEFT_DOWN,
+                    Moves.DIAGONAL_RIGHT_UP,
+                    Moves.DIAGONAL_RIGHT_DOWN
             ),
             ChessPiece.PieceType.QUEEN,  List.of(
-                    moves.UP,
-                    moves.DOWN,
-                    moves.LEFT,
-                    moves.RIGHT,
-                    moves.DIAGONAL_LEFT_UP,
-                    moves.DIAGONAL_LEFT_DOWN,
-                    moves.DIAGONAL_RIGHT_UP,
-                    moves.DIAGONAL_RIGHT_DOWN
+                    Moves.UP,
+                    Moves.DOWN,
+                    Moves.LEFT,
+                    Moves.RIGHT,
+                    Moves.DIAGONAL_LEFT_UP,
+                    Moves.DIAGONAL_LEFT_DOWN,
+                    Moves.DIAGONAL_RIGHT_UP,
+                    Moves.DIAGONAL_RIGHT_DOWN
             ),
             ChessPiece.PieceType.KNIGHT,  List.of(
-                    moves.UP_TWO_RIGHT_ONE,
-                    moves.UP_TWO_LEFT_ONE,
-                    moves.DOWN_TWO_RIGHT_ONE,
-                    moves.DOWN_TWO_LEFT_ONE,
-                    moves.UP_ONE_RIGHT_TWO,
-                    moves.UP_ONE_LEFT_TWO,
-                    moves.DOWN_ONE_RIGHT_TWO,
-                    moves.DOWN_ONE_LEFT_TWO
+                    Moves.UP_TWO_RIGHT_ONE,
+                    Moves.UP_TWO_LEFT_ONE,
+                    Moves.DOWN_TWO_RIGHT_ONE,
+                    Moves.DOWN_TWO_LEFT_ONE,
+                    Moves.UP_ONE_RIGHT_TWO,
+                    Moves.UP_ONE_LEFT_TWO,
+                    Moves.DOWN_ONE_RIGHT_TWO,
+                    Moves.DOWN_ONE_LEFT_TWO
             ),
             ChessPiece.PieceType.BISHOP,  List.of(
-                    moves.DIAGONAL_LEFT_UP,
-                    moves.DIAGONAL_LEFT_DOWN,
-                    moves.DIAGONAL_RIGHT_UP,
-                    moves.DIAGONAL_RIGHT_DOWN
+                    Moves.DIAGONAL_LEFT_UP,
+                    Moves.DIAGONAL_LEFT_DOWN,
+                    Moves.DIAGONAL_RIGHT_UP,
+                    Moves.DIAGONAL_RIGHT_DOWN
             ),
             ChessPiece.PieceType.ROOK,  List.of(
-                    moves.UP,
-                    moves.DOWN,
-                    moves.LEFT,
-                    moves.RIGHT
+                    Moves.UP,
+                    Moves.DOWN,
+                    Moves.LEFT,
+                    Moves.RIGHT
             ),
             ChessPiece.PieceType.PAWN,  List.of(
-                    moves.UP,
-                    moves.DIAGONAL_RIGHT_UP,
-                    moves.DIAGONAL_LEFT_UP,
-                    moves.DOWN,
-                    moves.DIAGONAL_LEFT_DOWN,
-                    moves.DIAGONAL_RIGHT_DOWN
+                    Moves.UP,
+                    Moves.DIAGONAL_RIGHT_UP,
+                    Moves.DIAGONAL_LEFT_UP,
+                    Moves.DOWN,
+                    Moves.DIAGONAL_LEFT_DOWN,
+                    Moves.DIAGONAL_RIGHT_DOWN
             )
             );
 
-    public enum moves {
+    public enum Moves {
         UP,
         DOWN,
         LEFT,
@@ -99,8 +99,8 @@ public class TypeOfMoves {
         }
     }
 
-    public static List<moves> getPieceWithMoves(ChessPiece.PieceType type) {
-        return pieceWithMoves.get(type);
+    public static List<Moves> getPieceWithMoves(ChessPiece.PieceType type) {
+        return PIECE_WITH_MOVES.get(type);
     }
 
 }

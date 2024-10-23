@@ -1,7 +1,7 @@
 package server;
 
 import com.google.gson.Gson;
-import dataAccess.DataAccessException;
+import data_access.DataAccessException;
 import model.GameData;
 import model.UserData;
 import service.Service;

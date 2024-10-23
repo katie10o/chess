@@ -14,7 +14,7 @@ public class ChessBoard {
     private ChessPiece[][] board = new ChessPiece[9][9];
     private HashMap<ChessGame.TeamColor, HashMap<ChessPiece.PieceType, ArrayList<ChessPosition>>> piecesOnBoard = new HashMap<>();
 
-    private static final Map<ChessPiece, List<ChessPosition>> startingPositions = Map.ofEntries(
+    private static final Map<ChessPiece, List<ChessPosition>> STARTING_POSITIONS = Map.ofEntries(
             entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING), List.of(
                     new ChessPosition(1, 5)
             )),
@@ -154,7 +154,7 @@ public class ChessBoard {
      */
     public void resetBoard() {
         board = new ChessPiece[9][9];
-        for (Map.Entry<ChessPiece, List<ChessPosition>> entry : startingPositions.entrySet() ){
+        for (Map.Entry<ChessPiece, List<ChessPosition>> entry : STARTING_POSITIONS.entrySet() ){
             ChessPiece piece = entry.getKey();
             List<ChessPosition> positions = entry.getValue();
             for (ChessPosition position : positions) {
@@ -186,8 +186,8 @@ public class ChessBoard {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {return true;}
+        if (o == null || getClass() != o.getClass()) {return false;}
         ChessBoard chessBoard = (ChessBoard) o;
         return Arrays.deepEquals(board, chessBoard.board);
     }
