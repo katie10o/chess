@@ -1,5 +1,6 @@
 package dataaccess;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import model.AuthTokenData;
 import model.GameData;
@@ -85,7 +86,6 @@ public class MySqlDataAccess implements DataAccess{
     @Override
     public void addUser(UserData usrData) throws DataAccessException {
         String sql = "INSERT INTO user (id, username, password, email) VALUES (?, ?, ?, ?)";
-        String sql2 = "SELECT * FROM user";
 
         try{
             var conn = DatabaseManager.getConnection();
@@ -96,14 +96,6 @@ public class MySqlDataAccess implements DataAccess{
             queryStatement.setString(4, usrData.email());
             queryStatement.executeUpdate();
 
-
-            try (var queryStatement2 = conn.prepareStatement(sql2)) {
-                var resultStatement2 = queryStatement2.executeQuery();
-
-                while (resultStatement2.next()){
-                    System.out.println(resultStatement2.getString("username"));
-                }
-            }
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
@@ -113,11 +105,38 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public boolean checkUserName(String username) throws DataAccessException {
-        return false;
+        String sql = "SELECT username FROM user WHERE username=?";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setString(1, username);
+            try (var resultStatement = queryStatement.executeQuery()){
+                return resultStatement.next();
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
     public void addAuthToken(AuthTokenData tokenData) throws DataAccessException {
+        String sql = "INSERT INTO authToken (id, token, username) VALUES (?, ?, ?)";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+            queryStatement.setInt(1, authTokenID);
+            queryStatement.setString(2, tokenData.authToken());
+            queryStatement.setString(3, tokenData.username());
+            queryStatement.executeUpdate();
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
+
+        authTokenID ++;
 
     }
 
@@ -128,7 +147,19 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public String getUserPassword(String userName) throws DataAccessException {
-        return "";
+        String sql = "SELECT password FROM user WHERE username=?";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setString(1, userName);
+            try (var resultStatement = queryStatement.executeQuery()){
+                return resultStatement.getString("password");
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
@@ -138,12 +169,41 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public boolean getAuthToken(String authToken) throws DataAccessException {
-        return false;
+        String sql = "SELECT token FROM authToken WHERE token=?";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setString(1, authToken);
+            try (var resultStatement = queryStatement.executeQuery()){
+                return resultStatement.next();
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
     public int addGame(GameData gameData) throws DataAccessException {
-        return 0;
+        String sql = "INSERT INTO game (id, whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+            queryStatement.setInt(1, gameID);
+            queryStatement.setString(2, gameData.whiteUsername());
+            queryStatement.setString(3, gameData.blackUsername());
+            queryStatement.setString(4, gameData.gameName());
+            queryStatement.setString(5, new Gson().toJson(new ChessGame()));
+            queryStatement.executeUpdate();
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
+        int currGameId = gameID;
+        gameID ++;
+        return currGameId;
     }
 
     @Override
@@ -158,12 +218,36 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public boolean checkGameID(GameData gameData) throws DataAccessException {
-        return false;
+        String sql = "SELECT id FROM game WHERE id=?";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setInt(1, gameData.gameID());
+            try (var resultStatement = queryStatement.executeQuery()){
+                return resultStatement.next();
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
     public String getUserName(String authToken) throws DataAccessException {
-        return "";
+        String sql = "SELECT username FROM authToken WHERE token=?";
+
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setString(1, authToken);
+            try (var resultStatement = queryStatement.executeQuery()){
+                return resultStatement.getString("username");
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
