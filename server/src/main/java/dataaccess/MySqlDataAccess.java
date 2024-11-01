@@ -135,9 +135,7 @@ public class MySqlDataAccess implements DataAccess{
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
-
         authTokenID ++;
-
     }
 
     @Override
@@ -178,7 +176,6 @@ public class MySqlDataAccess implements DataAccess{
             try (var resultStatement = queryStatement.executeQuery()){
                 return resultStatement.next();
             }
-
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
@@ -213,7 +210,23 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public GameData getGameData(GameData gameData) throws DataAccessException {
-        return null;
+        String sql = "SELECT * FROM game WHERE id=?";
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setInt(1, gameData.gameID());
+            try (var resultStatement = queryStatement.executeQuery()){
+                String whiteUser = resultStatement.getString("whiteUser");
+                String blackUser = resultStatement.getString("blackUser");
+                String gameName = resultStatement.getString("gameName");
+                String chessGame = resultStatement.getString("chessGame");
+
+                return new GameData(gameData.gameID(), whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null);
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
