@@ -140,6 +140,15 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public void clearDB() throws DataAccessException {
+        var sql = "TRUNCATE chess";
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+            queryStatement.executeUpdate();
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
 
     }
 
@@ -162,7 +171,16 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public void clearAuthToken(String authToken) throws DataAccessException {
+        var sql = "DELETE FROM authtoken WHERE token=?";
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+            queryStatement.setString(1, authToken);
+            queryStatement.executeUpdate();
 
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
