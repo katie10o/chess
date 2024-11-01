@@ -13,7 +13,7 @@ public class ServerHandler {
     private final Service service;
 
     public ServerHandler(Service service) {
-        this.service = service;
+        this.service =  service;
     }
 
     public Object clear() throws ResponseException, DataAccessException {

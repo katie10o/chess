@@ -3,14 +3,24 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.MySqlDataAccess;
 import service.Service;
 import spark.*;
 
 public class Server {
-    private final ServerHandler handler = new ServerHandler(new Service(new MemoryDataAccess()));
+    private ServerHandler handler;
+
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
+
+        try{
+            handler = new ServerHandler(new Service(new MySqlDataAccess()));
+        } catch (DataAccessException e){
+            System.err.println("Error: Cannot connect to the database.");
+            Spark.stop();
+            throw new RuntimeException("Database creation connection failed. Shutting down the server.");
+        }
 
         Spark.staticFiles.location("web");
         Spark.post("/user", this::register);

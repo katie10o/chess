@@ -17,7 +17,7 @@ public class Service {
         this.dataAccess = dataAcess;
     }
 
-    public void clearDB() throws ResponseException, DataAccessException {
+    public void clearDB() throws DataAccessException {
         dataAccess.clearDB();
     }
 

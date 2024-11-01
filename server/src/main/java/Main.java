@@ -1,5 +1,6 @@
-import chess.*;
+import dataaccess.MySqlDataAccess;
 import server.Server;
+import service.Service;
 
 public class Main {
     public static void main(String[] args) {
@@ -7,7 +8,7 @@ public class Main {
             Server server = new Server();
             server.run(8080);
         }
-        catch (Throwable ex){
+        catch (Exception ex){
             System.out.printf("Unable to start server: %s%n", ex.getMessage());
         }
     }
