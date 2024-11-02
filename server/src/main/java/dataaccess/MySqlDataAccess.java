@@ -8,6 +8,7 @@ import model.UserData;
 import server.ResponseException;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -306,6 +307,28 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public HashMap<String, Collection<GameData>> listGames() throws DataAccessException {
-        return null;
+        HashMap<String, Collection<GameData>> result = new HashMap<>();
+        Collection<GameData> gameList = new ArrayList<>();
+        String sql = "SELECT * FROM game";
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            try (var resultStatement = queryStatement.executeQuery()){
+                while (resultStatement.next()) {
+                    int gameID = resultStatement.getInt("id");
+                    String whiteUser = resultStatement.getString("whiteUser");
+                    String blackUser = resultStatement.getString("blackUser");
+                    String gameName = resultStatement.getString("gameName");
+                    String chessGame = resultStatement.getString("chessGame");
+
+                    gameList.add(new GameData(gameID, whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null));
+                }
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
+        result.put("games", gameList);
+        return result;
     }
 }
