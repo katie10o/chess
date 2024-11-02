@@ -87,9 +87,8 @@ public class MySqlDataAccess implements DataAccess{
     public void addUser(UserData usrData) throws DataAccessException {
         String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)){
             queryStatement.setString(1, usrData.username());
             queryStatement.setString(2, usrData.password());
             queryStatement.setString(3, usrData.email());
@@ -105,9 +104,8 @@ public class MySqlDataAccess implements DataAccess{
     public boolean checkUserName(String username) throws DataAccessException {
         String sql = "SELECT username FROM user WHERE username=?";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)) {
             queryStatement.setString(1, username);
             try (var resultStatement = queryStatement.executeQuery()){
                 return resultStatement.next();
@@ -122,9 +120,8 @@ public class MySqlDataAccess implements DataAccess{
     public void addAuthToken(AuthTokenData tokenData) throws DataAccessException {
         String sql = "INSERT INTO authToken (token, username) VALUES (?, ?)";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
             queryStatement.setString(1, tokenData.authToken());
             queryStatement.setString(2, tokenData.username());
             queryStatement.executeUpdate();
@@ -138,9 +135,8 @@ public class MySqlDataAccess implements DataAccess{
     public void clearDB() throws DataAccessException {
         List<String> clearTables = List.of("TRUNCATE user","TRUNCATE game","TRUNCATE authToken");
         for (String sql : clearTables){
-            try{
-                var conn = DatabaseManager.getConnection();
-                var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+            try (var conn = DatabaseManager.getConnection();
+                var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
                 queryStatement.executeUpdate();
 
             } catch (SQLException ex){
@@ -153,9 +149,8 @@ public class MySqlDataAccess implements DataAccess{
     public String getUserPassword(String userName) throws DataAccessException {
         String sql = "SELECT password FROM user WHERE username=?";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)){
             queryStatement.setString(1, userName);
             try (var resultStatement = queryStatement.executeQuery()){
                 if (resultStatement.next()) {
@@ -174,9 +169,8 @@ public class MySqlDataAccess implements DataAccess{
     @Override
     public void clearAuthToken(String authToken) throws DataAccessException {
         var sql = "DELETE FROM authtoken WHERE token=?";
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
             queryStatement.setString(1, authToken);
             queryStatement.executeUpdate();
 
@@ -189,9 +183,8 @@ public class MySqlDataAccess implements DataAccess{
     public boolean getAuthToken(String authToken) throws DataAccessException {
         String sql = "SELECT token FROM authToken WHERE token=?";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)) {
             queryStatement.setString(1, authToken);
             try (var resultStatement = queryStatement.executeQuery()){
                 return resultStatement.next();
@@ -205,9 +198,8 @@ public class MySqlDataAccess implements DataAccess{
     public int addGame(GameData gameData) throws DataAccessException {
         String sql = "INSERT INTO game (whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?)";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS)) {
             queryStatement.setString(1, gameData.whiteUsername());
             queryStatement.setString(2, gameData.blackUsername());
             queryStatement.setString(3, gameData.gameName());
@@ -229,9 +221,8 @@ public class MySqlDataAccess implements DataAccess{
     @Override
     public void editGame(GameData gameData) throws DataAccessException {
         String sql = "UPDATE game SET whiteUser = ?, blackUser = ? WHERE id = ?";
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)) {
             queryStatement.setString(1, gameData.whiteUsername());
             queryStatement.setString(2, gameData.blackUsername());
             queryStatement.setInt(3, gameData.gameID());
@@ -245,8 +236,7 @@ public class MySqlDataAccess implements DataAccess{
     @Override
     public GameData getGameData(GameData gameData) throws DataAccessException {
         String sql = "SELECT * FROM game WHERE id=?";
-        try{
-            var conn = DatabaseManager.getConnection();
+        try (var conn = DatabaseManager.getConnection()) {
             var queryStatement = conn.prepareStatement(sql);
             queryStatement.setInt(1, gameData.gameID());
             try (var resultStatement = queryStatement.executeQuery()){
@@ -271,9 +261,8 @@ public class MySqlDataAccess implements DataAccess{
     public boolean checkGameID(GameData gameData) throws DataAccessException {
         String sql = "SELECT id FROM game WHERE id=?";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try ( var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)) {
             queryStatement.setInt(1, gameData.gameID());
             try (var resultStatement = queryStatement.executeQuery()){
                 return resultStatement.next();
@@ -288,9 +277,8 @@ public class MySqlDataAccess implements DataAccess{
     public String getUserName(String authToken) throws DataAccessException {
         String sql = "SELECT username FROM authToken WHERE token=?";
 
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)) {
             queryStatement.setString(1, authToken);
             try (var resultStatement = queryStatement.executeQuery()){
                 if(resultStatement.next()){
@@ -310,9 +298,8 @@ public class MySqlDataAccess implements DataAccess{
         HashMap<String, Collection<GameData>> result = new HashMap<>();
         Collection<GameData> gameList = new ArrayList<>();
         String sql = "SELECT * FROM game";
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql);
+        try (var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql)) {
             try (var resultStatement = queryStatement.executeQuery()){
                 while (resultStatement.next()) {
                     int gameID = resultStatement.getInt("id");
