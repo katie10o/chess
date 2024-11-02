@@ -25,7 +25,7 @@ public class MySqlDataAccess implements DataAccess{
     private final String[] createUserTable = {
         """
             CREATE TABLE IF NOT EXISTS  user (
-              `id` int NOT NULL,
+              `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
               `email` varchar(256) NOT NULL,
@@ -38,7 +38,7 @@ public class MySqlDataAccess implements DataAccess{
     private final String[] createGameTable = {
             """
             CREATE TABLE IF NOT EXISTS  game (
-              `id` int NOT NULL,
+              `id` int NOT NULL AUTO_INCREMENT,
               `whiteUser` varchar(256),
               `blackUser` varchar(256),
               `gameName` varchar(256) NOT NULL,
@@ -50,7 +50,7 @@ public class MySqlDataAccess implements DataAccess{
     private final String[] createAuthTable = {
             """
             CREATE TABLE IF NOT EXISTS  authToken (
-              `id` int NOT NULL,
+              `id` int NOT NULL AUTO_INCREMENT,
               `token` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
               PRIMARY KEY (`id`),
@@ -85,15 +85,14 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public void addUser(UserData usrData) throws DataAccessException {
-        String sql = "INSERT INTO user (id, username, password, email) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO user (username, password, email) VALUES (?, ?, ?)";
 
         try{
             var conn = DatabaseManager.getConnection();
             var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
-            queryStatement.setInt(1, userID);
-            queryStatement.setString(2, usrData.username());
-            queryStatement.setString(3, usrData.password());
-            queryStatement.setString(4, usrData.email());
+            queryStatement.setString(1, usrData.username());
+            queryStatement.setString(2, usrData.password());
+            queryStatement.setString(3, usrData.email());
             queryStatement.executeUpdate();
 
         } catch (SQLException ex){
@@ -122,14 +121,13 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public void addAuthToken(AuthTokenData tokenData) throws DataAccessException {
-        String sql = "INSERT INTO authToken (id, token, username) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO authToken (token, username) VALUES (?, ?)";
 
         try{
             var conn = DatabaseManager.getConnection();
             var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
-            queryStatement.setInt(1, authTokenID);
-            queryStatement.setString(2, tokenData.authToken());
-            queryStatement.setString(3, tokenData.username());
+            queryStatement.setString(1, tokenData.authToken());
+            queryStatement.setString(2, tokenData.username());
             queryStatement.executeUpdate();
 
         } catch (SQLException ex){
@@ -201,16 +199,15 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public int addGame(GameData gameData) throws DataAccessException {
-        String sql = "INSERT INTO game (id, whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO game (whiteUser, blackUser, gameName, chessGame) VALUES (?, ?, ?, ?)";
 
         try{
             var conn = DatabaseManager.getConnection();
             var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
-            queryStatement.setInt(1, gameID);
-            queryStatement.setString(2, gameData.whiteUsername());
-            queryStatement.setString(3, gameData.blackUsername());
-            queryStatement.setString(4, gameData.gameName());
-            queryStatement.setString(5, new Gson().toJson(new ChessGame()));
+            queryStatement.setString(1, gameData.whiteUsername());
+            queryStatement.setString(2, gameData.blackUsername());
+            queryStatement.setString(3, gameData.gameName());
+            queryStatement.setString(4, new Gson().toJson(new ChessGame()));
             queryStatement.executeUpdate();
 
         } catch (SQLException ex){
