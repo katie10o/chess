@@ -1,12 +1,11 @@
-package service;
+package dataaccess;
 
-import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
 import model.AuthTokenData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
+import service.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,49 +16,54 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataAccessTests {
     private static Service service;
     UserData user1 = new UserData("user1", "password1", "email1");
-    UserData user2 = new UserData("user2", "", "email2");
+    UserData user2 = new UserData("user2", "password2", "email2");
     AuthTokenData authTokenData;
     GameData createGame = new GameData(0, null, null, "test", null, null);
     int gameID;
 
 
     @BeforeAll
-    public static void init(){
-        service = new Service(new MemoryDataAccess());
+    public static void init() throws DataAccessException {
+        service = new Service(new MySqlDataAccess());
     }
+
     @BeforeEach
-    public void begin() throws DataAccessException {
-        service.clearDB();
+    public void begin()  {
         authTokenData = null;
         gameID = 0;
     }
 
     @Test
     @Order(1)
-    @DisplayName("register sucessfully")
+    @DisplayName("register successful")
     public void addUser() throws ResponseException, DataAccessException {
-        Object authToken = service.addUser(user1);
+        service.clearDB();
+        Object authToken = service.addUser(new UserData("username", "password", "email"));
         assertNotNull(authToken);
     }
 
     @Test
     @Order(2)
-    @DisplayName("register without a password")
-    public void addBadUser() {
+    @DisplayName("register unsuccessful")
+    public void addBadUser() throws DataAccessException, ResponseException {
+        service.clearDB();
+        service.addUser(new UserData("username", "password", "email"));
         ResponseException thrownException = assertThrows(
                 ResponseException.class,
-                () -> service.addUser(user2),
-                "Expected ResponseException when adding user without password"
+                () -> service.addUser(new UserData("username", "password", "email")),
+                "Expected ResponseException when adding user that already exists"
         );
-        assertEquals(400, thrownException.statusCode());
-        assertEquals("Error: bad request", thrownException.getMessage());
+        assertEquals(403, thrownException.statusCode());
+        assertEquals("Error: username already taken", thrownException.getMessage());
     }
 
     @Test
     @Order(3)
     @DisplayName("clear db successfully")
     public void clearAddedUser() throws ResponseException, DataAccessException {
+        service.clearDB();
         service.addUser(user1);
+        service.addUser(user2);
         service.clearDB();
         ResponseException thrownException = assertThrows(
                 ResponseException.class,
@@ -74,6 +78,7 @@ public class DataAccessTests {
     @Order(4)
     @DisplayName("clear db successfully")
     public void clearAddedGame() throws ResponseException, DataAccessException {
+        service.clearDB();
         authTokenData = (AuthTokenData) service.addUser(user1);
         gameID = service.createGame(createGame, authTokenData.authToken());
         service.clearDB();
@@ -89,6 +94,7 @@ public class DataAccessTests {
     @Order(5)
     @DisplayName("log in successfully")
     public void logInUser() throws ResponseException, DataAccessException {
+        service.clearDB();
         authTokenData = (AuthTokenData) service.addUser(user1);
         service.logOutUser(authTokenData.authToken());
         AuthTokenData authTokenData2 = (AuthTokenData) service.logInUser(user1);
@@ -100,6 +106,8 @@ public class DataAccessTests {
     @Order(6)
     @DisplayName("log in unsuccessfully with bad password")
     public void badPassword() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
         service.logOutUser(authTokenData.authToken());
 
@@ -115,6 +123,8 @@ public class DataAccessTests {
     @Order(7)
     @DisplayName("log out successfully")
     public void logOutUser() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
 
         assertDoesNotThrow(() -> {
@@ -126,6 +136,8 @@ public class DataAccessTests {
     @Order(8)
     @DisplayName("log out unsuccessfully with bad authToken")
     public void badAuthToken() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
 
         ResponseException thrownException = assertThrows(
@@ -141,6 +153,8 @@ public class DataAccessTests {
     @Order(9)
     @DisplayName("list games successfully")
     public void listGames() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
         service.createGame(createGame, authTokenData.authToken());
         service.createGame(createGame, authTokenData.authToken());
@@ -154,6 +168,8 @@ public class DataAccessTests {
     @Order(10)
     @DisplayName("list games unsuccessfully with no auth token")
     public void noAuthToken() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
         service.createGame(createGame, authTokenData.authToken());
         service.createGame(createGame, authTokenData.authToken());
@@ -172,6 +188,8 @@ public class DataAccessTests {
     @Order(11)
     @DisplayName("create game successfully")
     public void createGame() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
         assertDoesNotThrow(() -> {
             gameID = service.createGame(createGame, authTokenData.authToken());
@@ -184,6 +202,8 @@ public class DataAccessTests {
     @Order(12)
     @DisplayName("cannot create game without game name")
     public void notGameName() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
 
         ResponseException thrownException = assertThrows(
@@ -200,6 +220,8 @@ public class DataAccessTests {
     @Order(13)
     @DisplayName("join game successfully")
     public void joinGame() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
         gameID = service.createGame(createGame, authTokenData.authToken());
 
@@ -217,6 +239,8 @@ public class DataAccessTests {
     @Order(14)
     @DisplayName("join game unsuccessfully, white user already taken")
     public void whiteUserTaken() throws ResponseException, DataAccessException {
+        service.clearDB();
+
         authTokenData = (AuthTokenData) service.addUser(user1);
         AuthTokenData authTokenData2 = (AuthTokenData) service.addUser(new UserData("user2", "password2", "email2"));
 
