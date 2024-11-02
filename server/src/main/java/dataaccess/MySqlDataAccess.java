@@ -14,9 +14,7 @@ import java.util.HashMap;
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
 public class MySqlDataAccess implements DataAccess{
-    int userID = 1500;
-    int gameID = 150;
-    int authTokenID = 15;
+
 
 
     public MySqlDataAccess() throws DataAccessException {
@@ -99,7 +97,6 @@ public class MySqlDataAccess implements DataAccess{
             throw new DataAccessException(ex.getMessage());
         }
 
-        userID ++;
     }
 
     @Override
@@ -133,7 +130,6 @@ public class MySqlDataAccess implements DataAccess{
         } catch (SQLException ex){
             throw new DataAccessException(ex.getMessage());
         }
-        authTokenID ++;
     }
 
     @Override
@@ -209,13 +205,17 @@ public class MySqlDataAccess implements DataAccess{
             queryStatement.setString(3, gameData.gameName());
             queryStatement.setString(4, new Gson().toJson(new ChessGame()));
             queryStatement.executeUpdate();
+            var rs = queryStatement.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }else{
+                throw new ResponseException(500, "error adding game");
+            }
 
-        } catch (SQLException ex){
+        } catch (SQLException | ResponseException ex){
             throw new DataAccessException(ex.getMessage());
         }
-        int currGameId = gameID;
-        gameID ++;
-        return currGameId;
+
     }
 
     @Override
