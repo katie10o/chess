@@ -155,10 +155,15 @@ public class MySqlDataAccess implements DataAccess{
             var queryStatement = conn.prepareStatement(sql);
             queryStatement.setString(1, userName);
             try (var resultStatement = queryStatement.executeQuery()){
-                return resultStatement.getString("password");
+                if (resultStatement.next()) {
+                    return resultStatement.getString("password");
+                }
+                else {
+                    throw new ResponseException(500, "unable to retrieve password");
+                }
             }
 
-        } catch (SQLException ex){
+        } catch (SQLException | ResponseException ex){
             throw new DataAccessException(ex.getMessage());
         }
     }
