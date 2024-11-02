@@ -227,7 +227,18 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public void editGame(GameData gameData) throws DataAccessException {
+        String sql = "UPDATE game SET whiteUser = ?, blackUser = ? WHERE id = ?";
+        try{
+            var conn = DatabaseManager.getConnection();
+            var queryStatement = conn.prepareStatement(sql);
+            queryStatement.setString(1, gameData.whiteUsername());
+            queryStatement.setString(2, gameData.blackUsername());
+            queryStatement.setInt(3, gameData.gameID());
+            queryStatement.executeUpdate();
 
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
     }
 
     @Override
@@ -238,15 +249,19 @@ public class MySqlDataAccess implements DataAccess{
             var queryStatement = conn.prepareStatement(sql);
             queryStatement.setInt(1, gameData.gameID());
             try (var resultStatement = queryStatement.executeQuery()){
-                String whiteUser = resultStatement.getString("whiteUser");
-                String blackUser = resultStatement.getString("blackUser");
-                String gameName = resultStatement.getString("gameName");
-                String chessGame = resultStatement.getString("chessGame");
+                if (resultStatement.next()) {
+                    String whiteUser = resultStatement.getString("whiteUser");
+                    String blackUser = resultStatement.getString("blackUser");
+                    String gameName = resultStatement.getString("gameName");
+                    String chessGame = resultStatement.getString("chessGame");
 
-                return new GameData(gameData.gameID(), whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null);
+                    return new GameData(gameData.gameID(), whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null);
+                }else{
+                    throw new ResponseException(500, "error adding game");
+                }
             }
 
-        } catch (SQLException ex){
+        } catch (SQLException | ResponseException ex){
             throw new DataAccessException(ex.getMessage());
         }
     }
@@ -277,10 +292,14 @@ public class MySqlDataAccess implements DataAccess{
             var queryStatement = conn.prepareStatement(sql);
             queryStatement.setString(1, authToken);
             try (var resultStatement = queryStatement.executeQuery()){
-                return resultStatement.getString("username");
+                if(resultStatement.next()){
+                    return resultStatement.getString("username");
+                } else{
+                    throw new ResponseException(500, "error retrieving username");
+                }
             }
 
-        } catch (SQLException ex){
+        } catch (SQLException | ResponseException ex){
             throw new DataAccessException(ex.getMessage());
         }
     }
