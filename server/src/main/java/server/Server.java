@@ -17,9 +17,8 @@ public class Server {
         try{
             handler = new ServerHandler(new Service(new MySqlDataAccess()));
         } catch (DataAccessException e){
+            System.err.println(e.getMessage());
             System.err.println("Error: Cannot connect to the database.");
-            Spark.stop();
-            throw new RuntimeException("Database creation connection failed. Shutting down the server.");
         }
 
         Spark.staticFiles.location("web");
