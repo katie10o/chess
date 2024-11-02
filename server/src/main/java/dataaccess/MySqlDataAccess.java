@@ -39,8 +39,8 @@ public class MySqlDataAccess implements DataAccess{
         configureDatebase();
     }
     private final String[] createUserTable = {
-        String.format("""
-            CREATE TABLE IF NOT EXISTS  %s (
+        """
+            CREATE TABLE IF NOT EXISTS  user (
               `id` int NOT NULL AUTO_INCREMENT,
               `username` varchar(256) NOT NULL,
               `password` varchar(256) NOT NULL,
@@ -48,12 +48,12 @@ public class MySqlDataAccess implements DataAccess{
               PRIMARY KEY (`id`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """, USERTABLE )
+            """
     };
 
     private final String[] createGameTable = {
-            String.format("""
-            CREATE TABLE IF NOT EXISTS  %s (
+            """
+            CREATE TABLE IF NOT EXISTS  game (
               `id` int NOT NULL AUTO_INCREMENT,
               `whiteUser` varchar(256),
               `blackUser` varchar(256),
@@ -61,18 +61,18 @@ public class MySqlDataAccess implements DataAccess{
               `chessGame` TEXT NOT NULL,
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """, GAMETABLE)
+            """
     };
     private final String[] createAuthTable = {
-            String.format("""
-            CREATE TABLE IF NOT EXISTS  %s (
+            """
+            CREATE TABLE IF NOT EXISTS  auth (
               `id` int NOT NULL AUTO_INCREMENT,
               `token` varchar(256) NOT NULL,
               `username` varchar(256) NOT NULL,
               PRIMARY KEY (`id`),
               INDEX(token)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """, AUTHTABLE)
+            """
     };
 
 
