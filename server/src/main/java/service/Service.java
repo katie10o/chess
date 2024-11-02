@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
+import org.mindrot.jbcrypt.BCrypt;
 import server.ResponseException;
 import model.AuthTokenData;
 import model.GameData;
@@ -30,8 +31,10 @@ public class Service {
             if (dataAccess.checkUserName(usrData.username())){
                 throw new ResponseException(403, "Error: username already taken");
             }
+            String hashpass = hashPassword(usrData.password());
+            UserData newUserData = new UserData(usrData.username(), hashpass, usrData.email());
 
-            dataAccess.addUser(usrData);
+            dataAccess.addUser(newUserData);
             return giveToken(usrData.username());
     }
 
@@ -45,7 +48,7 @@ public class Service {
         }
 
         String dataBasePassword = dataAccess.getUserPassword(usrData.username());
-        if (!usrData.password().equals(dataBasePassword)){
+        if (!verifyPassword(usrData.password(), dataBasePassword)){
             throw new ResponseException(401, "Error: unauthorized");
         }
 
@@ -129,5 +132,12 @@ public class Service {
         AuthTokenData tokenRecord = new AuthTokenData(username, newToken);
         dataAccess.addAuthToken(tokenRecord);
         return tokenRecord;
+    }
+    private String hashPassword(String clearTextPassword) {
+        return BCrypt.hashpw(clearTextPassword, BCrypt.gensalt());
+    }
+
+    boolean verifyPassword(String clearTextPassword, String hashedPassword) {
+        return BCrypt.checkpw(clearTextPassword, hashedPassword);
     }
 }
