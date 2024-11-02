@@ -10,6 +10,7 @@ import server.ResponseException;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 import static java.sql.Statement.RETURN_GENERATED_KEYS;
 
@@ -134,16 +135,17 @@ public class MySqlDataAccess implements DataAccess{
 
     @Override
     public void clearDB() throws DataAccessException {
-        var sql = "TRUNCATE chess";
-        try{
-            var conn = DatabaseManager.getConnection();
-            var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
-            queryStatement.executeUpdate();
+        List<String> clearTables = List.of("TRUNCATE user","TRUNCATE game","TRUNCATE authToken");
+        for (String sql : clearTables){
+            try{
+                var conn = DatabaseManager.getConnection();
+                var queryStatement = conn.prepareStatement(sql, RETURN_GENERATED_KEYS);
+                queryStatement.executeUpdate();
 
-        } catch (SQLException ex){
-            throw new DataAccessException(ex.getMessage());
+            } catch (SQLException ex){
+                throw new DataAccessException(ex.getMessage());
+            }
         }
-
     }
 
     @Override
