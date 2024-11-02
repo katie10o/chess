@@ -14,253 +14,193 @@ import java.util.HashMap;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DataAccessTests {
-    private static Service service;
+    private static MySqlDataAccess dataAccess;
+
     UserData user1 = new UserData("user1", "password1", "email1");
     UserData user2 = new UserData("user2", "password2", "email2");
-    AuthTokenData authTokenData;
-    GameData createGame = new GameData(0, null, null, "test", null, null);
-    int gameID;
+    GameData game1 = new GameData(0, null, null, "game1",
+            null, null);
+    GameData game2 = new GameData(0, null, null, null,
+            null, null);
+    AuthTokenData authToken1 = new AuthTokenData("user1", "abcdef12345");
+    AuthTokenData authToken2 = new AuthTokenData("user2", "12345abcdef");
+
 
 
     @BeforeAll
     public static void init() throws DataAccessException {
-        service = new Service(new MySqlDataAccess());
+        dataAccess = new MySqlDataAccess();
     }
 
     @BeforeEach
-    public void begin()  {
-        authTokenData = null;
-        gameID = 0;
+    public void begin() throws DataAccessException {
+        dataAccess.clearDB();
     }
 
     @Test
     @Order(1)
-    @DisplayName("register successful")
-    public void addUser() throws ResponseException, DataAccessException {
-        service.clearDB();
-        Object authToken = service.addUser(new UserData("username", "password", "email"));
-        assertNotNull(authToken);
+    @DisplayName("positive cast for addUser")
+    public void addUser() throws DataAccessException {
+        dataAccess.addUser(user1);
+        assertTrue(dataAccess.checkUserName(user1.username()));
     }
 
     @Test
     @Order(2)
-    @DisplayName("register unsuccessful")
+    @DisplayName("negative cast for addUser")
     public void addBadUser() throws DataAccessException, ResponseException {
-        service.clearDB();
-        service.addUser(new UserData("username", "password", "email"));
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.addUser(new UserData("username", "password", "email")),
-                "Expected ResponseException when adding user that already exists"
-        );
-        assertEquals(403, thrownException.statusCode());
-        assertEquals("Error: username already taken", thrownException.getMessage());
+        dataAccess.addUser(user1);
+        assertFalse(dataAccess.checkUserName("badUser"));
     }
 
     @Test
     @Order(3)
-    @DisplayName("clear db successfully")
-    public void clearAddedUser() throws ResponseException, DataAccessException {
-        service.clearDB();
-        service.addUser(user1);
-        service.addUser(user2);
-        service.clearDB();
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.logInUser(user1),
-                "Expected ResponseException when trying to log in a user on a cleared db"
-        );
-        assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: username does not exist - unauthorized", thrownException.getMessage());
+    @DisplayName("positive cast for checkUser")
+    public void checkUser() throws ResponseException, DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.checkUserName(user1.username());
+        assertDoesNotThrow(() -> {
+            dataAccess.checkUserName(user1.username());
+        });
     }
 
     @Test
     @Order(4)
-    @DisplayName("clear db successfully")
-    public void clearAddedGame() throws ResponseException, DataAccessException {
-        service.clearDB();
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        gameID = service.createGame(createGame, authTokenData.authToken());
-        service.clearDB();
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.getGames(authTokenData.authToken()),
-                "Expected ResponseException when trying to log in a user on a cleared db"
-        );
-        assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
+    @DisplayName("negative cast for checkUser")
+    public void checkBadUser() throws ResponseException, DataAccessException {
+        dataAccess.addUser(user1);
+        assertFalse(dataAccess.checkUserName(user2.username()));
     }
     @Test
     @Order(5)
-    @DisplayName("log in successfully")
-    public void logInUser() throws ResponseException, DataAccessException {
-        service.clearDB();
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        service.logOutUser(authTokenData.authToken());
-        AuthTokenData authTokenData2 = (AuthTokenData) service.logInUser(user1);
-
-        assertNotNull(authTokenData2);
-        assertNotEquals(authTokenData, authTokenData2);
+    @DisplayName("positive cast for addAuthData")
+    public void addAuth() throws DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.addAuthToken(authToken1);
+        assertTrue(dataAccess.getAuthToken(authToken1.authToken()));
     }
     @Test
     @Order(6)
-    @DisplayName("log in unsuccessfully with bad password")
-    public void badPassword() throws ResponseException, DataAccessException {
-        service.clearDB();
-
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        service.logOutUser(authTokenData.authToken());
-
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.logInUser(new UserData("user1", "password2", "email1")),
-                "Expected ResponseException when trying to log in a user with bad password"
+    @DisplayName("negative cast for addAuthData")
+    public void addBadAuth() throws DataAccessException {
+        dataAccess.addUser(user1);
+        DataAccessException thrownException = assertThrows(
+                DataAccessException.class,
+                () -> dataAccess.addAuthToken(new AuthTokenData(null, null)),
+                "Expected DataAcessException when trying to add null information for authData"
         );
-        assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
     }
+
     @Test
     @Order(7)
-    @DisplayName("log out successfully")
-    public void logOutUser() throws ResponseException, DataAccessException {
-        service.clearDB();
-
-        authTokenData = (AuthTokenData) service.addUser(user1);
-
-        assertDoesNotThrow(() -> {
-            service.logOutUser(authTokenData.authToken());
-        });
+    @DisplayName("positive cast for clearDB")
+    public void clearDB() throws DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.clearDB();
+        assertFalse(dataAccess.checkUserName(user1.username()));
     }
 
     @Test
     @Order(8)
-    @DisplayName("log out unsuccessfully with bad authToken")
-    public void badAuthToken() throws ResponseException, DataAccessException {
-        service.clearDB();
-
-        authTokenData = (AuthTokenData) service.addUser(user1);
-
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.logOutUser(authTokenData.authToken() + "11111"),
-                "Expected ResponseException when trying to log out a user with bad auth token"
-        );
-        assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
+    @DisplayName("positive cast for getUserPass")
+    public void getPass() throws DataAccessException {
+        dataAccess.addUser(user1);
+        String pass = dataAccess.getUserPassword(user1.username());
+        assertEquals(user1.password(), pass);
     }
 
     @Test
     @Order(9)
-    @DisplayName("list games successfully")
-    public void listGames() throws ResponseException, DataAccessException {
-        service.clearDB();
-
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        service.createGame(createGame, authTokenData.authToken());
-        service.createGame(createGame, authTokenData.authToken());
-        service.createGame(createGame, authTokenData.authToken());
-
-        HashMap<String, Collection<GameData>> games = service.getGames(authTokenData.authToken());
-        assertEquals(3, games.get("games").size());
+    @DisplayName("negative cast for getUserPass")
+    public void getBadPass() throws DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.addUser(user2);
+        String badPass = dataAccess.getUserPassword(user2.username());
+        assertNotEquals(user1.password(), badPass);
     }
-
     @Test
     @Order(10)
-    @DisplayName("list games unsuccessfully with no auth token")
-    public void noAuthToken() throws ResponseException, DataAccessException {
-        service.clearDB();
+    @DisplayName("positive cast for clearAuthToken")
+    public void clearAuth() throws DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.addAuthToken(authToken1);
+        dataAccess.clearAuthToken(authToken1.authToken());
+        assertFalse(dataAccess.getAuthToken(authToken1.authToken()));
 
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        service.createGame(createGame, authTokenData.authToken());
-        service.createGame(createGame, authTokenData.authToken());
-        service.createGame(createGame, authTokenData.authToken());
-
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.logOutUser(null),
-                "Expected ResponseException when trying to get game lists without auth token"
-        );
-        assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
     }
 
     @Test
     @Order(11)
-    @DisplayName("create game successfully")
-    public void createGame() throws ResponseException, DataAccessException {
-        service.clearDB();
+    @DisplayName("negative cast for clearAuthToken")
+    public void clearBadAuth() throws DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.addAuthToken(authToken1);
+        dataAccess.clearAuthToken(authToken2.authToken());
+        assertTrue(dataAccess.getAuthToken(authToken1.authToken()));
 
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        assertDoesNotThrow(() -> {
-            gameID = service.createGame(createGame, authTokenData.authToken());
-        });
-
-        assertNotEquals(gameID, 0);
     }
 
     @Test
     @Order(12)
-    @DisplayName("cannot create game without game name")
-    public void notGameName() throws ResponseException, DataAccessException {
-        service.clearDB();
+    @DisplayName("positive cast for getAuthToken")
+    public void getAuth() throws DataAccessException {
+        dataAccess.addUser(user1);
+        dataAccess.addAuthToken(authToken1);
+        assertTrue(dataAccess.getAuthToken(authToken1.authToken()));
 
-        authTokenData = (AuthTokenData) service.addUser(user1);
-
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.createGame(new GameData(0, null, null, null,
-                        null, null), authTokenData.authToken()),
-                "Expected ResponseException when trying to create game without game name"
-        );
-        assertEquals(400, thrownException.statusCode());
-        assertEquals("Error: bad request", thrownException.getMessage());
     }
-
     @Test
     @Order(13)
-    @DisplayName("join game successfully")
-    public void joinGame() throws ResponseException, DataAccessException {
-        service.clearDB();
-
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        gameID = service.createGame(createGame, authTokenData.authToken());
-
-        assertDoesNotThrow(() -> {
-            service.joinGame(new GameData(gameID, null, null, null,
-                    null, "WHITE"), authTokenData.authToken());
-        });
-        HashMap<String, Collection<GameData>> games = service.getGames(authTokenData.authToken());
-        ArrayList<GameData> game = new ArrayList<>(games.get("games"));
-        assertEquals(game.getFirst().whiteUsername(), "user1");
+    @DisplayName("negative cast for getAuthToken")
+    public void getBadAuth() throws DataAccessException {
+        assertFalse(dataAccess.getAuthToken(authToken1.authToken()));
 
     }
 
     @Test
     @Order(14)
-    @DisplayName("join game unsuccessfully, white user already taken")
-    public void whiteUserTaken() throws ResponseException, DataAccessException {
-        service.clearDB();
+    @DisplayName("positive cast for addGame")
+    public void addGame() throws DataAccessException {
+        dataAccess.addUser(user1);
+        int gameID = dataAccess.addGame(game1);
+        assertTrue(gameID > 0);
+    }
 
-        authTokenData = (AuthTokenData) service.addUser(user1);
-        AuthTokenData authTokenData2 = (AuthTokenData) service.addUser(new UserData("user2", "password2", "email2"));
-
-        gameID = service.createGame(createGame, authTokenData.authToken());
-        service.joinGame(new GameData(gameID, null, null, null,
-                null, "WHITE"), authTokenData.authToken());
-
-        ResponseException thrownException = assertThrows(
-                ResponseException.class,
-                () -> service.joinGame(new GameData(gameID, null, null, null,
-                        null, "WHITE"), authTokenData.authToken()),
-                "Expected ResponseException when trying to join a game while a user is already white player"
+    @Test
+    @Order(15)
+    @DisplayName("negative cast for addGame")
+    public void addBadGame() throws DataAccessException {
+        dataAccess.addUser(user1);
+        DataAccessException thrownException = assertThrows(
+                DataAccessException.class,
+                () -> dataAccess.addGame(game2),
+                "Expected DataAcessException when trying to add null for game name"
         );
-        assertEquals(403, thrownException.statusCode());
-        assertEquals("Error: game taken", thrownException.getMessage());
+    }
 
-        HashMap<String, Collection<GameData>> games = service.getGames(authTokenData.authToken());
-        ArrayList<GameData> game = new ArrayList<>(games.get("games"));
-        assertNotEquals(game.getFirst().whiteUsername(), "user2");
+    @Test
+    @Order(16)
+    @DisplayName("positive cast for editGame")
+    public void editGame() throws DataAccessException {
+        dataAccess.addUser(user1);
+        int gameID = dataAccess.addGame(game1);
+        dataAccess.editGame(new GameData(gameID, user1.username(), null, null, null, null));
+        GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null));
+        assertEquals(user1.username(), gameTest.whiteUsername());
 
     }
+
+    @Test
+    @Order(17)
+    @DisplayName("negative cast for editGame")
+    public void editBadGame() throws DataAccessException {
+        dataAccess.addUser(user1);
+        int gameID = dataAccess.addGame(game1);
+        dataAccess.editGame(new GameData(gameID, user2.username(), null, null, null, null));
+        GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null));
+        assertNotNull(user1.username(), gameTest.whiteUsername());
+    }
+
+
 
 }
