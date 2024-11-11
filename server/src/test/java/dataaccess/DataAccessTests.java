@@ -5,11 +5,7 @@ import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
 import server.ResponseException;
-import service.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -199,6 +195,61 @@ public class DataAccessTests {
         dataAccess.editGame(new GameData(gameID, user2.username(), null, null, null, null));
         GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null));
         assertNotNull(user1.username(), gameTest.whiteUsername());
+    }
+
+    @Test
+    @Order(18)
+    @DisplayName("positive cast for getGame")
+    public void getGame() throws DataAccessException {
+
+    }
+    @Test
+    @Order(19)
+    @DisplayName("negative cast for getGame")
+    public void getBadGame() throws DataAccessException {
+
+    }
+
+    @Test
+    @Order(20)
+    @DisplayName("positive cast for checkGameID")
+    public void checkGameId() throws DataAccessException {
+
+    }
+
+    @Test
+    @Order(21)
+    @DisplayName("negative cast for checkGameID")
+    public void checkBadGameId() throws DataAccessException {
+
+    }
+    
+    @Test
+    @Order(22)
+    @DisplayName("positive cast for getUserName")
+    public void getUserName() throws DataAccessException {
+
+    }
+
+    @Test
+    @Order(23)
+    @DisplayName("negative cast for getUserName")
+    public void getadUserName() throws DataAccessException {
+
+    }
+
+    @Test
+    @Order(24)
+    @DisplayName("positive cast for listGames")
+    public void listGames() throws DataAccessException {
+
+    }
+
+    @Test
+    @Order(25)
+    @DisplayName("negative cast for listGames")
+    public void listBadGames() throws DataAccessException {
+
     }
 
 
