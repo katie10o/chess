@@ -26,11 +26,10 @@ public class ServerFacade {
    public void signOut() {
         System.out.println("signed out called");
     }
-    public void register(String[] params) throws ResponseException {
+    public UserData register(String[] params) throws ResponseException {
         try {
-            UserData user = new UserData(params[0], params[1], params[2]);
-            var returnedStuff = makeRequest("POST", "/user", user, UserData.class);
-            System.out.println(returnedStuff);
+            UserData user = new UserData(params[0], params[1], params[2], null);
+            return makeRequest("POST", "/user", user, UserData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
         }

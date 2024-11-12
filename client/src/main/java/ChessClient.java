@@ -9,6 +9,7 @@ public class ChessClient {
     private final ServerFacade server;
     private final String serverUrl;
     private boolean signIn = false;
+    private String authToken = null;
 
     public ChessClient(String url){
         server = new ServerFacade(url);
@@ -37,7 +38,10 @@ public class ChessClient {
     }
 
     private String signIn(String[] params) throws ResponseException {
-        server.signIn(params);
+        UserData usr = server.signIn(params);
+        this.authToken = usr.authToken();
+        signIn = true;
+        return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
         return "null";
     }
     private String signOut() {
@@ -45,8 +49,10 @@ public class ChessClient {
         return "null";
     }
     private String register(String[] params) throws ResponseException {
-        server.register(params);
-        return "null";
+        UserData usr = server.register(params);
+        this.authToken = usr.authToken();
+        signIn = true;
+        return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
     }
     private String listGame(String[] params) {
         server.listGame(params);

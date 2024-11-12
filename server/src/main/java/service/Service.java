@@ -32,7 +32,7 @@ public class Service {
                 throw new ResponseException(403, "Error: username already taken");
             }
             String hashpass = hashPassword(usrData.password());
-            UserData newUserData = new UserData(usrData.username(), hashpass, usrData.email());
+            UserData newUserData = new UserData(usrData.username(), hashpass, usrData.email(), null);
 
             dataAccess.addUser(newUserData);
             return giveToken(usrData.username());
@@ -99,12 +99,12 @@ public class Service {
 
         if (currentGameData.whiteUsername() == null && gameData.playerColor().equals("WHITE")){
             gameData = new GameData(currentGameData.gameID(), userName, currentGameData.blackUsername(),
-                    currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor() );
+                    currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor(), null );
             dataAccess.editGame(gameData);
         }
         else if (currentGameData.blackUsername() == null && gameData.playerColor().equals("BLACK")){
             gameData = new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), userName,
-                    currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor() );
+                    currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor(), null );
             dataAccess.editGame(gameData);
         }
         else {

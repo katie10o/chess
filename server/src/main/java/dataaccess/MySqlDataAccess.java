@@ -243,7 +243,7 @@ public class MySqlDataAccess implements DataAccess{
                     String gameName = resultStatement.getString("gameName");
                     String chessGame = resultStatement.getString("chessGame");
 
-                    return new GameData(gameData.gameID(), whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null);
+                    return new GameData(gameData.gameID(), whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null, null);
                 }else{
                     throw new ResponseException(500, "error adding game");
                 }
@@ -305,7 +305,7 @@ public class MySqlDataAccess implements DataAccess{
                     String gameName = resultStatement.getString("gameName");
                     String chessGame = resultStatement.getString("chessGame");
 
-                    gameList.add(new GameData(gameID, whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null));
+                    gameList.add(new GameData(gameID, whiteUser, blackUser, gameName, new Gson().fromJson(chessGame, ChessGame.class), null, null));
                 }
             }
 
