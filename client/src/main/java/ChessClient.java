@@ -42,7 +42,6 @@ public class ChessClient {
         this.authToken = usr.authToken();
         signIn = true;
         return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
-        return "null";
     }
     private String signOut() {
         server.signOut();

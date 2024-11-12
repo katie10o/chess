@@ -19,8 +19,13 @@ public class ServerFacade {
         this.url = url;
     }
 
-    public void signIn(String[] params) {
-        System.out.println("signed in called");
+    public UserData signIn(String[] params) throws ResponseException {
+        try {
+            UserData user = new UserData(params[0], params[1], null, null);
+            return makeRequest("POST", "/session", user, UserData.class);
+        } catch (Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
 
    public void signOut() {
