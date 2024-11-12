@@ -1,4 +1,5 @@
 import facade.ServerFacade;
+import model.UserData;
 import server.ResponseException;
 
 import java.util.Arrays;
@@ -30,12 +31,12 @@ public class ChessClient {
                 case "quit" -> "quit";
                 default -> help();
             };
-        } catch (Exception ex) {
+        } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
 
-    private String signIn(String[] params) {
+    private String signIn(String[] params) throws ResponseException {
         server.signIn(params);
         return "null";
     }
@@ -43,9 +44,9 @@ public class ChessClient {
         server.signOut();
         return "null";
     }
-    private String register(String[] params) {
+    private String register(String[] params) throws ResponseException {
         server.register(params);
-        return "hellllo";
+        return "null";
     }
     private String listGame(String[] params) {
         server.listGame(params);

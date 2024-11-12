@@ -23,12 +23,17 @@ public class ServerFacade {
         System.out.println("signed in called");
     }
 
-
    public void signOut() {
         System.out.println("signed out called");
     }
-    public void register(String[] params) {
-        System.out.println("signed in called");
+    public void register(String[] params) throws ResponseException {
+        try {
+            UserData user = new UserData(params[0], params[1], params[2]);
+            var returnedStuff = makeRequest("POST", "/user", user, UserData.class);
+            System.out.println(returnedStuff);
+        } catch (Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
     public void listGame(String[] params) {
         System.out.println("list game called");
