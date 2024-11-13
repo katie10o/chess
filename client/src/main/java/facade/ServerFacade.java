@@ -1,9 +1,7 @@
 package facade;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.mysql.cj.xdevapi.JsonParser;
 import model.ErrorMessage;
 import model.GameData;
 import model.UserData;
@@ -112,7 +110,8 @@ public class ServerFacade {
 
             if (Objects.equals(path, "/game") && Objects.equals(method, "GET")){
                 try (InputStreamReader reader = new InputStreamReader(http.getInputStream())) {
-                    Map<String, List<GameData>> responseMap = new Gson().fromJson(reader, TypeToken.getParameterized(Map.class, String.class, TypeToken.getParameterized(List.class, GameData.class).getType()).getType());
+                    Map<String, List<GameData>> responseMap = new Gson().fromJson(reader, TypeToken.getParameterized(Map.class,
+                            String.class, TypeToken.getParameterized(List.class, GameData.class).getType()).getType());
                     return (T) responseMap.get("games");
                 }
             }

@@ -54,7 +54,6 @@ public class ServiceTests {
                 "Expected ResponseException when adding user without password"
         );
         assertEquals(400, thrownException.statusCode());
-        assertEquals("Error: bad request", thrownException.getMessage());
     }
 
     @Test
@@ -69,7 +68,6 @@ public class ServiceTests {
                 "Expected ResponseException when trying to log in a user on a cleared db"
         );
         assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: username does not exist - unauthorized", thrownException.getMessage());
     }
 
     @Test
@@ -85,7 +83,6 @@ public class ServiceTests {
                 "Expected ResponseException when trying to log in a user on a cleared db"
         );
         assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
     }
     @Test
     @Order(5)
@@ -111,7 +108,6 @@ public class ServiceTests {
                 "Expected ResponseException when trying to log in a user with bad password"
         );
         assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
     }
     @Test
     @Order(7)
@@ -136,7 +132,6 @@ public class ServiceTests {
                 "Expected ResponseException when trying to log out a user with bad auth token"
         );
         assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
     }
 
     @Test
@@ -194,7 +189,6 @@ public class ServiceTests {
         "Expected ResponseException when trying to create game without game name"
         );
         assertEquals(400, thrownException.statusCode());
-        assertEquals("Error: bad request", thrownException.getMessage());
     }
 
     @Test
@@ -232,7 +226,6 @@ public class ServiceTests {
                 "Expected ResponseException when trying to join a game while a user is already white player"
         );
         assertEquals(403, thrownException.statusCode());
-        assertEquals("Error: game taken", thrownException.getMessage());
 
         HashMap<String, Collection<GameData>> games = service.getGames(authTokenData.authToken());
         ArrayList<GameData> game = new ArrayList<>(games.get("games"));

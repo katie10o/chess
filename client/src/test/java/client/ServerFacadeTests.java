@@ -25,5 +25,6 @@ public class ServerFacadeTests {
     public void sampleTest() {
         Assertions.assertTrue(true);
     }
+//    create 14 tests: a positive and negative outcome per method
 
 }

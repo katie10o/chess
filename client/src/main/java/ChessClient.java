@@ -1,9 +1,11 @@
 import chess.ChessGame;
+import static ui.EscapeSequences.*;
 import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
 import server.ResponseException;
+import ui.DrawBoard;
 
 import java.util.*;
 
@@ -24,25 +26,34 @@ public class ChessClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "signin" -> signIn(params);
-                case "register" -> register(params);
-                case "listgames" -> listGame();
-                case "signout" -> signOut();
-                case "creategame" -> createGame(params);
-                case "playgame" -> joinGame(params);
-                case "observegame" -> observeGame(params);
-                case "cleardb" -> clearDB();
-                case "quit" -> "quit";
-                default -> help();
-            };
+            if (signIn){
+                return switch (cmd) {
+                    case "list" -> listGame();
+                    case "signout" -> signOut();
+                    case "create" -> createGame(params);
+                    case "play" -> joinGame(params);
+                    case "observe" -> observeGame(params);
+                    case "cleardb" -> clearDB();
+                    case "quit" -> "quit";
+                    default -> help();
+                };
+            }
+            else {
+                    return switch (cmd) {
+                        case "signin" -> signIn(params);
+                        case "register" -> register(params);
+                        case "cleardb" -> clearDB();
+                        case "quit" -> "quit";
+                        default -> help();
+                };
+            }
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
     private String drawBoard(ChessGame game){
-        String strgame = game.getBoard().toString();
-        return strgame;
+        DrawBoard draw = new DrawBoard(game.getBoard().toString());
+        return draw.getDrawnBoard();
     }
 
     private String observeGame(String[] params) {
@@ -183,19 +194,19 @@ public class ChessClient {
     public String help() {
         if (!signIn) {
             return """
-                    - help
-                    - quit
-                    - register <username> <password> <email>
-                    - signIn <username> <password>
+                    * help
+                    * quit
+                    * register <username> <password> <email>
+                    * signIn <username> <password>
                     """;
         }
         return """
-                - help
-                - signOut
-                - createGame <gameName>
-                - listGames
-                - playGame <playerColor> <gameID>
-                - observeGame <gameID>
+                * help
+                * signOut
+                * create <gameName> - creates a game
+                * list - lists current games
+                * play <playerColor> <gameID> - joins a game
+                * observe <gameID> - observes a game
                 """;
     }
 }
