@@ -28,7 +28,8 @@ public class MySqlDataAccess implements DataAccess{
               PRIMARY KEY (`id`),
               INDEX(username)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
+            """,
+            "ALTER TABLE user AUTO_INCREMENT = 237;"
     };
 
     private final String[] createGameTable = {
@@ -41,7 +42,8 @@ public class MySqlDataAccess implements DataAccess{
               `chessGame` TEXT NOT NULL,
               PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
+            """,
+            "ALTER TABLE game AUTO_INCREMENT = 150;"
     };
     private final String[] createAuthTable = {
             """

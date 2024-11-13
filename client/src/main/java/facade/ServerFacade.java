@@ -25,9 +25,8 @@ public class ServerFacade {
         this.url = url;
     }
 
-    public UserData signIn(String[] params) throws ResponseException {
+    public UserData signIn(UserData user) throws ResponseException {
         try {
-            UserData user = new UserData(params[0], params[1], null, null);
             return makeRequest("POST", "/session", user, null, UserData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
@@ -42,9 +41,8 @@ public class ServerFacade {
        }
     }
 
-    public UserData register(String[] params) throws ResponseException {
+    public UserData register(UserData user) throws ResponseException {
         try {
-            UserData user = new UserData(params[0], params[1], params[2], null);
             return makeRequest("POST", "/user", user, null, UserData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
@@ -59,19 +57,16 @@ public class ServerFacade {
         }
     }
 
-    public GameData createGame(String[] params, String authToken) throws ResponseException {
+    public void createGame(GameData game, String authToken) throws ResponseException {
         try{
-            GameData game = new GameData(0, null, null, params[0], null, null, authToken);
-            return makeRequest("POST", "/game", game, authToken, GameData.class);
+            makeRequest("POST", "/game", game, authToken, GameData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void joinGame(String[] params, String authToken) throws ResponseException {
+    public void joinGame(GameData game, String authToken) throws ResponseException {
         try{
-            int gameID = Integer.parseInt(params[1]);
-            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), authToken);
             makeRequest("PUT", "/game", game, authToken, GameData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
