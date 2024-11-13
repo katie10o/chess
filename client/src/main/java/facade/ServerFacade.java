@@ -1,6 +1,7 @@
 package facade;
 
 import com.google.gson.Gson;
+import model.GameData;
 import model.UserData;
 import server.ResponseException;
 
@@ -48,8 +49,13 @@ public class ServerFacade {
     public void listGame(String[] params) {
         System.out.println("list game called");
     }
-    public void createGame(String[] params) {
-        System.out.println("create game called");
+    public GameData createGame(String[] params, String authToken) throws ResponseException {
+        try{
+            GameData game = new GameData(0, null, null, params[0], null, null, authToken);
+            return makeRequest("POST", "/game", game, authToken, GameData.class);
+        } catch (Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
     public void joinGame(String[] params) {
         System.out.println("join game called");

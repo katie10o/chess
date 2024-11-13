@@ -1,4 +1,5 @@
 import facade.ServerFacade;
+import model.GameData;
 import model.UserData;
 import server.ResponseException;
 
@@ -60,9 +61,9 @@ public class ChessClient {
         server.listGame(params);
         return "null";
     }
-    private String createGame(String[] params) {
-        server.createGame(params);
-        return "null";
+    private String createGame(String[] params) throws ResponseException {
+        GameData game = server.createGame(params, authToken);
+        return "Game " + params[0] + " is successfully created. GameID: " + game.gameID();
     }
     private String joinGame(String[] params) {
         server.joinGame(params);
