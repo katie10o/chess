@@ -1,6 +1,7 @@
 package facade;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import model.GameData;
 import model.UserData;
 import server.ResponseException;
@@ -12,6 +13,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ServerFacade {
@@ -46,9 +50,15 @@ public class ServerFacade {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    public void listGame(String[] params) {
-        System.out.println("list game called");
+
+    public Collection<GameData> listGame(String authToken) throws ResponseException {
+        try{
+            return makeRequest("GET", "/game", null, authToken, null);
+        } catch (Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
+
     public GameData createGame(String[] params, String authToken) throws ResponseException {
         try{
             GameData game = new GameData(0, null, null, params[0], null, null, authToken);
@@ -57,15 +67,24 @@ public class ServerFacade {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    public void joinGame(String[] params) {
-        System.out.println("join game called");
+
+    public void joinGame(String[] params, String authToken) throws ResponseException {
+        try{
+            int gameID = Integer.parseInt(params[1]);
+            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), authToken);
+            makeRequest("PUT", "/game", game, authToken, GameData.class);
+        } catch (Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }
     }
+
     public void clearDB() throws ResponseException {
         try {
             makeRequest("DELETE", "/db", null, null, null);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
-        }    }
+        }
+    }
 
     private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) throws ResponseException {
         try {
@@ -80,11 +99,20 @@ public class ServerFacade {
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
+
+            if (Objects.equals(path, "/game") && Objects.equals(method, "GET")){
+                try (InputStreamReader reader = new InputStreamReader(http.getInputStream())) {
+                    Map<String, List<GameData>> responseMap = new Gson().fromJson(reader, TypeToken.getParameterized(Map.class, String.class, TypeToken.getParameterized(List.class, GameData.class).getType()).getType());
+                    return (T) responseMap.get("games");
+                }
+            }
+
             return readBody(http, responseClass);
         } catch (Exception ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
+
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
@@ -94,12 +122,14 @@ public class ServerFacade {
             }
         }
     }
+
     private void throwIfNotSuccessful(HttpURLConnection http) throws IOException, ResponseException {
         var status = http.getResponseCode();
         if (!isSuccessful(status)) {
             throw new ResponseException(status, "failure: " + status);
         }
     }
+
     private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
         T response = null;
         if (http.getContentLength() < 0) {
@@ -112,6 +142,7 @@ public class ServerFacade {
         }
         return response;
     }
+
     private boolean isSuccessful(int status) {
         return status == 200;
     }

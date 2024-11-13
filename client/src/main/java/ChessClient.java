@@ -4,6 +4,7 @@ import model.UserData;
 import server.ResponseException;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 public class ChessClient {
     private String visitorName = null;
@@ -23,10 +24,11 @@ public class ChessClient {
             return switch (cmd) {
                 case "signin" -> signIn(params);
                 case "register" -> register(params);
-                case "listGame" -> listGame(params);
+                case "listgames" -> listGame();
                 case "signout" -> signOut();
                 case "creategame" -> createGame(params);
                 case "joingame" -> joinGame(params);
+                case "observegame" -> observeGame(params);
                 case "cleardb" -> clearDB();
                 case "quit" -> "quit";
                 default -> help();
@@ -34,6 +36,10 @@ public class ChessClient {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    private String observeGame(String[] params) {
+        return "hello";
     }
 
     private String signIn(String[] params) throws ResponseException {
@@ -57,17 +63,22 @@ public class ChessClient {
         signIn = true;
         return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
     }
-    private String listGame(String[] params) {
-        server.listGame(params);
-        return "null";
+    private String listGame() throws ResponseException {
+        Collection<GameData> games = server.listGame(authToken);
+        StringBuilder gameInfo = new StringBuilder();
+        gameInfo.append("Games: \n");
+        for (GameData game : games){
+            gameInfo.append("\t- game name: ").append(game.gameName()).append(", white player: ").append(game.whiteUsername()).append(", black player: ").append(game.blackUsername()).append("\n");
+        }
+        return gameInfo.toString();
     }
     private String createGame(String[] params) throws ResponseException {
         GameData game = server.createGame(params, authToken);
         return "Game " + params[0] + " is successfully created. GameID: " + game.gameID();
     }
-    private String joinGame(String[] params) {
-        server.joinGame(params);
-        return "null";
+    private String joinGame(String[] params) throws ResponseException {
+        server.joinGame(params, authToken);
+        return "Game successfully joined";
     }
     private String clearDB() throws ResponseException {
         server.clearDB();
@@ -77,17 +88,19 @@ public class ChessClient {
     public String help() {
         if (!signIn) {
             return """
+                    - help
                     - register user <username> <password> <email>
                     - signIn <username> <password>
-                    - clearDB
                     - quit
                     """;
         }
         return """
-                - listAllGames
+                - listGames
                 - createGame <gameName>
                 - joinGame <playerColor> <gameID>
+                - observeGame
                 - signOut
+                - clearDB
                 - quit
                 """;
     }
