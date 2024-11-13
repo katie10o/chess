@@ -7,13 +7,11 @@ import java.util.Arrays;
 public class ChessClient {
     private String visitorName = null;
     private final ServerFacade server;
-    private final String serverUrl;
     private boolean signIn = false;
     private String authToken = null;
 
     public ChessClient(String url){
         server = new ServerFacade(url);
-        serverUrl = url;
     }
 
     public String eval(String input) {
@@ -26,9 +24,9 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "listGame" -> listGame(params);
                 case "signout" -> signOut();
-                case "createGame" -> createGame(params);
-                case "joinGame" -> joinGame(params);
-                case "clearDB" -> clearDB();
+                case "creategame" -> createGame(params);
+                case "joingame" -> joinGame(params);
+                case "cleardb" -> clearDB();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -41,6 +39,7 @@ public class ChessClient {
         UserData usr = server.signIn(params);
         this.authToken = usr.authToken();
         signIn = true;
+        visitorName = params[0];
         return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
     }
     private String signOut() throws ResponseException {
@@ -69,9 +68,9 @@ public class ChessClient {
         server.joinGame(params);
         return "null";
     }
-    private String clearDB() {
+    private String clearDB() throws ResponseException {
         server.clearDB();
-        return "null";
+        return "Database cleared";
     }
 
     public String help() {

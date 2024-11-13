@@ -54,9 +54,12 @@ public class ServerFacade {
     public void joinGame(String[] params) {
         System.out.println("join game called");
     }
-    public void clearDB() {
-        System.out.println("clearDB called");
-    }
+    public void clearDB() throws ResponseException {
+        try {
+            makeRequest("DELETE", "/db", null, null, null);
+        } catch (Exception ex){
+            throw new ResponseException(500, ex.getMessage());
+        }    }
 
     private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) throws ResponseException {
         try {
