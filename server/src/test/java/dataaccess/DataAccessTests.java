@@ -12,12 +12,12 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DataAccessTests {
     private static MySqlDataAccess dataAccess;
 
-    UserData user1 = new UserData("user1", "password1", "email1");
-    UserData user2 = new UserData("user2", "password2", "email2");
+    UserData user1 = new UserData("user1", "password1", "email1", null);
+    UserData user2 = new UserData("user2", "password2", "email2", null);
     GameData game1 = new GameData(0, null, null, "game1",
-            null, null);
+            null, null, null);
     GameData game2 = new GameData(0, null, null, null,
-            null, null);
+            null, null, null);
     AuthTokenData authToken1 = new AuthTokenData("user1", "abcdef12345");
     AuthTokenData authToken2 = new AuthTokenData("user2", "12345abcdef");
 
@@ -180,8 +180,8 @@ public class DataAccessTests {
     public void editGame() throws DataAccessException {
         dataAccess.addUser(user1);
         int gameID = dataAccess.addGame(game1);
-        dataAccess.editGame(new GameData(gameID, user1.username(), null, null, null, null));
-        GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null));
+        dataAccess.editGame(new GameData(gameID, user1.username(), null, null, null, null, null));
+        GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null, null));
         assertEquals(user1.username(), gameTest.whiteUsername());
 
     }
@@ -192,8 +192,8 @@ public class DataAccessTests {
     public void editBadGame() throws DataAccessException {
         dataAccess.addUser(user1);
         int gameID = dataAccess.addGame(game1);
-        dataAccess.editGame(new GameData(gameID, user2.username(), null, null, null, null));
-        GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null));
+        dataAccess.editGame(new GameData(gameID, user2.username(), null, null, null, null, null));
+        GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null, null));
         assertNotNull(user1.username(), gameTest.whiteUsername());
     }
 

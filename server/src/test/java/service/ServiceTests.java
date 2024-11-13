@@ -18,10 +18,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ServiceTests {
     private static Service service;
-    UserData user1 = new UserData("user1", "password1", "email1");
-    UserData user2 = new UserData("user2", "", "email2");
+    UserData user1 = new UserData("user1", "password1", "email1", null);
+    UserData user2 = new UserData("user2", "", "email2", null);
     AuthTokenData authTokenData;
-    GameData createGame = new GameData(0, null, null, "test", null, null);
+    GameData createGame = new GameData(0, null, null, "test", null, null, null);
     int gameID;
 
 
@@ -107,7 +107,7 @@ public class ServiceTests {
 
         ResponseException thrownException = assertThrows(
                 ResponseException.class,
-                () -> service.logInUser(new UserData("user1", "password2", "email1")),
+                () -> service.logInUser(new UserData("user1", "password2", "email1", null)),
                 "Expected ResponseException when trying to log in a user with bad password"
         );
         assertEquals(401, thrownException.statusCode());
@@ -167,7 +167,6 @@ public class ServiceTests {
                 "Expected ResponseException when trying to get game lists without auth token"
         );
         assertEquals(401, thrownException.statusCode());
-        assertEquals("Error: unauthorized", thrownException.getMessage());
     }
 
     @Test
@@ -191,7 +190,7 @@ public class ServiceTests {
         ResponseException thrownException = assertThrows(
                 ResponseException.class,
                 () -> service.createGame(new GameData(0, null, null, null,
-                        null, null), authTokenData.authToken()),
+                        null, null, null), authTokenData.authToken()),
         "Expected ResponseException when trying to create game without game name"
         );
         assertEquals(400, thrownException.statusCode());
@@ -207,7 +206,7 @@ public class ServiceTests {
 
         assertDoesNotThrow(() -> {
             service.joinGame(new GameData(gameID, null, null, null,
-                    null, "WHITE"), authTokenData.authToken());
+                    null, "WHITE", null), authTokenData.authToken());
         });
         HashMap<String, Collection<GameData>> games = service.getGames(authTokenData.authToken());
         ArrayList<GameData> game = new ArrayList<>(games.get("games"));
@@ -220,16 +219,16 @@ public class ServiceTests {
     @DisplayName("join game unsuccessfully, white user already taken")
     public void whiteUserTaken() throws ResponseException, DataAccessException {
         authTokenData = (AuthTokenData) service.addUser(user1);
-        AuthTokenData authTokenData2 = (AuthTokenData) service.addUser(new UserData("user2", "password2", "email2"));
+        AuthTokenData authTokenData2 = (AuthTokenData) service.addUser(new UserData("user2", "password2", "email2", null));
 
         gameID = service.createGame(createGame, authTokenData.authToken());
         service.joinGame(new GameData(gameID, null, null, null,
-                null, "WHITE"), authTokenData.authToken());
+                null, "WHITE", null), authTokenData.authToken());
 
         ResponseException thrownException = assertThrows(
                 ResponseException.class,
                 () -> service.joinGame(new GameData(gameID, null, null, null,
-                        null, "WHITE"), authTokenData.authToken()),
+                        null, "WHITE", null), authTokenData.authToken()),
                 "Expected ResponseException when trying to join a game while a user is already white player"
         );
         assertEquals(403, thrownException.statusCode());

@@ -57,7 +57,7 @@ public class Service {
 
     public void logOutUser(String authToken) throws ResponseException, DataAccessException {
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Error: unauthorized - no authToken");
         }
         if(!dataAccess.getAuthToken(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
@@ -71,7 +71,7 @@ public class Service {
             throw new ResponseException(400, "Error: bad request");
         }
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Error: unauthorized - no authToken");
         }
         if(!dataAccess.getAuthToken(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
@@ -85,7 +85,7 @@ public class Service {
             throw new ResponseException(400, "Error: bad request");
         }
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Error: unauthorized - no authToken");
         }
         if(!dataAccess.getAuthToken(authToken)){
             throw new ResponseException(401, "Error: unauthorized");
@@ -114,7 +114,7 @@ public class Service {
 
     public HashMap<String, Collection<GameData>> getGames(String authToken) throws ResponseException, DataAccessException {
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Error: unauthorized - no authToken");
         }
         if(!dataAccess.getAuthToken(authToken)){
             throw new ResponseException(401, "Error: unauthorized");

@@ -43,9 +43,13 @@ public class ChessClient {
         signIn = true;
         return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
     }
-    private String signOut() {
-        server.signOut();
-        return "null";
+    private String signOut() throws ResponseException {
+        if (authToken != null){
+            server.signOut(authToken);
+            this.authToken = null;
+            signIn = false;
+        }
+        return "Goodbye!";
     }
     private String register(String[] params) throws ResponseException {
         UserData usr = server.register(params);

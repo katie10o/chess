@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.Objects;
 
 public class ServerFacade {
     private String url;
@@ -22,19 +23,24 @@ public class ServerFacade {
     public UserData signIn(String[] params) throws ResponseException {
         try {
             UserData user = new UserData(params[0], params[1], null, null);
-            return makeRequest("POST", "/session", user, UserData.class);
+            return makeRequest("POST", "/session", user, null, UserData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-   public void signOut() {
-        System.out.println("signed out called");
+   public void signOut(String authToken) throws ResponseException {
+       try {
+           makeRequest("DELETE", "/session", null, authToken, null);
+       } catch (Exception ex){
+           throw new ResponseException(500, ex.getMessage());
+       }
     }
+
     public UserData register(String[] params) throws ResponseException {
         try {
             UserData user = new UserData(params[0], params[1], params[2], null);
-            return makeRequest("POST", "/user", user, UserData.class);
+            return makeRequest("POST", "/user", user, null, UserData.class);
         } catch (Exception ex){
             throw new ResponseException(500, ex.getMessage());
         }
@@ -52,13 +58,16 @@ public class ServerFacade {
         System.out.println("clearDB called");
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(this.url + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
+            if (Objects.equals(path, "/game") || (Objects.equals(method, "DELETE") && Objects.equals(path, "/session"))){
+                http.setRequestProperty("Authorization", authToken);
+            }
             writeBody(request, http);
             http.connect();
             throwIfNotSuccessful(http);
