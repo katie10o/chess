@@ -1,4 +1,5 @@
 import chess.ChessGame;
+import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
@@ -40,16 +41,19 @@ public class ChessClient {
         }
     }
     private String drawBoard(ChessGame game){
-        String strgame = game.toString();
+        String strgame = game.getBoard().toString();
         return strgame;
     }
 
     private String observeGame(String[] params) {
         try {
-            int tempID = gameIDs.get(Integer.parseInt(params[1]));
+            int tempID = gameIDs.get(Integer.parseInt(params[0]));
             return "Observing game: \n" + drawBoard(gameObjects.get(tempID));
-        } catch (Exception ex){
-            return "error";
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        }
+        catch (Exception ex){
+            return "Error occurred";
         }
     }
 
@@ -61,19 +65,33 @@ public class ChessClient {
             signIn = true;
             visitorName = params[0];
             return "Welcome, " + user.username() + "\nWhat do you want to do?\n" + help();
-        } catch (Exception ex){
+        } catch (ResponseException | ServerException ex){
             return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        }
+        catch (Exception ex){
+            return "Error occurred";
         }
 
     }
     private String signOut() throws ResponseException {
-        if (authToken != null){
-            server.signOut(authToken);
-            this.authToken = null;
-            signIn = false;
-            return "Goodbye!";
-        } else {
-            return "error";
+        try {
+            if (authToken != null){
+                server.signOut(authToken);
+                this.authToken = null;
+                signIn = false;
+                return "Goodbye!";
+            } else {
+                return "No authorization";
+            }
+        } catch (ResponseException | ServerException ex){
+            return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        }
+        catch (Exception ex){
+            return "Error occurred";
         }
     }
     private String register(String[] params) throws ResponseException {
@@ -83,31 +101,50 @@ public class ChessClient {
             this.authToken = usr.authToken();
             signIn = true;
             return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
-        } catch (Exception ex){
-            throw new ResponseException(500, ex.getMessage());
+        } catch (ResponseException | ServerException ex){
+            return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        }
+        catch (Exception ex){
+            return "Error occurred";
         }
     }
     private String listGame() throws ResponseException {
-        Collection<GameData> games = server.listGame(authToken);
-        StringBuilder gameInfo = new StringBuilder();
-        gameInfo.append("Games: \n");
-        int counter = 1;
-        for (GameData game : games){
-            gameIDs.put(counter, game.gameID());
-            gameObjects.put(game.gameID(), game.gameObject());
-            gameInfo.append("\t").append(counter).append(". game name: ").append(game.gameName()).append("\n\t   white player: ")
-                    .append(game.whiteUsername()).append("\n\t   black player: ").append(game.blackUsername()).append("\n");
-            counter ++;
+        try {
+            Collection<GameData> games = server.listGame(authToken);
+            StringBuilder gameInfo = new StringBuilder();
+            gameInfo.append("Games: \n");
+            int counter = 1;
+            for (GameData game : games) {
+                gameIDs.put(counter, game.gameID());
+                gameObjects.put(game.gameID(), game.gameObject());
+                gameInfo.append("\t").append(counter).append(". game name: ").append(game.gameName()).append("\n\t   white player: ")
+                        .append(game.whiteUsername()).append("\n\t   black player: ").append(game.blackUsername()).append("\n");
+                counter++;
+            }
+            return gameInfo.toString();
+        } catch (ResponseException | ServerException ex){
+            return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
         }
-        return gameInfo.toString();
+        catch (Exception ex){
+            return "Error occurred";
+        }
     }
     private String createGame(String[] params) throws ResponseException {
         try{
             GameData game = new GameData(0, null, null, params[0], null, null, authToken);
             server.createGame(game, authToken);
-            return "Game " + params[0] + " is successfully created.";
-        } catch (Exception ex){
-            return "error";
+            return "Game " + params[0] + " is successfully created";
+        } catch (ResponseException | ServerException ex){
+            return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        }
+        catch (Exception ex){
+            return "Error occurred";
         }
     }
     private String joinGame(String[] params) throws ResponseException {
@@ -117,13 +154,30 @@ public class ChessClient {
             server.joinGame(game, authToken);
             drawBoard(gameObjects.get(tempID));
             return "Game successfully joined\n" + drawBoard(gameObjects.get(tempID));
-        } catch (Exception ex){
-            return "error";
+        } catch (ResponseException | ServerException ex){
+            return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        } catch (NullPointerException ex){
+            return "Must listGames first in order to play a game";
+        }
+        catch (Exception ex){
+            return "Error occurred";
         }
     }
     private String clearDB() throws ResponseException {
-        server.clearDB();
-        return "Database cleared";
+        try {
+            server.clearDB();
+            return "Database cleared";
+        }  catch (ResponseException | ServerException ex){
+            return ex.getMessage();
+        } catch (ArrayIndexOutOfBoundsException ex){
+            return "Not enough parameters were given";
+        }
+        catch (Exception ex){
+            return "Error occurred";
+        }
+
     }
 
     public String help() {

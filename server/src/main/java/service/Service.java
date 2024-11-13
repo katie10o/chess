@@ -25,11 +25,11 @@ public class Service {
     public Object addUser(UserData usrData) throws ResponseException, DataAccessException {
             if (usrData.password() == null || usrData.password().isEmpty() || usrData.username() == null ||
                     usrData.username().isEmpty() || usrData.email() == null || usrData.email().isEmpty()){
-                throw new ResponseException(400, "Error: bad request");
+                throw new ResponseException(400, "Not enough parameters");
             }
 
             if (dataAccess.checkUserName(usrData.username())){
-                throw new ResponseException(403, "Error: username already taken");
+                throw new ResponseException(403, "Username already taken");
             }
             String hashpass = hashPassword(usrData.password());
             UserData newUserData = new UserData(usrData.username(), hashpass, usrData.email(), null);
@@ -41,15 +41,15 @@ public class Service {
     public Object logInUser(UserData usrData) throws ResponseException, DataAccessException {
         if (usrData.password() == null || usrData.password().isEmpty() ||
                 usrData.username() == null || usrData.username().isEmpty()){
-            throw new ResponseException(400, "Error: bad request");
+            throw new ResponseException(400, "Not enough parameters");
         }
         if (!dataAccess.checkUserName(usrData.username())){
-            throw new ResponseException(401, "Error: username does not exist - unauthorized");
+            throw new ResponseException(401, "Username does not exist");
         }
 
         String dataBasePassword = dataAccess.getUserPassword(usrData.username());
         if (!verifyPassword(usrData.password(), dataBasePassword)){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Wrong password");
         }
 
         return giveToken(usrData.username());
@@ -57,10 +57,10 @@ public class Service {
 
     public void logOutUser(String authToken) throws ResponseException, DataAccessException {
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized - no authToken");
+            throw new ResponseException(401, "Unauthorized");
         }
         if(!dataAccess.getAuthToken(authToken)){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Unauthorized");
         }
 
         dataAccess.clearAuthToken(authToken);
@@ -68,13 +68,13 @@ public class Service {
 
     public int createGame(GameData gameData, String authToken) throws ResponseException, DataAccessException {
         if (gameData.gameName() == null || gameData.gameName().isEmpty()){
-            throw new ResponseException(400, "Error: bad request");
+            throw new ResponseException(400, "Not enough parameters");
         }
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized - no authToken");
+            throw new ResponseException(401, "Unauthorized");
         }
         if(!dataAccess.getAuthToken(authToken)){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Unauthorized");
         }
 
         return dataAccess.addGame(gameData);
@@ -82,16 +82,16 @@ public class Service {
 
     public void joinGame(GameData gameData, String authToken) throws ResponseException, DataAccessException {
         if (gameData.playerColor() == null || gameData.playerColor().isEmpty()){
-            throw new ResponseException(400, "Error: bad request");
+            throw new ResponseException(400, "Not enough parameters");
         }
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized - no authToken");
+            throw new ResponseException(401, "Unauthorized");
         }
         if(!dataAccess.getAuthToken(authToken)){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Unauthorized");
         }
         if (!dataAccess.checkGameID(gameData)){
-            throw new ResponseException(400, "Error: bad request");
+            throw new ResponseException(400, "Bad gameID");
         }
 
         GameData currentGameData = dataAccess.getGameData(gameData);
@@ -108,16 +108,16 @@ public class Service {
             dataAccess.editGame(gameData);
         }
         else {
-            throw new ResponseException(403, "Error: game taken");
+            throw new ResponseException(403, "Position already taken");
         }
     }
 
     public HashMap<String, Collection<GameData>> getGames(String authToken) throws ResponseException, DataAccessException {
         if (authToken == null){
-            throw new ResponseException(401, "Error: unauthorized - no authToken");
+            throw new ResponseException(401, "Unauthorized");
         }
         if(!dataAccess.getAuthToken(authToken)){
-            throw new ResponseException(401, "Error: unauthorized");
+            throw new ResponseException(401, "Unauthorized");
         }
 
         return dataAccess.listGames();

@@ -14,9 +14,7 @@ public class ResponseException extends Exception {
     public HashMap<String, Object> getErrorMessage(){
         HashMap<String, Object> jsonObj = new HashMap<>();
         jsonObj.put("message", getMessage());
-
         return jsonObj;
-
     }
 
 
