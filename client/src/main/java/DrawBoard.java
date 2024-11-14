@@ -19,8 +19,10 @@ public class DrawBoard {
         StringBuilder draw = new StringBuilder();
 
         // Header rows
-        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE).append(String.format("            %s             ", topColor)).append(RESET_BG_COLOR).append("\n");
-        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE).append(String.format("    %s    ", topLetter)).append(RESET_BG_COLOR).append("\n");
+        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE).append(String.format("            %s             ", topColor))
+                .append(RESET_BG_COLOR).append("\n");
+        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE)
+                .append(String.format("    %s    ", topLetter)).append(RESET_BG_COLOR).append("\n");
 
         String bgColor = SET_BG_COLOR_LIGHT_GREY;
         boolean isNewRow = true;
@@ -46,7 +48,8 @@ public class DrawBoard {
             }
             else if (currentChar == '\n'){
                 isNewRow = true;
-                draw.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE).append(" ").append(rowCounter).append(" ").append(RESET_BG_COLOR).append("\n");
+                draw.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE).append(" ").append(rowCounter)
+                        .append(" ").append(RESET_BG_COLOR).append("\n");
                 bgColor = toggleColor(bgColor);
             }
             else {
@@ -54,14 +57,17 @@ public class DrawBoard {
                 bgColor = toggleColor(bgColor);
             }
             if (topColor.equals("WHITE") && i == 0){
-                draw.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE).append(" ").append(rowCounter).append(" ").append(RESET_BG_COLOR).append("\n");
+                draw.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE).append(" ").append(rowCounter)
+                        .append(" ").append(RESET_BG_COLOR).append("\n");
                 bgColor = toggleColor(bgColor);
             }
         }
 
         // Footer rows
-        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE).append(String.format("    %s    ", topLetter)).append(RESET_BG_COLOR).append("\n");
-        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE).append(String.format("            %s             ", bottomColor)).append(RESET_BG_COLOR).append("\n");
+        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE).append(String.format("    %s    ", topLetter))
+                .append(RESET_BG_COLOR).append("\n");
+        draw.append(SET_BG_COLOR_BLACK).append(SET_TEXT_COLOR_WHITE)
+                .append(String.format("            %s             ", bottomColor)).append(RESET_BG_COLOR).append("\n");
 
         return draw.toString();
     }
