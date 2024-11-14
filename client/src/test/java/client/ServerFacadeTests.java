@@ -1,7 +1,7 @@
 package client;
 
-import ServerException;
-import ServerFacade;
+import facade.ServerException;
+import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 public class ServerFacadeTests {
-
     private static Server server;
     private static ServerFacade facade;
     private UserData user1 = new UserData("user1", "pass1", "email1", null);

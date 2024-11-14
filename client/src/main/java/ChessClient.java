@@ -1,4 +1,6 @@
 import chess.ChessGame;
+import facade.ServerException;
+import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
 import server.ResponseException;
@@ -7,14 +9,14 @@ import java.util.*;
 
 public class ChessClient {
     private String visitorName = null;
-    private final ServerFacade server;
+    private final ServerFacade facade;
     private boolean signIn = false;
     private String authToken = null;
     private HashMap<Integer, Integer> gameIDs = new HashMap<>();
     private HashMap<Integer, ChessGame> gameObjects = new HashMap<>();
 
     public ChessClient(String url){
-        server = new ServerFacade(url);
+        facade = new ServerFacade(url);
     }
 
     public String eval(String input) {
@@ -87,7 +89,7 @@ public class ChessClient {
                 }
             }
             UserData user = new UserData(params[0], params[1], null, null);
-            user = server.signIn(user);
+            user = facade.signIn(user);
             this.authToken = user.authToken();
             signIn = true;
             visitorName = params[0];
@@ -103,7 +105,7 @@ public class ChessClient {
     private String signOut() throws ResponseException {
         try {
             if (authToken != null){
-                server.signOut(authToken);
+                facade.signOut(authToken);
                 this.authToken = null;
                 signIn = false;
                 return "Goodbye!\n";
@@ -127,7 +129,7 @@ public class ChessClient {
                 }
             }
             UserData user = new UserData(params[0], params[1], params[2], null);
-            UserData usr = server.register(user);
+            UserData usr = facade.register(user);
             this.authToken = usr.authToken();
             signIn = true;
             return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
@@ -140,7 +142,7 @@ public class ChessClient {
     }
     private String listGame() throws ResponseException {
         try {
-            Collection<GameData> games = server.listGame(authToken);
+            Collection<GameData> games = facade.listGame(authToken);
             StringBuilder gameInfo = new StringBuilder();
             gameInfo.append("Games: \n");
             int counter = 1;
@@ -169,7 +171,7 @@ public class ChessClient {
                 }
             }
             GameData game = new GameData(0, null, null, params[0], null, null, authToken);
-            server.createGame(game, authToken);
+            facade.createGame(game, authToken);
             return "Game " + params[0] + " is successfully created";
         } catch (ResponseException | ServerException ex){
             return ex.getMessage();
@@ -194,7 +196,7 @@ public class ChessClient {
                 }
                 int tempID = gameIDs.get(Integer.parseInt(params[1]));
                 GameData game = new GameData(tempID, null, null, null, null, params[0].toUpperCase(), null);
-                server.joinGame(game, authToken);
+                facade.joinGame(game, authToken);
                 drawBoard(gameObjects.get(tempID));
                 return "Game successfully joined\n" + drawBoard(gameObjects.get(tempID));
             } catch (NumberFormatException e) {
@@ -211,7 +213,7 @@ public class ChessClient {
     }
     private String clearDB() throws ResponseException {
         try {
-            server.clearDB();
+            facade.clearDB();
             return "Database cleared";
         }  catch (ResponseException | ServerException ex){
             return ex.getMessage();
