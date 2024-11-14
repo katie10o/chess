@@ -94,7 +94,8 @@ public class ServerFacade {
         }
     }
 
-    private <T> T makeRequest(String method, String path, Object request, String authToken, Class<T> responseClass) throws ResponseException, ServerException {
+    private <T> T makeRequest(String method, String path, Object request,
+                              String authToken, Class<T> responseClass) throws ResponseException, ServerException {
         try {
             URL url = (new URI(this.url + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
