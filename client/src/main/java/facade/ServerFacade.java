@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import model.ErrorMessage;
 import model.GameData;
 import model.UserData;
-import server.ResponseException;
+import responseex.ResponseException;
 
 import java.io.*;
 import java.net.HttpURLConnection;

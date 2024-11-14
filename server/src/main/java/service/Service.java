@@ -3,7 +3,7 @@ package service;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import org.mindrot.jbcrypt.BCrypt;
-import server.ResponseException;
+import responseex.ResponseException;
 import model.AuthTokenData;
 import model.GameData;
 import model.UserData;

@@ -3,7 +3,7 @@ import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
-import server.ResponseException;
+import responseex.ResponseException;
 
 import java.util.*;
 

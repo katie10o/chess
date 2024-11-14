@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import model.AuthTokenData;
 import model.GameData;
 import model.UserData;
-import server.ResponseException;
+import responseex.ResponseException;
 
 import java.sql.SQLException;
 import java.util.*;

@@ -5,7 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
 import model.GameData;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+import responseex.ResponseException;
 import model.AuthTokenData;
 import model.UserData;
 

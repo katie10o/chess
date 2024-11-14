@@ -4,7 +4,7 @@ import model.AuthTokenData;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+import responseex.ResponseException;
 
 
 import static org.junit.jupiter.api.Assertions.*;

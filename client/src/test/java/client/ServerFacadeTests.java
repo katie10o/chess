@@ -5,7 +5,7 @@ import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;
-import server.ResponseException;
+import responseex.ResponseException;
 import server.Server;
 
 import java.util.Collection;
