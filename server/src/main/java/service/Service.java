@@ -96,6 +96,9 @@ public class Service {
 
         GameData currentGameData = dataAccess.getGameData(gameData);
         String userName = dataAccess.getUserName(authToken);
+        if (!gameData.playerColor().equals("WHITE") && !gameData.playerColor().equals("BLACK")){
+            throw new ResponseException(400, "incorrect team color");
+        }
 
         if (currentGameData.whiteUsername() == null && gameData.playerColor().equals("WHITE")){
             gameData = new GameData(currentGameData.gameID(), userName, currentGameData.blackUsername(),

@@ -15,43 +15,43 @@ public class ChessBoard {
     private HashMap<ChessGame.TeamColor, HashMap<ChessPiece.PieceType, ArrayList<ChessPosition>>> piecesOnBoard = new HashMap<>();
 
     private static final Map<ChessPiece, List<ChessPosition>> STARTING_POSITIONS = Map.ofEntries(
-            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING), List.of(
                     new ChessPosition(1, 5)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KING), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KING), List.of(
                     new ChessPosition(8, 5)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN), List.of(
                     new ChessPosition(1, 4)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.QUEEN), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.QUEEN), List.of(
                     new ChessPosition(8, 4)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP), List.of(
                     new ChessPosition(1, 3),
                     new ChessPosition(1, 6)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.BISHOP), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP), List.of(
                     new ChessPosition(8, 3),
                     new ChessPosition(8, 6)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT), List.of(
                     new ChessPosition(1, 2),
                     new ChessPosition(1, 7)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.KNIGHT), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT), List.of(
                     new ChessPosition(8, 2),
                     new ChessPosition(8, 7)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK), List.of(
                     new ChessPosition(1, 1),
                     new ChessPosition(1, 8)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.ROOK), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK), List.of(
                     new ChessPosition(8, 1),
                     new ChessPosition(8, 8)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN), List.of(
                     new ChessPosition(2, 1),
                     new ChessPosition(2, 2),
                     new ChessPosition(2, 3),
@@ -61,7 +61,7 @@ public class ChessBoard {
                     new ChessPosition(2, 7),
                     new ChessPosition(2, 8)
             )),
-            entry(new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN), List.of(
+            entry(new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN), List.of(
                     new ChessPosition(7, 1),
                     new ChessPosition(7, 2),
                     new ChessPosition(7, 3),
@@ -175,7 +175,7 @@ public class ChessBoard {
                     boardString.append(" ");
                 }
                 else {
-                    boardString.append(String.format("%s", piece));
+                    boardString.append(String.format("%s|", piece));
                 }
             }
                 boardString.append("\n");
