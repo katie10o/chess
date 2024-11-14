@@ -146,7 +146,7 @@ public class ServerFacade {
                 message = errorMessage.message();
                 }
             }
-            throw new ResponseException(status, "Error: " + message);
+            throw new ResponseException(status, message);
         }
     }
 
