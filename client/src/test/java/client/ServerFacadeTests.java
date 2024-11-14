@@ -1,7 +1,7 @@
 package client;
 
-import facade.ServerException;
-import facade.ServerFacade;
+import ServerException;
+import ServerFacade;
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.*;

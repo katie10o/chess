@@ -1,11 +1,7 @@
 import chess.ChessGame;
-import static ui.EscapeSequences.*;
-import facade.ServerException;
-import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
 import server.ResponseException;
-import ui.DrawBoard;
 
 import java.util.*;
 
