@@ -15,6 +15,8 @@ public class UserGameCommand {
     private final String authToken;
 
     private final Integer gameID;
+    private String userName;
+    private String teamColor;
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
@@ -27,6 +29,18 @@ public class UserGameCommand {
         MAKE_MOVE,
         LEAVE,
         RESIGN
+    }
+    public void addUser(String userName){
+        this.userName = userName;
+    }
+    public void addTeamColor(String teamColor){
+        this.teamColor = teamColor;
+    }
+    public String getUser(){
+        return userName;
+    }
+    public String getTeamColor(){
+        return teamColor;
     }
 
     public CommandType getCommandType() {

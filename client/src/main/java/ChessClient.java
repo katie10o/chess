@@ -4,19 +4,27 @@ import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
 import responseex.ResponseException;
+import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
 
 import java.util.*;
 
 public class ChessClient {
     private String visitorName = null;
     private final ServerFacade facade;
+    private final NotificationHandler notificationHandler;
+    private final String url;
     private boolean signIn = false;
+    private boolean inGamePlay = false;
+    private boolean inGameObserve = false;
     private String authToken = null;
     private HashMap<Integer, Integer> gameIDs = new HashMap<>();
     private HashMap<Integer, ChessGame> gameObjects = new HashMap<>();
 
-    public ChessClient(String url){
+    public ChessClient(String url, NotificationHandler notificationHandler){
         facade = new ServerFacade(url);
+        this.url = url;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -24,7 +32,24 @@ public class ChessClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            if (signIn){
+            if (inGamePlay){
+                return switch (cmd) {
+                    case "redraw" -> listGame();
+                    case "leave" -> signOut();
+                    case "move" -> createGame(params);
+                    case "resign" -> joinGame(params);
+                    case "possibleMoves" -> observeGame(params);
+                    default -> help();
+                };
+            }
+            else if (inGameObserve){
+                return switch (cmd) {
+                    case "redraw" -> listGame();
+                    case "leave" -> signOut();
+                    default -> help();
+                };
+            }
+            else if (signIn){
                 return switch (cmd) {
                     case "list" -> listGame();
                     case "signout" -> signOut();
@@ -69,6 +94,7 @@ public class ChessClient {
                     return "Game number does not exist";
                 }
                 int tempID = gameIDs.get(Integer.parseInt(params[0]));
+                inGameObserve = true;
                 return "Observing game: \n" + drawBoard(gameObjects.get(tempID));
             } catch (NumberFormatException e) {
                 return "Game number not a digit";
@@ -93,6 +119,7 @@ public class ChessClient {
             this.authToken = user.authToken();
             signIn = true;
             visitorName = params[0];
+
             return "Welcome, " + user.username() + "\nWhat do you want to do?\n" + help();
         } catch (ResponseException | ServerException ex){
             return ex.getMessage();
@@ -150,7 +177,8 @@ public class ChessClient {
                 gameIDs.put(counter, game.gameID());
                 gameObjects.put(game.gameID(), game.gameObject());
                 gameInfo.append("\t").append(counter).append(". game name: ").append(game.gameName()).append("\n\t   white player: ")
-                        .append(game.whiteUsername()).append("\n\t   black player: ").append(game.blackUsername()).append("\n");
+                        .append(game.whiteUsername() != null ? game.whiteUsername() : "None").append("\n\t   black player: ")
+                        .append(game.blackUsername() != null ? game.blackUsername()  : "None").append("\n");
                 counter++;
             }
             return gameInfo.toString();
@@ -195,8 +223,12 @@ public class ChessClient {
                     return "Game number does not exist";
                 }
                 int tempID = gameIDs.get(Integer.parseInt(params[1]));
-                GameData game = new GameData(tempID, null, null, null, null, params[0].toUpperCase(), null);
+                String teamColor = params[0].toUpperCase();
+                GameData game = new GameData(tempID, null, null, null, null, teamColor, null);
                 facade.joinGame(game, authToken);
+                inGamePlay = true;
+                WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
+                ws.joinGame(visitorName, teamColor, authToken, tempID);
                 drawBoard(gameObjects.get(tempID));
                 return "Game successfully joined\n" + drawBoard(gameObjects.get(tempID));
             } catch (NumberFormatException e) {
@@ -225,7 +257,32 @@ public class ChessClient {
     }
 
     public String help() {
-        if (!signIn) {
+        if (inGamePlay){
+            return """
+                    * redraw - redraws chessboard
+                    * leave - leaves the chess game
+                    * move - begins to move chess peice, will prompt the column and row
+                    * resign - forfeits game, automatic loss
+                    * possibleMoves - highlights the possible moves for a piece
+                    """;
+        }
+        else if (inGameObserve){
+            return """
+                    * redraw - redraws chessboard
+                    * leave - leaves the game
+                    """;
+        }
+        else if (signIn) {
+            return """
+                    * help
+                    * signOut
+                    * create <gameName> - creates a game
+                    * list - lists current games
+                    * play <playerColor> <gameID> - joins a game
+                    * observe <gameID> - observes a game
+                    """;
+        }
+        else {
             return """
                     * help
                     * quit
@@ -233,13 +290,5 @@ public class ChessClient {
                     * signIn <username> <password>
                     """;
         }
-        return """
-                * help
-                * signOut
-                * create <gameName> - creates a game
-                * list - lists current games
-                * play <playerColor> <gameID> - joins a game
-                * observe <gameID> - observes a game
-                """;
     }
 }
