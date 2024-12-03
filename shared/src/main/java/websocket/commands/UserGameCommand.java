@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import org.junit.jupiter.api.BeforeEach;
+
 import java.util.Objects;
 
 /**
@@ -11,6 +13,7 @@ import java.util.Objects;
 public class UserGameCommand {
 
     private final CommandType commandType;
+    private boolean observer = false;
 
     private final String authToken;
 
@@ -29,6 +32,12 @@ public class UserGameCommand {
         MAKE_MOVE,
         LEAVE,
         RESIGN
+    }
+    public void setObserver(){
+        observer = true;
+    }
+    public boolean getObserver(){
+        return observer;
     }
     public void addUser(String userName){
         this.userName = userName;
