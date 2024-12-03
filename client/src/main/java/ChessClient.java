@@ -161,7 +161,8 @@ public class ChessClient {
             UserData usr = facade.register(user);
             this.authToken = usr.authToken();
             signIn = true;
-            return "Welcome, " + usr.username() + "\nWhat do you want to do?\n" + help();
+            visitorName = usr.username();
+            return "Welcome, " + visitorName + "\nWhat do you want to do?\n" + help();
         } catch (ResponseException | ServerException ex){
             return ex.getMessage();
         }
