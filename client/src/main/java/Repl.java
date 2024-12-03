@@ -41,6 +41,6 @@ public class Repl implements NotificationHandler {
     }
 
     private void printPrompt() {
-        System.out.print("\n>>> ");
+        System.out.print(RESET_TEXT_COLOR + "\n>>> ");
     }
 }

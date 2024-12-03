@@ -28,6 +28,7 @@ public class WebSocketFacade extends Endpoint {
                 @Override
                 public void onMessage(String message) {
                     ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+                    notification.addMessage(message);
                     notificationHandler.notify(notification);
                 }
             });

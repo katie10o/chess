@@ -19,8 +19,10 @@ public class WebSocketHandler {
         switch (action.getCommandType()) {
             case CONNECT -> {
                 if (action.getObserver()){
+                    System.out.println("observe function called ");
                     observeGame(action.getUser(), session);
                 }  else {
+                    System.out.println("join function called ");
                     joinGame(action.getUser(), action.getTeamColor(), session);
                 }
             }

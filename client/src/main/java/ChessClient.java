@@ -96,7 +96,6 @@ public class ChessClient {
                 int tempID = gameIDs.get(Integer.parseInt(params[0]));
                 inGameObserve = true;
                 WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-
                 ws.observeGame(visitorName, authToken, tempID);
                 return "Observing game: \n" + drawBoard(gameObjects.get(tempID));
             } catch (NumberFormatException e) {
