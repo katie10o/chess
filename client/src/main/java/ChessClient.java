@@ -3,6 +3,7 @@ import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
+import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 import responseex.ResponseException;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
@@ -17,9 +18,10 @@ public class ChessClient {
     private boolean signIn = false;
     private boolean inGamePlay = false;
     private boolean inGameObserve = false;
+    private Integer currentGameID;
     private String authToken = null;
-    private HashMap<Integer, Integer> gameIDs = new HashMap<>();
-    private HashMap<Integer, ChessGame> gameObjects = new HashMap<>();
+    private HashMap<Integer, Integer> gameIDs;
+    private HashMap<Integer, GameData> gameObjects;
 
     public ChessClient(String url, NotificationHandler notificationHandler){
         facade = new ServerFacade(url);
@@ -32,22 +34,17 @@ public class ChessClient {
             var tokens = input.toLowerCase().split(" ");
             var cmd = (tokens.length > 0) ? tokens[0] : "help";
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            if (inGamePlay){
-                return switch (cmd) {
-                    case "redraw" -> listGame();
-                    case "leave" -> signOut();
-                    case "move" -> createGame(params);
-                    case "resign" -> joinGame(params);
-                    case "possibleMoves" -> observeGame(params);
-                    default -> help();
-                };
-            }
-            else if (inGameObserve){
-                return switch (cmd) {
-                    case "redraw" -> listGame();
-                    case "leave" -> signOut();
-                    default -> help();
-                };
+            if (inGamePlay || inGameObserve){
+                listGame();
+                GameData currentGame = gameObjects.get(gameIDs.get(currentGameID));
+                GameClient game = new GameClient(inGamePlay, cmd, params,
+                        visitorName, facade, notificationHandler, url, authToken, currentGame);
+                String outcome = game.toString();
+                if (Objects.equals(outcome, "Game successfully left\n")){
+                    inGameObserve = false;
+                    inGamePlay = false;
+                }
+                return outcome;
             }
             else if (signIn){
                 return switch (cmd) {
@@ -93,11 +90,12 @@ public class ChessClient {
                 if (!gameIDs.containsKey(gameNumber)){
                     return "Game number does not exist";
                 }
-                int tempID = gameIDs.get(Integer.parseInt(params[0]));
+                int tempID = gameIDs.get(gameNumber);
                 inGameObserve = true;
+                currentGameID = gameNumber;
                 WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
                 ws.observeGame(visitorName, authToken, tempID);
-                return "Observing game: \n" + drawBoard(gameObjects.get(tempID));
+                return "Observing game: \n" + drawBoard(gameObjects.get(tempID).gameObject());
             } catch (NumberFormatException e) {
                 return "Game number not a digit";
             }
@@ -172,13 +170,15 @@ public class ChessClient {
     }
     private String listGame() throws ResponseException {
         try {
+            gameIDs = new HashMap<>();
+            gameObjects = new HashMap<>();
             Collection<GameData> games = facade.listGame(authToken);
             StringBuilder gameInfo = new StringBuilder();
             gameInfo.append("Games: \n");
             int counter = 1;
             for (GameData game : games) {
                 gameIDs.put(counter, game.gameID());
-                gameObjects.put(game.gameID(), game.gameObject());
+                gameObjects.put(game.gameID(), game);
                 gameInfo.append("\t").append(counter).append(". game name: ").append(game.gameName()).append("\n\t   white player: ")
                         .append(game.whiteUsername() != null ? game.whiteUsername() : "None").append("\n\t   black player: ")
                         .append(game.blackUsername() != null ? game.blackUsername()  : "None").append("\n");
@@ -225,15 +225,16 @@ public class ChessClient {
                 if (!gameIDs.containsKey(gameNumber)){
                     return "Game number does not exist";
                 }
-                int tempID = gameIDs.get(Integer.parseInt(params[1]));
+                int tempID = gameIDs.get(gameNumber);
                 String teamColor = params[0].toUpperCase();
                 GameData game = new GameData(tempID, null, null, null, null, teamColor, null);
                 facade.joinGame(game, authToken);
                 inGamePlay = true;
+                currentGameID = gameNumber;
                 WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
                 ws.joinGame(visitorName, teamColor, authToken, tempID);
-                drawBoard(gameObjects.get(tempID));
-                return "Game successfully joined\n" + drawBoard(gameObjects.get(tempID));
+                drawBoard(gameObjects.get(tempID).gameObject());
+                return "Game successfully joined\n" + drawBoard(gameObjects.get(tempID).gameObject());
             } catch (NumberFormatException e) {
                 return "Game number not a digit, make sure it comes after player color";
             }
@@ -260,22 +261,7 @@ public class ChessClient {
     }
 
     public String help() {
-        if (inGamePlay){
-            return """
-                    * redraw - redraws chessboard
-                    * leave - leaves the chess game
-                    * move - begins to move chess peice, will prompt the column and row
-                    * resign - forfeits game, automatic loss
-                    * possibleMoves - highlights the possible moves for a piece
-                    """;
-        }
-        else if (inGameObserve){
-            return """
-                    * redraw - redraws chessboard
-                    * leave - leaves the game
-                    """;
-        }
-        else if (signIn) {
+        if (signIn) {
             return """
                     * help
                     * signOut

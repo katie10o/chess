@@ -58,12 +58,17 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
-    public void editGame(GameData gameData) throws DataAccessException{
+    public void editPlayers(GameData gameData) throws DataAccessException{
         try{
             gameInfo.put(gameData.gameID(), gameData);
         }catch (Exception e){
             throw new DataAccessException(e.getMessage());
         }
+    }
+
+    @Override
+    public void editGame(GameData gameData) throws DataAccessException {
+        System.out.println("editGame not implemented on memory data access");
     }
 
     @Override

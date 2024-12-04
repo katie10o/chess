@@ -83,6 +83,24 @@ public class ServerFacade {
             throw new ServerException("Cannot connect to server");
         }
     }
+    public void updateGame(GameData game, String authToken) throws ResponseException, ServerException {
+        try{
+            makeRequest("PUT", "/currentgame", game, authToken, GameData.class);
+        } catch (ResponseException ex){
+            throw new ResponseException(ex.statusCode(), ex.getMessage());
+        } catch (Exception ex){
+            throw new ServerException("Cannot connect to server");
+        }
+    }
+    public void leaveGame(GameData game, String authToken) throws ResponseException, ServerException {
+        try{
+            makeRequest("PUT", "/leavegame", game, authToken, GameData.class);
+        } catch (ResponseException ex){
+            throw new ResponseException(ex.statusCode(), ex.getMessage());
+        } catch (Exception ex){
+            throw new ServerException("Cannot connect to server");
+        }
+    }
 
     public void clearDB() throws ResponseException, ServerException {
         try {
@@ -102,7 +120,8 @@ public class ServerFacade {
             http.setRequestMethod(method);
             http.setDoOutput(true);
 
-            if (Objects.equals(path, "/game") || (Objects.equals(method, "DELETE") && Objects.equals(path, "/session"))){
+            if (Objects.equals(path, "/game") || Objects.equals(path, "/currentgame") || Objects.equals(path, "/leavegame") ||
+                    (Objects.equals(method, "DELETE") && Objects.equals(path, "/session"))){
                 http.setRequestProperty("Authorization", authToken);
             }
             writeBody(request, http);

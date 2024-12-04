@@ -53,6 +53,18 @@ public class ServerHandler {
         service.joinGame(gameData, authToken);
         return new Gson().toJson(new HashMap<>());
     }
+    public Object updateGame(Request request) throws ResponseException, DataAccessException {
+        GameData gameData = new Gson().fromJson(request.body(), GameData.class);
+        var authToken = request.headers("Authorization");
+        service.updateGame(gameData, authToken);
+        return new Gson().toJson(new HashMap<>());
+    }
+    public Object leaveGame(Request request) throws ResponseException, DataAccessException {
+        GameData gameData = new Gson().fromJson(request.body(), GameData.class);
+        var authToken = request.headers("Authorization");
+        service.leaveGame(gameData, authToken);
+        return new Gson().toJson(new HashMap<>());
+    }
 
     public Object getGames(Request request) throws ResponseException, DataAccessException {
         var authToken = request.headers("Authorization");

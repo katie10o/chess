@@ -27,10 +27,19 @@ public class WebSocketHandler {
                 }
             }
 //            case MAKE_MOVE -> makeMove();
-//            case LEAVE -> leaveGame();
+            case LEAVE -> leaveGame(action.getUser(), action.getTeamColor(), session);
 //            case RESIGN -> resignGame();
         }
     }
+
+    private void leaveGame(String visitorName, String teamColor, Session session) throws IOException {
+        connections.add(visitorName, session);
+        var message = String.format("%s left the game, %s is now empty", visitorName, teamColor);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notification.addMessage(message);
+        connections.broadcast(visitorName, notification);
+    }
+
 
     private void observeGame(String visitorName, Session session) throws IOException {
         connections.add(visitorName, session);

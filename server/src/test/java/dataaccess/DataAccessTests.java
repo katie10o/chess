@@ -180,7 +180,7 @@ public class DataAccessTests {
     public void editGame() throws DataAccessException {
         dataAccess.addUser(user1);
         int gameID = dataAccess.addGame(game1);
-        dataAccess.editGame(new GameData(gameID, user1.username(), null, null, null, null, null));
+        dataAccess.editPlayers(new GameData(gameID, user1.username(), null, null, null, null, null));
         GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null, null));
         assertEquals(user1.username(), gameTest.whiteUsername());
 
@@ -192,7 +192,7 @@ public class DataAccessTests {
     public void editBadGame() throws DataAccessException {
         dataAccess.addUser(user1);
         int gameID = dataAccess.addGame(game1);
-        dataAccess.editGame(new GameData(gameID, user2.username(), null, null, null, null, null));
+        dataAccess.editPlayers(new GameData(gameID, user2.username(), null, null, null, null, null));
         GameData gameTest = dataAccess.getGameData(new GameData(gameID, null,null,null,null,null, null));
         assertNotNull(user1.username(), gameTest.whiteUsername());
     }

@@ -84,15 +84,7 @@ public class Service {
         if (gameData.playerColor() == null || gameData.playerColor().isEmpty()){
             throw new ResponseException(400, "Error: Not enough parameters");
         }
-        if (authToken == null){
-            throw new ResponseException(401, "Error: Unauthorized");
-        }
-        if(!dataAccess.getAuthToken(authToken)){
-            throw new ResponseException(401, "Error: Unauthorized");
-        }
-        if (!dataAccess.checkGameID(gameData)){
-            throw new ResponseException(400, "Error: Bad gameID");
-        }
+        gameChecks(gameData, authToken);
 
         GameData currentGameData = dataAccess.getGameData(gameData);
         String userName = dataAccess.getUserName(authToken);
@@ -103,15 +95,36 @@ public class Service {
         if (currentGameData.whiteUsername() == null && gameData.playerColor().equals("WHITE")){
             gameData = new GameData(currentGameData.gameID(), userName, currentGameData.blackUsername(),
                     currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor(), null );
-            dataAccess.editGame(gameData);
+            dataAccess.editPlayers(gameData);
         }
         else if (currentGameData.blackUsername() == null && gameData.playerColor().equals("BLACK")){
             gameData = new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), userName,
                     currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor(), null );
-            dataAccess.editGame(gameData);
+            dataAccess.editPlayers(gameData);
         }
         else {
             throw new ResponseException(403, "Error: Position already taken");
+        }
+    }
+    public void leaveGame(GameData gameData, String authToken) throws ResponseException, DataAccessException {
+        gameChecks(gameData, authToken);
+        dataAccess.editPlayers(gameData);
+    }
+
+    public void updateGame(GameData gameData, String authToken) throws ResponseException, DataAccessException {
+        gameChecks(gameData, authToken);
+        dataAccess.editGame(gameData);
+    }
+
+    private void gameChecks(GameData gameData, String authToken) throws ResponseException, DataAccessException {
+        if (authToken == null){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+        if(!dataAccess.getAuthToken(authToken)){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+        if (!dataAccess.checkGameID(gameData)){
+            throw new ResponseException(400, "Error: Bad gameID");
         }
     }
 
