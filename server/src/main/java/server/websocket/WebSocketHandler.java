@@ -19,22 +19,20 @@ public class WebSocketHandler {
         switch (action.getCommandType()) {
             case CONNECT -> {
                 if (action.getObserver()){
-                    System.out.println("observe function called ");
                     observeGame(action.getUser(), session);
                 }  else {
-                    System.out.println("join function called ");
                     joinGame(action.getUser(), action.getTeamColor(), session);
                 }
             }
 //            case MAKE_MOVE -> makeMove();
-            case LEAVE -> leaveGame(action.getUser(), action.getTeamColor(), session);
+            case LEAVE -> leaveGame(action.getUser(),  session);
 //            case RESIGN -> resignGame();
         }
     }
 
-    private void leaveGame(String visitorName, String teamColor, Session session) throws IOException {
+    private void leaveGame(String visitorName, Session session) throws IOException {
         connections.add(visitorName, session);
-        var message = String.format("%s left the game, %s is now empty", visitorName, teamColor);
+        var message = String.format("%s left the game", visitorName);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         notification.addMessage(message);
         connections.broadcast(visitorName, notification);

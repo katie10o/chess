@@ -3,7 +3,6 @@ import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
 import model.UserData;
-import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 import responseex.ResponseException;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
@@ -12,6 +11,7 @@ import java.util.*;
 
 public class ChessClient {
     private String visitorName = null;
+    private String teamColor;
     private final ServerFacade facade;
     private final NotificationHandler notificationHandler;
     private final String url;
@@ -37,7 +37,7 @@ public class ChessClient {
             if (inGamePlay || inGameObserve){
                 listGame();
                 GameData currentGame = gameObjects.get(gameIDs.get(currentGameID));
-                GameClient game = new GameClient(inGamePlay, cmd, params,
+                GameClient game = new GameClient(inGamePlay, teamColor,cmd, params,
                         visitorName, facade, notificationHandler, url, authToken, currentGame);
                 String outcome = game.toString();
                 if (Objects.equals(outcome, "Game successfully left\n")){
@@ -226,7 +226,8 @@ public class ChessClient {
                     return "Game number does not exist";
                 }
                 int tempID = gameIDs.get(gameNumber);
-                String teamColor = params[0].toUpperCase();
+                teamColor = params[0].toUpperCase();
+
                 GameData game = new GameData(tempID, null, null, null, null, teamColor, null);
                 facade.joinGame(game, authToken);
                 inGamePlay = true;

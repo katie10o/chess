@@ -150,7 +150,6 @@ public class ChessGame {
         else{
             setTeamTurn(TeamColor.WHITE);
         }
-        System.out.println(board.toString());
     }
 
 
