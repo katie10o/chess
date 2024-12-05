@@ -24,14 +24,22 @@ public class WebSocketHandler {
                     joinGame(action.getUser(), action.getTeamColor(), session);
                 }
             }
-//            case MAKE_MOVE -> makeMove();
+            case MAKE_MOVE -> makeMove(action.getUser(), action.getTeamColor());
             case LEAVE -> leaveGame(action.getUser(),  session);
 //            case RESIGN -> resignGame();
         }
     }
 
+    private void makeMove(String visitorName, String teamColor) throws IOException {
+
+        var message = String.format("%s (%s player) made a move", visitorName, teamColor);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notification.addMessage(message);
+        connections.broadcast(visitorName, notification);
+    }
+
     private void leaveGame(String visitorName, Session session) throws IOException {
-        connections.add(visitorName, session);
+        connections.remove(visitorName);
         var message = String.format("%s left the game", visitorName);
         var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
         notification.addMessage(message);

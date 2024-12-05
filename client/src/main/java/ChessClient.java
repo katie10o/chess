@@ -1,4 +1,5 @@
 import chess.ChessGame;
+import chess.ChessPiece;
 import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
@@ -11,7 +12,7 @@ import java.util.*;
 
 public class ChessClient {
     private String visitorName = null;
-    private String teamColor;
+    private ChessGame.TeamColor teamColor;
     private final ServerFacade facade;
     private final NotificationHandler notificationHandler;
     private final String url;
@@ -37,7 +38,7 @@ public class ChessClient {
             if (inGamePlay || inGameObserve){
                 listGame();
                 GameData currentGame = gameObjects.get(gameIDs.get(currentGameID));
-                GameClient game = new GameClient(inGamePlay, teamColor,cmd, params,
+                GameClient game = new GameClient(inGamePlay, teamColor, cmd, params,
                         visitorName, facade, notificationHandler, url, authToken, currentGame);
                 String outcome = game.toString();
                 if (Objects.equals(outcome, "Game successfully left\n")){
@@ -71,8 +72,8 @@ public class ChessClient {
             return ex.getMessage();
         }
     }
-    private String drawBoard(ChessGame game){
-        DrawBoard draw = new DrawBoard(game.getBoard().toString());
+    private String drawBoard(ChessGame.TeamColor color, ChessGame game){
+        DrawBoard draw = new DrawBoard(color, game.getBoard().toString(), false, new ArrayList<>());
         return draw.getDrawnBoard();
     }
 
@@ -93,9 +94,10 @@ public class ChessClient {
                 int tempID = gameIDs.get(gameNumber);
                 inGameObserve = true;
                 currentGameID = gameNumber;
+                teamColor = ChessGame.TeamColor.WHITE;
                 WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
                 ws.observeGame(visitorName, authToken, tempID);
-                return "Observing game: \n" + drawBoard(gameObjects.get(tempID).gameObject());
+                return "Observing game: \n" + drawBoard(ChessGame.TeamColor.WHITE, gameObjects.get(tempID).gameObject());
             } catch (NumberFormatException e) {
                 return "Game number not a digit";
             }
@@ -225,17 +227,16 @@ public class ChessClient {
                 if (!gameIDs.containsKey(gameNumber)){
                     return "Game number does not exist";
                 }
-                int tempID = gameIDs.get(gameNumber);
-                teamColor = params[0].toUpperCase();
 
-                GameData game = new GameData(tempID, null, null, null, null, teamColor, null);
+                int tempID = gameIDs.get(gameNumber);
+                teamColor = params[0].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+                GameData game = new GameData(tempID, null, null, null, null, params[0].toUpperCase(), null);
                 facade.joinGame(game, authToken);
                 inGamePlay = true;
                 currentGameID = gameNumber;
                 WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-                ws.joinGame(visitorName, teamColor, authToken, tempID);
-                drawBoard(gameObjects.get(tempID).gameObject());
-                return "Game successfully joined\n" + drawBoard(gameObjects.get(tempID).gameObject());
+                ws.joinGame(visitorName, params[0].toUpperCase(), authToken, tempID);
+                return "Game successfully joined\n" + drawBoard(teamColor, gameObjects.get(tempID).gameObject());
             } catch (NumberFormatException e) {
                 return "Game number not a digit, make sure it comes after player color";
             }

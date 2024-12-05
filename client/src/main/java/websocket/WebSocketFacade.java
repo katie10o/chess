@@ -69,6 +69,18 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
+    public void makeMove(String user, String teamColor, String authToken, Integer gameID) throws ResponseException {
+        try {
+
+            var connect = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
+            connect.addUser(user);
+            connect.addTeamColor(teamColor);
+            this.session.getBasicRemote().sendText(new Gson().toJson(connect));
+            this.session.close();
+        } catch (IOException ex) {
+            throw new ResponseException(500, ex.getMessage());
+        }
+    }
 
 
 

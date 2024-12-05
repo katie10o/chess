@@ -1,19 +1,31 @@
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
+
+import java.util.Collection;
+
 import static ui.EscapeSequences.*;
 
 
 public class DrawBoard {
     private String board;
-    private String whiteBoard;
-    private String blackBoard;
+    private ChessGame.TeamColor color;
+    private Collection<ChessMove> moves;
+    private boolean possibleMoves;
 
-    public DrawBoard(String board){
+    public DrawBoard(ChessGame.TeamColor color, String board, Boolean possibleMoves, Collection<ChessMove> moves){
         this.board = board;
-        whiteBoard = createBoard("BLACK", "a  b  c  d  e  f  g  h",  9, "WHITE");
-        blackBoard = createBoard("WHITE", "h  g  f  e  d  c  b  a",  0, "BLACK");
+        this.color = color;
+        this.moves = moves;
+        this.possibleMoves = possibleMoves;
     }
     public String getDrawnBoard(){
-        return whiteBoard + "\n" + blackBoard;
+        if (color.equals(ChessGame.TeamColor.WHITE)){
+            return createBoard("BLACK", "a  b  c  d  e  f  g  h",  9, "WHITE");
+        }
+        return createBoard("WHITE", "h  g  f  e  d  c  b  a",  0, "BLACK");
     }
+
 
     private String createBoard(String topColor, String topLetter, int startingNumber, String bottomColor) {
         StringBuilder draw = new StringBuilder();
@@ -27,12 +39,23 @@ public class DrawBoard {
         String bgColor = SET_BG_COLOR_LIGHT_GREY;
         boolean isNewRow = true;
         int rowCounter = startingNumber;
+        ChessPosition position;
+        position = topColor.equals("BLACK") ? new ChessPosition(8,1) : new ChessPosition(1,9);
 
         for (int i = topColor.equals("BLACK") ? 0 : board.length() - 1;
              topColor.equals("BLACK") ? i < board.length() : i > -1;
              i += topColor.equals("BLACK") ? 1 : -1) {
             char currentChar = board.charAt(i);
-
+            boolean highlightMove = false;
+            boolean hightlightCurrPosition = false;
+            if (possibleMoves){
+                if (currentPositionChecker(position)){
+                    hightlightCurrPosition = true;
+                }
+                if (moveChecker(position)){
+                    highlightMove = true;
+                }
+            }
 
             if (isNewRow) {
                 rowCounter = topColor.equals("BLACK") ? rowCounter - 1 : rowCounter + 1;
@@ -43,24 +66,40 @@ public class DrawBoard {
                 }
             }
             if (currentChar == ' '){
+                String oldColor = bgColor;
+                if (highlightMove){
+                    bgColor = toggleHighlightColor(bgColor);
+                } else if (hightlightCurrPosition) {
+                    bgColor = SET_BG_COLOR_YELLOW;
+                }
                 draw.append(bgColor).append("   ");
-                bgColor = toggleColor(bgColor);
+                bgColor = toggleColor(oldColor);
             }
             else if (currentChar == '\n'){
                 isNewRow = true;
+                position = topColor.equals("BLACK") ? new ChessPosition(position.getRow() - 1, 0)
+                        : new ChessPosition(position.getRow() + 1, 9);
                 draw.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE).append(" ").append(rowCounter)
                         .append(" ").append(RESET_BG_COLOR).append("\n");
                 bgColor = toggleColor(bgColor);
             }
             else {
+                String oldColor = bgColor;
+                if (highlightMove){
+                    bgColor = toggleHighlightColor(bgColor);
+                } else if (hightlightCurrPosition) {
+                    bgColor = SET_BG_COLOR_YELLOW;
+                }
                 draw.append(formatPiece(currentChar, bgColor));
-                bgColor = toggleColor(bgColor);
+                bgColor = toggleColor(oldColor);
             }
             if (topColor.equals("WHITE") && i == 0){
                 draw.append(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE).append(" ").append(rowCounter)
                         .append(" ").append(RESET_BG_COLOR).append("\n");
                 bgColor = toggleColor(bgColor);
             }
+            position = topColor.equals("BLACK") ? new ChessPosition(position.getRow(), position.getColumn() + 1)
+                    : new ChessPosition(position.getRow(), position.getColumn() - 1);
         }
 
         // Footer rows
@@ -75,6 +114,10 @@ public class DrawBoard {
     private String toggleColor(String currentColor) {
         return currentColor.equals(SET_BG_COLOR_DARK_GREY) ? SET_BG_COLOR_LIGHT_GREY : SET_BG_COLOR_DARK_GREY;
     }
+    private String toggleHighlightColor(String currentColor) {
+        return currentColor.equals(SET_BG_COLOR_DARK_GREY) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_GREEN;
+    }
+
 
     private String formatPiece(char piece, String bgColor) {
         if (Character.isUpperCase(piece)) {
@@ -84,5 +127,21 @@ public class DrawBoard {
             // Black piece
             return SET_TEXT_BOLD + SET_TEXT_COLOR_MAGENTA + bgColor + " " + Character.toUpperCase(piece) + " ";
         }
+    }
+    private boolean moveChecker(ChessPosition position){
+        for (ChessMove move : moves){
+            if (move.getEndPosition().equals(position)){
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean currentPositionChecker(ChessPosition position){
+        for (ChessMove move : moves){
+            if (move.getStartPosition().equals(position)){
+                return true;
+            }
+        }
+        return false;
     }
 }
