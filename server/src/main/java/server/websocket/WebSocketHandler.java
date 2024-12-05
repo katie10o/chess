@@ -26,8 +26,14 @@ public class WebSocketHandler {
             }
             case MAKE_MOVE -> makeMove(action.getUser(), action.getTeamColor());
             case LEAVE -> leaveGame(action.getUser(),  session);
-//            case RESIGN -> resignGame();
+            case RESIGN -> resignGame(action.getUser(), action.getTeamColor());
         }
+    }
+    private void resignGame(String visitorName, String teamColor) throws IOException {
+        var message = String.format("%s (%s player) resigned", visitorName, teamColor);
+        var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+        notification.addMessage(message);
+        connections.broadcast(visitorName, notification);
     }
 
     private void makeMove(String visitorName, String teamColor) throws IOException {

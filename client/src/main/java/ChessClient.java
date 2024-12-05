@@ -70,6 +70,8 @@ public class ChessClient {
             }
         } catch (ResponseException ex) {
             return ex.getMessage();
+        } catch (ServerException e) {
+            throw new RuntimeException(e);
         }
     }
     private String drawBoard(ChessGame.TeamColor color, ChessGame game){

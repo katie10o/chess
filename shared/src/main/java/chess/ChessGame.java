@@ -15,6 +15,7 @@ public class ChessGame {
     private Map<ChessGame.TeamColor, Boolean> staleMate = new HashMap<>();
     private ChessBoard board;
     private ChessGame.TeamColor teamTurn;
+    private boolean resigned;
 
     public ChessGame() {
         board = new ChessBoard();
@@ -26,6 +27,7 @@ public class ChessGame {
         checkMate.put(TeamColor.BLACK, false);
         staleMate.put(TeamColor.WHITE, false);
         staleMate.put(TeamColor.BLACK, false);
+        resigned = false;
 
     }
 
@@ -35,6 +37,12 @@ public class ChessGame {
     public TeamColor getTeamTurn() {
         return teamTurn;
 
+    }
+    public void resignGame(){
+        resigned = true;
+    }
+    public boolean getResigned(){
+        return resigned;
     }
 
     /**

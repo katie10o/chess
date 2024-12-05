@@ -27,7 +27,7 @@ public class GameClient {
 
     public GameClient(boolean player, ChessGame.TeamColor teamColor, String cmd, String[] params,
                       String visitorName, ServerFacade facade, NotificationHandler notificationHandler,
-                      String url, String authToken, GameData currentGame) throws ResponseException {
+                      String url, String authToken, GameData currentGame) throws ResponseException, ServerException {
 
         this.player = player;
         this.teamColor = teamColor;
@@ -56,8 +56,12 @@ public class GameClient {
             }
         }
     }
-    private void resign(){
-
+    private void resign() throws ResponseException, ServerException {
+        currentGame.gameObject().resignGame();
+        facade.updateGame(currentGame, authToken);
+        WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
+        ws.resign(visitorName, authToken, currentGame.gameID());
+        outcome =  "Game successfully resigned\n";
     }
     private void possibleMoves(String[] params) throws ResponseException {
         try {
