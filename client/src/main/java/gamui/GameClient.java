@@ -1,6 +1,7 @@
 package gamui;
 
 import chess.*;
+import com.google.gson.Gson;
 import draw.DrawBoard;
 import facade.ServerException;
 import facade.ServerFacade;
@@ -8,8 +9,10 @@ import model.GameData;
 import responseex.ResponseException;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
+import websocket.commands.UserCommandMove;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 
@@ -79,10 +82,18 @@ public class GameClient {
 
                 var movePlay = new MovePlay(currentGame.gameObject(), oldPosition, newPosition, teamColor);
                 if (movePlay.safeMove()){
-                    facade.updateGame(currentGame, authToken);
+//                    facade.updateGame(currentGame, authToken);
                     outcome = "";
+                    HashMap<String, HashMap<String, Integer>> move = new HashMap<>();
+                    move.put("startPosition", new HashMap<>());
+                    move.put("endPosition", new HashMap<>());
+                    move.get("startPosition").put("column", oldPosition.getColumn());
+                    move.get("startPosition").put("row", oldPosition.getRow());
+                    move.get("endPosition").put("column", newPosition.getColumn());
+                    move.get("endPosition").put("row", newPosition.getRow());
+
                     WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-                    ws.makeMove(authToken, currentGame.gameID());
+                    ws.makeMove(authToken, currentGame.gameID(), new UserCommandMove(move));
                 }
             }
         } catch (Exception ex){
@@ -92,7 +103,6 @@ public class GameClient {
 
     private void resign() throws ResponseException, ServerException {
         currentGame.gameObject().resignGame();
-        facade.updateGame(currentGame, authToken);
         WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
         ws.resign(authToken, currentGame.gameID());
         outcome =  "";
@@ -165,20 +175,10 @@ public class GameClient {
     private void leave() {
         try {
 
-            String whiteUser = currentGame.whiteUsername();
-            String blackUser = currentGame.blackUsername();
-            if (Objects.equals(visitorName, whiteUser)){
-                whiteUser = null;
-            } else {
-                blackUser = null;
-            }
-            GameData game = new GameData(currentGame.gameID(), whiteUser, blackUser, currentGame.gameName(),
-                    currentGame.gameObject(), currentGame.playerColor(), currentGame.authToken());
-            facade.leaveGame(game, authToken);
             WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
             ws.leaveGame(authToken, currentGame.gameID());
             outcome =  "";
-        } catch (ResponseException | ServerException ex){
+        } catch (ResponseException ex){
             outcome =  ex.getMessage();
         }
         catch (Exception ex){

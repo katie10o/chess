@@ -201,8 +201,8 @@ public class ChessClient {
             int gameID = gameIDs.get(gameNumber);
 
             teamColor = params[0].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), null);
-            facade.joinGame(game, authToken);
+//            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), null);
+//            facade.joinGame(game, authToken);
 
             inGamePlay = true;
             currentGame = gameObjects.get(gameID);
@@ -213,7 +213,7 @@ public class ChessClient {
 
         } catch (NumberFormatException e) {
             return "Game number not a digit, make sure it comes after player color";
-        } catch (ResponseException | ServerException ex){
+        } catch (ResponseException ex){
             return ex.getMessage();
         } catch (NullPointerException ex){
             return "Must list games first in order to play a game";

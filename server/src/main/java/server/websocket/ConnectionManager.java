@@ -10,26 +10,32 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final HashMap<Session, Connection> connections = new HashMap<>();
+    public final HashMap<Integer, ArrayList<Connection>> connections = new HashMap<>();
 
-    public void add(Session session) {
-        var connection = new Connection(session);
-        connections.put(session, connection);
+    public void add(Session rootSession, Integer gameID) {
+        var connection = new Connection(rootSession);
+        if (connections.containsKey(gameID)){
+            connections.get(gameID).add(connection);
+        }
+        else {
+            connections.put(gameID, new ArrayList<>());
+            connections.get(gameID).add(connection);
+        }
     }
 
-    public void remove(Session session) {
-
-        connections.remove(session);
+    public void remove(Session rootSession, Integer gameID) {
+        connections.get(gameID).removeIf(con -> con.session.equals(rootSession));
     }
 
-    public void boradcastNotification(Session session, ServerMessage notification, boolean toAll) throws IOException {
+    public void boradcastNotification(Session rootSession, ServerMessage notification, boolean toAll, Integer gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
+        for (Connection c : connections.get(gameID)) {
+            boolean open = c.session.isOpen();
             if (c.session.isOpen()) {
                 if (toAll){
                     c.send(new Gson().toJson(notification));
                 }
-                else if (!c.session.equals(session)) {
+                else if (!c.session.equals(rootSession)) {
                     c.send(new Gson().toJson(notification));
                 }
             } else {
@@ -37,21 +43,24 @@ public class ConnectionManager {
             }
         }
         for (var c : removeList) {
-            connections.remove(c.session);
+            connections.get(gameID).removeIf(con -> con.session.equals(c.session));
         }
     }
 
-    public void singleNotification(Session session, ServerMessage message) throws IOException {
-        Connection con = connections.get(session);
-        if (con.session.isOpen()){
-            con.send(new Gson().toJson(message));
+    public void singleNotification(Session rootSession, ServerMessage message, Integer gameID) throws IOException {
+        for (Connection con : connections.get(gameID)){
+            if (con.getSession().equals(rootSession)){
+                if (con.session.isOpen()){
+                    con.send(new Gson().toJson(message));
+                }
+            }
         }
     }
 
-    public void broadcastGame(ChessGame.TeamColor teamColor, ServerMessage message) throws IOException {
+    public void broadcastGame(ChessGame.TeamColor teamColor, ServerMessage message, Integer gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
+        for (var c : connections.get(gameID)) {
+            if (c.getSession().isOpen()) {
                 var loadGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
                 loadGame.addGame(message.getGame());
                 loadGame.addTeamColor(teamColor);
@@ -62,7 +71,7 @@ public class ConnectionManager {
             }
         }
         for (var c : removeList) {
-            connections.remove(c.session);
+            connections.get(gameID).removeIf(con -> con.session.equals(c.session));
         }
     }
 }
