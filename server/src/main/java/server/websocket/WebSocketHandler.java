@@ -50,7 +50,7 @@ public class WebSocketHandler {
             connections.boradcastNotification(session, notification, true);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }
@@ -71,7 +71,7 @@ public class WebSocketHandler {
             connections.boradcastNotification(session, notification, false);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }
@@ -87,13 +87,14 @@ public class WebSocketHandler {
             connections.boradcastNotification(session, notification, false);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }
 
     private void connect(Session session, String authToken, Integer gameID) throws ResponseException, DataAccessException, IOException {
         try {
+            connections.add(session);
             String visitorName = getUserName(authToken);
             GameData gameData = getGameData(authToken, gameID);
             ChessGame.TeamColor teamColor = getTeamColor(gameData, visitorName);
@@ -104,14 +105,13 @@ public class WebSocketHandler {
             }
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }
 
     private void observeGame(Session session, String visitorName, ChessGame.TeamColor teamColor, ChessGame game) throws IOException, ResponseException, DataAccessException {
         try {
-            connections.add(session);
             loadGame(session, visitorName, teamColor, game);
 
             var message = String.format("%s joined the game as an observer", visitorName);
@@ -120,14 +120,13 @@ public class WebSocketHandler {
             connections.boradcastNotification(session, notification, false);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }
 
     private void joinGame(Session session, String visitorName, ChessGame.TeamColor teamColor, ChessGame game) throws IOException {
         try {
-            connections.add(session);
             loadGame(session, visitorName, teamColor, game);
 
             var message = String.format("%s joined the game as %s player", visitorName, teamColor);
@@ -136,7 +135,7 @@ public class WebSocketHandler {
             connections.boradcastNotification(session, notification, false);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }
@@ -150,7 +149,7 @@ public class WebSocketHandler {
             connections.singleNotification(session, loadGame);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addMessage(ex.toString());
+            errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage);
         }
     }

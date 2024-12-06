@@ -15,6 +15,7 @@ public class ServerMessage {
     ServerMessageType serverMessageType;
     //notification update or error message
     String message;
+    String errorMessage;
     //loadGame info
     ChessGame game;
     String move;
@@ -39,6 +40,9 @@ public class ServerMessage {
 
     public void addMessage(String message){this.message = message;}
     public String getMessage(){return message;}
+
+    public void addErrorMessage(String message){this.errorMessage = message;}
+    public String getErrorMessage(){return errorMessage;}
 
     public void addGame(ChessGame game){this.game = game;}
     public ChessGame getGame(){return game;}
