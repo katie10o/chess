@@ -1,5 +1,6 @@
 package service;
 
+import chess.ChessGame;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import org.mindrot.jbcrypt.BCrypt;
@@ -27,7 +28,6 @@ public class Service {
                     usrData.username().isEmpty() || usrData.email() == null || usrData.email().isEmpty()){
                 throw new ResponseException(400, "Error: Not enough parameters");
             }
-
             if (dataAccess.checkUserName(usrData.username())){
                 throw new ResponseException(403, "Error: Username already taken");
             }
@@ -76,7 +76,6 @@ public class Service {
         if(!dataAccess.getAuthToken(authToken)){
             throw new ResponseException(401, "Error: Unauthorized");
         }
-
         return dataAccess.addGame(gameData);
     }
 
@@ -101,6 +100,7 @@ public class Service {
             gameData = new GameData(currentGameData.gameID(), currentGameData.whiteUsername(), userName,
                     currentGameData.gameName(), currentGameData.gameObject(), currentGameData.playerColor(), null );
             dataAccess.editPlayers(gameData);
+
         }
         else {
             throw new ResponseException(403, "Error: Position already taken");
@@ -155,5 +155,28 @@ public class Service {
 
     boolean verifyPassword(String clearTextPassword, String hashedPassword) {
         return BCrypt.checkpw(clearTextPassword, hashedPassword);
+    }
+
+    public String getUser(String authToken) throws ResponseException, DataAccessException {
+        if (authToken == null){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+        if(!dataAccess.getAuthToken(authToken)){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+
+        return dataAccess.getUserName(authToken);
+    }
+
+
+    public GameData getGame(String authToken, int gameID) throws ResponseException, DataAccessException {
+        if (authToken == null){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+        if(!dataAccess.getAuthToken(authToken)){
+            throw new ResponseException(401, "Error: Unauthorized");
+        }
+
+        return dataAccess.getGame(gameID);
     }
 }

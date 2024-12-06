@@ -1,5 +1,8 @@
 package websocket.messages;
 
+import chess.ChessGame;
+import chess.ChessPiece;
+
 import java.util.Objects;
 
 /**
@@ -10,7 +13,15 @@ import java.util.Objects;
  */
 public class ServerMessage {
     ServerMessageType serverMessageType;
+    //notification update or error message
     String message;
+    //loadGame info
+    ChessGame game;
+    String move;
+    String username;
+    ChessGame.TeamColor teamColor;
+    String board;
+
 
     public enum ServerMessageType {
         LOAD_GAME,
@@ -25,8 +36,24 @@ public class ServerMessage {
     public ServerMessageType getServerMessageType() {
         return this.serverMessageType;
     }
+
     public void addMessage(String message){this.message = message;}
     public String getMessage(){return message;}
+
+    public void addGame(ChessGame game){this.game = game;}
+    public ChessGame getGame(){return game;}
+
+    public void addMove(String move){this.move = move;}
+    public String getMove(){return move;}
+
+    public void addUser(String user){this.username = user;}
+    public String getUser(){return username;}
+
+    public void addTeamColor(ChessGame.TeamColor teamColor){this.teamColor = teamColor;}
+    public ChessGame.TeamColor getTeamColor(){return teamColor;}
+
+    public void addBoard(String board){this.board = board;}
+    public String getBoard(){return board;}
 
 
     @Override

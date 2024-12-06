@@ -1,6 +1,10 @@
 package websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import com.google.gson.Gson;
+import draw.DrawBoard;
+import model.GameData;
 import responseex.ResponseException;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -9,6 +13,7 @@ import javax.websocket.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 public class WebSocketFacade extends Endpoint {
     Session session;
@@ -24,68 +29,75 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
+//            will always be a message from ServerMessage
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-                    notification.addMessage(message);
-                    notificationHandler.notify(notification);
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.LOAD_GAME)){
+                        ChessGame game = serverMessage.getGame();
+                        ChessGame.TeamColor teamColor = serverMessage.getTeamColor();
+                        String board = draw(game.getBoard().toString(), teamColor);
+                        serverMessage.addMessage(board);
+                    } else if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.NOTIFICATION)){
+
+                    }
+
+
+                    notificationHandler.notify(serverMessage);
                 }
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
+    private String draw(String board, ChessGame.TeamColor teamColor){
+        DrawBoard boardObject = new DrawBoard(teamColor, board, false, new ArrayList<>() );
+        return boardObject.getDrawnBoard();
+    }
 
-    public void joinGame(String user, String teamColor, String authToken, Integer gameID) throws ResponseException {
+    public void joinGame(String authToken, Integer gameID) throws ResponseException {
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-            connect.addUser(user);
-            connect.addTeamColor(teamColor);
+
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void observeGame(String user, String authToken, Integer gameID) throws ResponseException{
+    public void observeGame(String authToken, Integer gameID) throws ResponseException{
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-            connect.addUser(user);
-            connect.setObserver();
+
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void leaveGame(String user, String authToken, Integer gameID) throws ResponseException {
+    public void leaveGame(String authToken, Integer gameID) throws ResponseException {
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
-            connect.addUser(user);
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
             this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    public void makeMove(String user, String teamColor, String authToken, Integer gameID) throws ResponseException {
+    public void makeMove(String authToken, Integer gameID) throws ResponseException {
         try {
-
             var connect = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
-            connect.addUser(user);
-            connect.addTeamColor(teamColor);
+
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
-            this.session.close();
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }
     }
 
-    public void resign(String user, String authToken, Integer gameID) throws ResponseException {
+    public void resign(String authToken, Integer gameID) throws ResponseException {
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, gameID);
-            connect.addUser(user);
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

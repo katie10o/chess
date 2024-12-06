@@ -306,6 +306,33 @@ public class MySqlDataAccess implements DataAccess{
     }
 
     @Override
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        String sql = "SELECT * FROM game WHERE id=?";
+
+        try ( var conn = DatabaseManager.getConnection();
+              var queryStatement = conn.prepareStatement(sql)) {
+            queryStatement.setInt(1, gameID);
+            try (var resultStatement = queryStatement.executeQuery()){
+                if(resultStatement.next()){
+                    int id = resultStatement.getInt("id");
+                    String whiteUser = resultStatement.getString("whiteUser");
+                    String blackUser = resultStatement.getString("blackUser");
+                    String gameName = resultStatement.getString("gameName");
+                    String chessGame = resultStatement.getString("chessGame");
+                    return new GameData(gameID, whiteUser, blackUser, gameName,
+                            new Gson().fromJson(chessGame, ChessGame.class), null, null);
+                } else{
+                    throw new ResponseException(500, "error retrieving username");
+                }            } catch (ResponseException e) {
+                throw new RuntimeException(e);
+            }
+
+        } catch (SQLException ex){
+            throw new DataAccessException(ex.getMessage());
+        }
+    }
+
+    @Override
     public HashMap<String, Collection<GameData>> listGames() throws DataAccessException {
         HashMap<String, Collection<GameData>> result = new HashMap<>();
         Collection<GameData> gameList = new ArrayList<>();

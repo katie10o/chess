@@ -3,13 +3,11 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.MySqlDataAccess;
-import model.GameData;
 import responseex.ResponseException;
 import server.websocket.WebSocketHandler;
 import service.Service;
 import spark.*;
 
-import java.io.IOException;
 
 public class Server {
     private ServerHandler handler;
@@ -22,7 +20,7 @@ public class Server {
 
         try{
             handler = new ServerHandler(new Service(new MySqlDataAccess()));
-            webSocketHandler = new WebSocketHandler();
+            webSocketHandler = new WebSocketHandler(handler);
         } catch (DataAccessException e){
             System.err.println(e.getMessage());
             System.err.println("Error: Cannot connect to the database.");

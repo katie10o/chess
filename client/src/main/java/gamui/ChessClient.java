@@ -1,5 +1,6 @@
+package gamui;
+
 import chess.ChessGame;
-import chess.ChessPiece;
 import facade.ServerException;
 import facade.ServerFacade;
 import model.GameData;
@@ -11,16 +12,19 @@ import websocket.WebSocketFacade;
 import java.util.*;
 
 public class ChessClient {
-    private String visitorName = null;
-    private ChessGame.TeamColor teamColor;
     private final ServerFacade facade;
     private final NotificationHandler notificationHandler;
     private final String url;
+
+
+    private String visitorName = null;
+    private ChessGame.TeamColor teamColor;
     private boolean signIn = false;
     private boolean inGamePlay = false;
     private boolean inGameObserve = false;
-    private Integer currentGameID;
+    private GameData currentGame;
     private String authToken = null;
+
     private HashMap<Integer, Integer> gameIDs;
     private HashMap<Integer, GameData> gameObjects;
 
@@ -37,7 +41,6 @@ public class ChessClient {
             var params = Arrays.copyOfRange(tokens, 1, tokens.length);
             if (inGamePlay || inGameObserve){
                 listGame();
-                GameData currentGame = gameObjects.get(gameIDs.get(currentGameID));
                 GameClient game = new GameClient(inGamePlay, teamColor, cmd, params,
                         visitorName, facade, notificationHandler, url, authToken, currentGame);
                 String outcome = game.toString();
@@ -74,35 +77,25 @@ public class ChessClient {
             throw new RuntimeException(e);
         }
     }
-    private String drawBoard(ChessGame.TeamColor color, ChessGame game){
-        DrawBoard draw = new DrawBoard(color, game.getBoard().toString(), false, new ArrayList<>());
-        return draw.getDrawnBoard();
-    }
 
     private String observeGame(String[] params) {
         try {
-            if (params.length != 1){
-                if (params.length < 1){
-                    return "Don't forget to add the game number!";
-                } else{
-                    return "Too many parameters given";
-                }
-            }
-            try {
-                int gameNumber = Integer.parseInt(params[0]);
-                if (!gameIDs.containsKey(gameNumber)){
-                    return "Game number does not exist";
-                }
-                int tempID = gameIDs.get(gameNumber);
-                inGameObserve = true;
-                currentGameID = gameNumber;
-                teamColor = ChessGame.TeamColor.WHITE;
-                WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-                ws.observeGame(visitorName, authToken, tempID);
-                return "Observing game: \n" + drawBoard(ChessGame.TeamColor.WHITE, gameObjects.get(tempID).gameObject());
-            } catch (NumberFormatException e) {
-                return "Game number not a digit";
-            }
+            if (params.length != 1){ return params.length < 1 ? "Don't forget to add the game number!" : "Too many parameters given"; }
+
+            int gameNumber = Integer.parseInt(params[0]);
+            if (!gameIDs.containsKey(gameNumber)){ return "Game number does not exist";}
+            int gameID = gameIDs.get(gameNumber);
+
+            inGameObserve = true;
+            teamColor = ChessGame.TeamColor.WHITE;
+            currentGame = gameObjects.get(gameID);
+
+            WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
+            ws.observeGame(authToken, gameID);
+
+            return "";
+        } catch (NumberFormatException e) {
+            return "Game number not a digit";
         }
         catch (Exception ex){
             return "Error occurred";
@@ -111,13 +104,8 @@ public class ChessClient {
 
     private String signIn(String[] params) throws ResponseException {
         try{
-            if (params.length != 2){
-                if (params.length < 2){
-                    return "missing parameters, enter username followed by password";
-                } else{
-                    return "Too many parameters given";
-                }
-            }
+            if (params.length != 2){ return params.length < 2 ? "missing parameters, enter username followed by password" : "Too many parameters given";}
+
             UserData user = new UserData(params[0], params[1], null, null);
             user = facade.signIn(user);
             this.authToken = user.authToken();
@@ -152,13 +140,8 @@ public class ChessClient {
     }
     private String register(String[] params) throws ResponseException {
         try {
-            if (params.length != 3){
-                if (params.length < 3){
-                    return "missing parameters, enter username, password, and email";
-                } else{
-                    return "Too many parameters given";
-                }
-            }
+            if (params.length != 3){ return params.length < 3 ? "missing parameters, enter username, password, and email" :"Too many parameters given";}
+
             UserData user = new UserData(params[0], params[1], params[2], null);
             UserData usr = facade.register(user);
             this.authToken = usr.authToken();
@@ -198,13 +181,7 @@ public class ChessClient {
     }
     private String createGame(String[] params) throws ResponseException {
         try{
-            if (params.length != 1){
-                if (params.length < 1){
-                    return "missing parameters, enter game name";
-                } else{
-                    return "Too many parameters given";
-                }
-            }
+            if (params.length != 1){ return params.length < 1 ? "missing parameters, enter game name" : "Too many parameters given";}
             GameData game = new GameData(0, null, null, params[0], null, null, authToken);
             facade.createGame(game, authToken);
             return "Game " + params[0] + " is successfully created";
@@ -217,31 +194,25 @@ public class ChessClient {
     }
     private String joinGame(String[] params) throws ResponseException {
         try {
-            if (params.length != 2){
-                if (params.length < 2){
-                    return "missing parameters, enter player color followed by game number";
-                } else{
-                    return "Too many parameters given";
-                }
-            }
-            try {
-                int gameNumber = Integer.parseInt(params[1]);
-                if (!gameIDs.containsKey(gameNumber)){
-                    return "Game number does not exist";
-                }
+            if (params.length != 2){ return params.length < 2 ? "missing parameters, enter player color followed by game number" : "Too many parameters given";}
 
-                int tempID = gameIDs.get(gameNumber);
-                teamColor = params[0].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-                GameData game = new GameData(tempID, null, null, null, null, params[0].toUpperCase(), null);
-                facade.joinGame(game, authToken);
-                inGamePlay = true;
-                currentGameID = gameNumber;
-                WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-                ws.joinGame(visitorName, params[0].toUpperCase(), authToken, tempID);
-                return "Game successfully joined\n" + drawBoard(teamColor, gameObjects.get(tempID).gameObject());
-            } catch (NumberFormatException e) {
-                return "Game number not a digit, make sure it comes after player color";
-            }
+            int gameNumber = Integer.parseInt(params[1]);
+            if (!gameIDs.containsKey(gameNumber)){return "Game number does not exist";}
+            int gameID = gameIDs.get(gameNumber);
+
+            teamColor = params[0].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), null);
+            facade.joinGame(game, authToken);
+
+            inGamePlay = true;
+            currentGame = gameObjects.get(gameID);
+
+            WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
+            ws.joinGame(authToken, gameID);
+            return "";
+
+        } catch (NumberFormatException e) {
+            return "Game number not a digit, make sure it comes after player color";
         } catch (ResponseException | ServerException ex){
             return ex.getMessage();
         } catch (NullPointerException ex){

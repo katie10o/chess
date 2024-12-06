@@ -7,6 +7,8 @@ import model.UserData;
 import responseex.ResponseException;
 import service.Service;
 import spark.Request;
+import server.websocket.WebSocketHandler;
+
 
 import java.util.HashMap;
 
@@ -15,6 +17,9 @@ public class ServerHandler {
 
     public ServerHandler(Service service) {
         this.service =  service;
+    }
+    public Service getService(){
+        return service;
     }
 
     public Object clear() throws ResponseException, DataAccessException {
@@ -51,6 +56,7 @@ public class ServerHandler {
         GameData gameData = new Gson().fromJson(request.body(), GameData.class);
         var authToken = request.headers("Authorization");
         service.joinGame(gameData, authToken);
+
         return new Gson().toJson(new HashMap<>());
     }
     public Object updateGame(Request request) throws ResponseException, DataAccessException {

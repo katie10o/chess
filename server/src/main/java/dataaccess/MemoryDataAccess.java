@@ -99,6 +99,11 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
+    public GameData getGame(Integer gameID) throws DataAccessException {
+        return null;
+    }
+
+    @Override
     public HashMap<String, Collection<GameData>> listGames() throws DataAccessException{
         try{
             HashMap<String, Collection<GameData>> games = new HashMap<>();

@@ -1,5 +1,8 @@
 package websocket.commands;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Objects;
@@ -13,13 +16,9 @@ import java.util.Objects;
 public class UserGameCommand {
 
     private final CommandType commandType;
-    private boolean observer = false;
-
     private final String authToken;
-
     private final Integer gameID;
-    private String userName;
-    private String teamColor;
+
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
         this.commandType = commandType;
@@ -32,24 +31,6 @@ public class UserGameCommand {
         MAKE_MOVE,
         LEAVE,
         RESIGN
-    }
-    public void setObserver(){
-        observer = true;
-    }
-    public boolean getObserver(){
-        return observer;
-    }
-    public void addUser(String userName){
-        this.userName = userName;
-    }
-    public void addTeamColor(String teamColor){
-        this.teamColor = teamColor;
-    }
-    public String getUser(){
-        return userName;
-    }
-    public String getTeamColor(){
-        return teamColor;
     }
 
     public CommandType getCommandType() {

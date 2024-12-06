@@ -111,7 +111,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPiece myPiece = board.getPiece(move.getStartPosition());
         ChessPiece enemyPiece = board.getPiece(move.getEndPosition());
-
+        if (resigned){
+            throw new InvalidMoveException("Game over, player resigned");
+        }
 
         if (myPiece == null){
             throw new InvalidMoveException("cannot move null piece");
@@ -119,7 +121,6 @@ public class ChessGame {
 
         Collection<ChessMove> safeMoves = validMoves(move.getStartPosition());
         ChessGame.TeamColor currColor = board.getPiece(move.getStartPosition()).getTeamColor();
-
 
         if (!board.insideBoard(move.getEndPosition())){
             throw new InvalidMoveException("Move outside of chess board");
