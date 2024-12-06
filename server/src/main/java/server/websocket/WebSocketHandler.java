@@ -2,6 +2,7 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import model.GameData;
@@ -11,6 +12,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import responseex.ResponseException;
 import server.ServerHandler;
 import service.Service;
+import websocket.commands.UserCommandMove;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -31,9 +33,12 @@ public class WebSocketHandler {
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException, ResponseException, DataAccessException {
         UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
+        UserCommandMove move = new Gson().fromJson(message, UserCommandMove.class);
+
+//        UserCommandMove move = new Gson().fromJson(message, UserCommandMove.class);
         switch (action.getCommandType()) {
             case CONNECT -> connect(session, action.getAuthToken(), action.getGameID());
-            case MAKE_MOVE -> makeMove(session, action.getAuthToken(), action.getGameID());
+            case MAKE_MOVE -> makeMove(session, action.getAuthToken(), action.getGameID(), move);
             case LEAVE -> leaveGame(session, action.getAuthToken());
             case RESIGN -> resignGame(session, action.getAuthToken(), action.getGameID());
         }
@@ -55,11 +60,27 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(Session session, String authToken, Integer gameID) throws IOException, ResponseException, DataAccessException {
+    private void makeMove(Session session, String authToken, Integer gameID, UserCommandMove move) throws IOException, ResponseException, DataAccessException {
         try {
+            move.setPostions();
             String visitorName = getUserName(authToken);
             GameData gameData = getGameData(authToken, gameID);
             ChessGame.TeamColor teamColor = getTeamColor(gameData, visitorName);
+
+            if (!teamColor.equals(gameData.gameObject().getBoard().getPiece(move.getStartPosition()).getTeamColor())){
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "cannot move piece that does not belong to you");
+                connections.singleNotification(session, errorMessage);
+                return;
+            }
+            try{
+                gameData.gameObject().makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), null));
+            } catch (InvalidMoveException ex){
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + ex);
+                connections.singleNotification(session, errorMessage);
+                return;
+            }
 
             var loadGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             loadGame.addGame(gameData.gameObject());

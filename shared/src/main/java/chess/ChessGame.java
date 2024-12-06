@@ -1,5 +1,7 @@
 package chess;
 
+import websocket.messages.ServerMessage;
+
 import java.util.*;
 
 

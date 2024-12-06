@@ -1,10 +1,7 @@
 package websocket.commands;
 
-import chess.ChessGame;
-import chess.ChessMove;
-import chess.ChessPosition;
-import org.junit.jupiter.api.BeforeEach;
 
+import java.util.HashMap;
 import java.util.Objects;
 
 /**
@@ -18,6 +15,7 @@ public class UserGameCommand {
     private final CommandType commandType;
     private final String authToken;
     private final Integer gameID;
+
 
 
     public UserGameCommand(CommandType commandType, String authToken, Integer gameID) {
