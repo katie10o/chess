@@ -245,20 +245,16 @@ public class ChessGame {
         if (allValidMoves.isEmpty() && !kingSafe){
             checkMate.put(teamColor, true);
             check.put(teamColor, true);
-        } else {
-            checkMate.put(teamColor, false);
-            check.put(teamColor, false);
-        }
-        if (!allValidMoves.isEmpty() && !kingSafe){
+        } else if (!allValidMoves.isEmpty() && !kingSafe) {
             check.put(teamColor, true);
-        } else {
-            check.put(teamColor, false);
-        }
-        if (allValidMoves.isEmpty() && kingSafe){
+        } else if (allValidMoves.isEmpty() && kingSafe) {
             staleMate.put(teamColor, true);
         } else {
+            checkMate.put(teamColor, false);
             staleMate.put(teamColor, false);
+            check.put(teamColor, false);
         }
+
     }
 
 

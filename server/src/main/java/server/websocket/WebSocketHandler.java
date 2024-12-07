@@ -82,7 +82,7 @@ public class WebSocketHandler {
             if (!moveChecks(gameData, visitorName, gameID, session, teamColor, move)){
                 return;
             }
-//            afterMove(gameData, session, gameID, visitorName);
+            afterMove(gameData, gameID, visitorName);
 
             try{
                 gameData.gameObject().makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), move.getPieceType()));
@@ -103,8 +103,8 @@ public class WebSocketHandler {
             notification.addMessage(message);
             connections.boradcastNotification(visitorName, notification, false, gameID);
 
-            GameData updatedGameData = getGameData(authToken, gameID);
-            afterMove(updatedGameData, gameID, visitorName);
+//            GameData updatedGameData = getGameData(authToken, gameID);
+//            afterMove(updatedGameData, gameID, visitorName);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: move cannot be made" );
