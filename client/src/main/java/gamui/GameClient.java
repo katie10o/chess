@@ -85,7 +85,8 @@ public class GameClient {
                 return;
             }
             String[] oldLocation = params[0].contains(",") ? params[0].split(",") : params[0].split("");
-            String[] newLocation = params[params.length - 1].contains(",") ? params[params.length - 1].split(",") : params[params.length - 1].split("");
+            String[] newLocation = params[params.length - 1].contains(",") ?
+                    params[params.length - 1].split(",") : params[params.length - 1].split("");
 
             if (oldLocation.length != 2 || newLocation.length != 2) {
                 outcome = "Incorrect column or row given";
@@ -128,8 +129,10 @@ public class GameClient {
             }
             if (checkColumnValue(position[0].toLowerCase())) {
                 if (checkRowValue(Integer.valueOf(position[1].toLowerCase()))) {
-                    ChessPosition startPosition = new ChessPosition(Integer.parseInt(position[1]), convertColumn(position[0].toLowerCase()));
-                    DrawBoard draw = new DrawBoard(currentGame.gameObject().getBoard().getPiece(startPosition).getTeamColor(), currentGame.gameObject().getBoard().toString(), true, currentGame.gameObject().validMoves(startPosition));
+                    ChessPosition startPosition = new ChessPosition(Integer.parseInt(position[1]),
+                            convertColumn(position[0].toLowerCase()));
+                    DrawBoard draw = new DrawBoard(currentGame.gameObject().getBoard().getPiece(startPosition).getTeamColor(),
+                            currentGame.gameObject().getBoard().toString(), true, currentGame.gameObject().validMoves(startPosition));
                     outcome = draw.getDrawnBoard();
                 }
             }

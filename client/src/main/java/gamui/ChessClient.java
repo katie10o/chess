@@ -91,7 +91,7 @@ public class ChessClient {
             currentGame = gameObjects.get(gameID);
 
             WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-            ws.observeGame(authToken, gameID);
+            ws.joinGame(authToken, gameID);
 
             return "";
         } catch (NumberFormatException e) {
@@ -104,7 +104,8 @@ public class ChessClient {
 
     private String signIn(String[] params) throws ResponseException {
         try{
-            if (params.length != 2){ return params.length < 2 ? "missing parameters, enter username followed by password" : "Too many parameters given";}
+            if (params.length != 2){ return params.length < 2
+                    ? "missing parameters, enter username followed by password" : "Too many parameters given";}
 
             UserData user = new UserData(params[0], params[1], null, null);
             user = facade.signIn(user);
@@ -140,7 +141,8 @@ public class ChessClient {
     }
     private String register(String[] params) throws ResponseException {
         try {
-            if (params.length != 3){ return params.length < 3 ? "missing parameters, enter username, password, and email" :"Too many parameters given";}
+            if (params.length != 3){ return params.length < 3
+                    ? "missing parameters, enter username, password, and email" :"Too many parameters given";}
 
             UserData user = new UserData(params[0], params[1], params[2], null);
             UserData usr = facade.register(user);
@@ -194,7 +196,8 @@ public class ChessClient {
     }
     private String joinGame(String[] params) throws ResponseException {
         try {
-            if (params.length != 2){ return params.length < 2 ? "missing parameters, enter player color followed by game number" : "Too many parameters given";}
+            if (params.length != 2){ return params.length < 2
+                    ? "missing parameters, enter player color followed by game number" : "Too many parameters given";}
 
             int gameNumber = Integer.parseInt(params[1]);
             if (!gameIDs.containsKey(gameNumber)){return "Game number does not exist";}

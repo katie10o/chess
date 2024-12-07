@@ -18,10 +18,8 @@ public class ServerMessage {
     String errorMessage;
     //loadGame info
     ChessGame game;
-    String move;
     String username;
     ChessGame.TeamColor teamColor;
-    String board;
 
 
     public enum ServerMessageType {
@@ -47,8 +45,6 @@ public class ServerMessage {
     public void addGame(ChessGame game){this.game = game;}
     public ChessGame getGame(){return game;}
 
-    public void addMove(String move){this.move = move;}
-    public String getMove(){return move;}
 
     public void addUser(String user){this.username = user;}
     public String getUser(){return username;}
@@ -56,8 +52,6 @@ public class ServerMessage {
     public void addTeamColor(ChessGame.TeamColor teamColor){this.teamColor = teamColor;}
     public ChessGame.TeamColor getTeamColor(){return teamColor;}
 
-    public void addBoard(String board){this.board = board;}
-    public String getBoard(){return board;}
 
 
     @Override

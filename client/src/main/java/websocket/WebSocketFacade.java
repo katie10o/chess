@@ -40,7 +40,6 @@ public class WebSocketFacade extends Endpoint {
                         serverMessage.addMessage(board);
                     }
 
-
                     notificationHandler.notify(serverMessage);
                 }
             });
@@ -54,15 +53,6 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void joinGame(String authToken, Integer gameID) throws ResponseException {
-        try {
-            var connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-            this.session.getBasicRemote().sendText(new Gson().toJson(connect));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
-
-    public void observeGame(String authToken, Integer gameID) throws ResponseException{
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
