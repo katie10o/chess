@@ -1,27 +1,23 @@
 package gamui;
 
 import chess.*;
-import com.google.gson.Gson;
 import draw.DrawBoard;
 import facade.ServerException;
-import facade.ServerFacade;
 import model.GameData;
 import responseex.ResponseException;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
 import websocket.commands.UserCommandMove;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Objects;
 
 
 public class GameClient {
-    private final ServerFacade facade;
     private final NotificationHandler notificationHandler;
     private final String url;
 
-    private final String visitorName;
     private final ChessGame.TeamColor teamColor;
     private final String authToken;
     private final boolean player;
@@ -29,14 +25,11 @@ public class GameClient {
 
     private String outcome;
 
-    public GameClient(boolean player, ChessGame.TeamColor teamColor, String cmd, String[] params,
-                      String visitorName, ServerFacade facade, NotificationHandler notificationHandler,
+    public GameClient(boolean player, ChessGame.TeamColor teamColor, String cmd, String[] params, NotificationHandler notificationHandler,
                       String url, String authToken, GameData currentGame) throws ResponseException, ServerException {
 
         this.player = player;
         this.teamColor = teamColor;
-        this.visitorName = visitorName;
-        this.facade = facade;
         this.notificationHandler = notificationHandler;
         this.url = url;
         this.authToken = authToken;
@@ -60,6 +53,29 @@ public class GameClient {
             }
         }
     }
+    private UserCommandMove makeMoveMap(ChessMove movePiece){
+        HashMap<String, HashMap<String, Integer>> move = new HashMap<>();
+        move.put("startPosition", new HashMap<>());
+        move.put("endPosition", new HashMap<>());
+        move.get("startPosition").put("column", movePiece.getStartPosition().getColumn());
+        move.get("startPosition").put("row", movePiece.getStartPosition().getRow());
+        move.get("endPosition").put("column", movePiece.getEndPosition().getColumn());
+        move.get("endPosition").put("row", movePiece.getEndPosition().getRow());
+        move.put("promotion", new HashMap<>());
+        ChessPiece.PieceType type = movePiece.getPromotionPiece();
+        int promo;
+        switch (type){
+            case QUEEN -> promo = 0;
+            case BISHOP -> promo = 1;
+            case KNIGHT -> promo = 2;
+            case ROOK -> promo = 3;
+            case null -> promo = 4;
+            case KING -> promo = 5;
+            case PAWN -> promo = 6;
+        }
+        move.get("promotion").put("type", promo);
+        return new UserCommandMove(move);
+    }
 
     private void move(String[] params) {
         try {
@@ -81,28 +97,19 @@ public class GameClient {
                 ChessPosition newPosition = new ChessPosition(convertColumn(newLocation[0]), Integer.parseInt(newLocation[1]));
 
                 var movePlay = new MovePlay(currentGame.gameObject(), oldPosition, newPosition, teamColor);
-                if (movePlay.safeMove()){
-//                    facade.updateGame(currentGame, authToken);
-                    outcome = "";
-                    HashMap<String, HashMap<String, Integer>> move = new HashMap<>();
-                    move.put("startPosition", new HashMap<>());
-                    move.put("endPosition", new HashMap<>());
-                    move.get("startPosition").put("column", oldPosition.getColumn());
-                    move.get("startPosition").put("row", oldPosition.getRow());
-                    move.get("endPosition").put("column", newPosition.getColumn());
-                    move.get("endPosition").put("row", newPosition.getRow());
+                ChessMove promoMove = movePlay.promoMoveChecker();
+                UserCommandMove move = makeMoveMap(promoMove);
+                outcome = "";
 
-                    WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-                    ws.makeMove(authToken, currentGame.gameID(), new UserCommandMove(move));
-                }
+                WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
+                ws.makeMove(authToken, currentGame.gameID(), move);
             }
         } catch (Exception ex){
-            outcome = ex.getMessage();
+            outcome = "Error: " + ex.getMessage();
         }
     }
 
-    private void resign() throws ResponseException, ServerException {
-        currentGame.gameObject().resignGame();
+    private void resign() throws ResponseException {
         WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
         ws.resign(authToken, currentGame.gameID());
         outcome =  "";
@@ -179,7 +186,7 @@ public class GameClient {
             ws.leaveGame(authToken, currentGame.gameID());
             outcome =  "";
         } catch (ResponseException ex){
-            outcome =  ex.getMessage();
+            outcome =  "Error: " + ex.getMessage();
         }
         catch (Exception ex){
             outcome =  "Error occurred";

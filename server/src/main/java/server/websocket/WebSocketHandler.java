@@ -35,7 +35,6 @@ public class WebSocketHandler {
         UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
         UserCommandMove move = new Gson().fromJson(message, UserCommandMove.class);
 
-//        UserCommandMove move = new Gson().fromJson(message, UserCommandMove.class);
         switch (action.getCommandType()) {
             case CONNECT -> connect(session, action.getAuthToken(), action.getGameID());
             case MAKE_MOVE -> makeMove(session, action.getAuthToken(), action.getGameID(), move);
@@ -49,10 +48,15 @@ public class WebSocketHandler {
             ChessGame.TeamColor teamColor = getTeamColor(getGameData(authToken, gameID), visitorName);
             GameData gameData = getGameData(authToken, gameID);
 
-
             if (checkResign(gameData)){
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
                 errorMessage.addErrorMessage("errorMessage: " + "game is over, previous player resigned");
+                connections.singleNotification(session, errorMessage, gameID);
+                return;
+            }
+            if (teamColor == null) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "observers cannot resign game");
                 connections.singleNotification(session, errorMessage, gameID);
                 return;
             }
@@ -77,33 +81,12 @@ public class WebSocketHandler {
             String visitorName = getUserName(authToken);
             GameData gameData = getGameData(authToken, gameID);
             ChessGame.TeamColor teamColor = getTeamColor(gameData, visitorName);
-            if (!gameData.whiteUsername().equals(visitorName) && !gameData.blackUsername().equals(visitorName)){
-                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-                errorMessage.addErrorMessage("errorMessage: " + "observers cannot make a move");
-                connections.singleNotification(session, errorMessage, gameID);
-                return;
-            }
-            if (!teamColor.equals(gameData.gameObject().getBoard().getPiece(move.getStartPosition()).getTeamColor())){
-                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-                errorMessage.addErrorMessage("errorMessage: " + "cannot move piece that does not belong to you");
-                connections.singleNotification(session, errorMessage, gameID);
-                return;
-            }
-            if (checkMate(gameData)){
-                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-                errorMessage.addErrorMessage("errorMessage: " + "game is over, king in checkmate");
-                connections.singleNotification(session, errorMessage, gameID);
-                return;
-            }
-            if (checkResign(gameData)){
-                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-                errorMessage.addErrorMessage("errorMessage: " + "game is over, previous player resigned");
-                connections.singleNotification(session, errorMessage, gameID);
+            if (!moveChecks(gameData, visitorName, gameID, session, teamColor, move)){
                 return;
             }
 
             try{
-                gameData.gameObject().makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), null));
+                gameData.gameObject().makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), move.getPieceType()));
                 service.updateGame(gameData, authToken);
             } catch (InvalidMoveException ex){
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
@@ -120,6 +103,8 @@ public class WebSocketHandler {
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
             connections.boradcastNotification(session, notification, false, gameID);
+
+//            afterMove(gameData, session, gameID);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
@@ -218,6 +203,27 @@ public class WebSocketHandler {
             connections.singleNotification(session, errorMessage, gameID);
         }
     }
+    private void afterMove(GameData gameData, Session session, Integer gameID) throws IOException {
+        if (check(gameData)){
+            String message = "king in check";
+            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.addMessage(message);
+            connections.boradcastNotification(session, notification, true, gameID);
+        }
+        if (checkMate(gameData)){
+            String message = "king in checkmate, game over";
+            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.addMessage(message);
+            connections.boradcastNotification(session, notification, true, gameID);
+        }
+        if (checkStale(gameData)){
+            String message = "king in stalemate, game tied";
+            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.addMessage(message);
+            connections.boradcastNotification(session, notification, true, gameID);
+        }
+
+    }
 
     private String getUserName(String authToken) throws ResponseException, DataAccessException {
         return service.getUser(authToken);
@@ -233,14 +239,68 @@ public class WebSocketHandler {
         }
         return null;
     }
+
     private boolean checkMate(GameData game){
-        if (game.gameObject().isInCheckmate(ChessGame.TeamColor.WHITE) ||
-                game.gameObject().isInCheckmate(ChessGame.TeamColor.BLACK) ){
-            return true;
-        }
-        return false;
+        return game.gameObject().isInCheckmate(ChessGame.TeamColor.WHITE) ||
+                game.gameObject().isInCheckmate(ChessGame.TeamColor.BLACK);
+    }
+    private boolean checkStale(GameData game){
+        return game.gameObject().isInStalemate(ChessGame.TeamColor.WHITE) ||
+                game.gameObject().isInStalemate(ChessGame.TeamColor.BLACK);
+    }
+    private boolean check(GameData game){
+        return game.gameObject().isInCheck(ChessGame.TeamColor.WHITE) ||
+                game.gameObject().isInCheck(ChessGame.TeamColor.BLACK);
     }
     private boolean checkResign(GameData game){
         return game.gameObject().getResigned();
+    }
+    private boolean moveChecks(GameData gameData, String visitorName, Integer gameID,
+                               Session session, ChessGame.TeamColor teamColor, UserCommandMove move ) throws IOException {
+        try {
+            if (!gameData.whiteUsername().equals(visitorName) && !gameData.blackUsername().equals(visitorName)) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "observers cannot make a move");
+                connections.singleNotification(session, errorMessage, gameID);
+                return false;
+            }
+            if (!gameData.gameObject().getTeamTurn().equals(teamColor)) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "Not your turn to go");
+                connections.singleNotification(session, errorMessage, gameID);
+                return false;
+            }
+            if (!teamColor.equals(gameData.gameObject().getBoard().getPiece(move.getStartPosition()).getTeamColor())) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "cannot move piece that does not belong to you");
+                connections.singleNotification(session, errorMessage, gameID);
+                return false;
+            }
+            if (checkMate(gameData)) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "game is over, king in checkmate");
+                connections.singleNotification(session, errorMessage, gameID);
+                return false;
+            }
+            if (checkResign(gameData)) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "game is over, previous player resigned");
+                connections.singleNotification(session, errorMessage, gameID);
+                return false;
+            }
+            if (checkStale(gameData)) {
+                var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+                errorMessage.addErrorMessage("errorMessage: " + "game is tied, king in stalemate");
+                connections.singleNotification(session, errorMessage, gameID);
+                return false;
+            }
+
+            return true;
+        } catch (Exception ex){
+            var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
+            errorMessage.addErrorMessage("errorMessage: " + "unexpected error");
+            connections.singleNotification(session, errorMessage, gameID);
+            return false;
+        }
     }
 }

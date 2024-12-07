@@ -42,7 +42,7 @@ public class ChessClient {
             if (inGamePlay || inGameObserve){
                 listGame();
                 GameClient game = new GameClient(inGamePlay, teamColor, cmd, params,
-                        visitorName, facade, notificationHandler, url, authToken, currentGame);
+                        notificationHandler, url, authToken, currentGame);
                 String outcome = game.toString();
                 if (Objects.equals(outcome, "Game successfully left\n")){
                     inGameObserve = false;
@@ -201,8 +201,8 @@ public class ChessClient {
             int gameID = gameIDs.get(gameNumber);
 
             teamColor = params[0].equalsIgnoreCase("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
-//            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), null);
-//            facade.joinGame(game, authToken);
+            GameData game = new GameData(gameID, null, null, null, null, params[0].toUpperCase(), null);
+            facade.joinGame(game, authToken);
 
             inGamePlay = true;
             currentGame = gameObjects.get(gameID);

@@ -38,8 +38,6 @@ public class WebSocketFacade extends Endpoint {
                         ChessGame.TeamColor teamColor = serverMessage.getTeamColor();
                         String board = draw(game.getBoard().toString(), teamColor);
                         serverMessage.addMessage(board);
-                    } else if (serverMessage.getServerMessageType().equals(ServerMessage.ServerMessageType.NOTIFICATION)){
-
                     }
 
 
@@ -58,7 +56,6 @@ public class WebSocketFacade extends Endpoint {
     public void joinGame(String authToken, Integer gameID) throws ResponseException {
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
@@ -68,7 +65,6 @@ public class WebSocketFacade extends Endpoint {
     public void observeGame(String authToken, Integer gameID) throws ResponseException{
         try {
             var connect = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
-
             this.session.getBasicRemote().sendText(new Gson().toJson(connect));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());

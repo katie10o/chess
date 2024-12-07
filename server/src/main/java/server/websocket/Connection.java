@@ -1,21 +1,18 @@
 package server.websocket;
 
-import chess.ChessGame;
 import org.eclipse.jetty.websocket.api.Session;
-
 import java.io.IOException;
 import java.util.Objects;
 
 public class Connection {
     public Session session;
+    public Integer gameID;
 
-    public Connection(Session session) {
+    public Connection(Session session, Integer gameID) {
         this.session = session;
+        this.gameID = gameID;
     }
 
-    public Session getSession(){
-        return session;
-    }
     public void send(String msg) throws IOException {
         session.getRemote().sendString(msg);
     }
@@ -25,11 +22,11 @@ public class Connection {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Connection that = (Connection) o;
-        return Objects.equals(session, that.session);
+        return Objects.equals(session, that.session) && Objects.equals(gameID, that.gameID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(session);
+        return Objects.hash(session, gameID);
     }
 }

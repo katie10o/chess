@@ -2,7 +2,6 @@ package gamui;
 
 import chess.*;
 
-import java.util.Collection;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.RESET_TEXT_COLOR;
@@ -21,61 +20,15 @@ public class MovePlay {
         this.newPosition = newPosition;
         this.teamColor = teamColor;
         }
-    public ChessMove getMove(){
-        return move;
-    }
-    public String getOutcome(){
-        return outcome;
-    }
 
-    public boolean safeMove(){
-        try{
-            if (gameResigned()) {
-                outcome = "Game over, previous player resigned";
-                return false;
-            }
-            if (checkMate(ChessGame.TeamColor.WHITE) || checkMate(ChessGame.TeamColor.BLACK)){
-                outcome = "Game over, king in checkmate";
-                return false;
-            }
-            if (staleMate(ChessGame.TeamColor.WHITE) || staleMate(ChessGame.TeamColor.BLACK)){
-                outcome = "Game tied, king in stalemate";
-                return false;
-            }
-            if (!game.getTeamTurn().equals(teamColor)){
-                outcome = "not your turn to go";
-                return false;
-            }
+    public ChessMove promoMoveChecker(){
+        ChessPiece currPiece = game.getBoard().getPiece(oldPosition);
+        ChessMove newMove;
 
-            ChessPiece currPiece = game.getBoard().getPiece(oldPosition);
-            ChessMove newMove;
+        if (checkPawnPromotion(currPiece)){ newMove = pawnPromotion(); }
+        else { newMove = new ChessMove(oldPosition, newPosition, null); }
 
-            if (!currPiece.getTeamColor().equals(teamColor)){
-                outcome = "cannot move piece that is not yours";
-                return false;
-            }
-
-            if (checkPawnPromotion(currPiece)){ newMove = pawnPromotion(); }
-            else { newMove = new ChessMove(oldPosition, newPosition, null); }
-
-            if (validMoveChecker(newMove)) {
-                try{
-                    game.makeMove(newMove);
-                    this.move = newMove;
-                    return true;
-                } catch (InvalidMoveException ex){
-                    outcome = ex.getMessage();
-                    return false;
-                }
-            } else {
-                outcome = "Cannot make that move, try again";
-                return false;
-            }
-
-        } catch (Exception ex){
-            outcome = "Error making move";
-            return false;
-        }
+        return newMove;
     }
 
     private boolean checkPawnPromotion(ChessPiece currPiece){
@@ -107,24 +60,6 @@ public class MovePlay {
                 scanner.next();
             }
         }
-    }
-
-    private boolean validMoveChecker(ChessMove newMove){
-        Collection<ChessMove> moves = game.validMoves(newMove.getStartPosition());
-        for (ChessMove move : moves){
-            if (move.equals(newMove)){ return true; }
-        }
-        return false;
-    }
-
-    private boolean checkMate(ChessGame.TeamColor color){
-        return game.isInCheckmate(color);
-    }
-    private boolean staleMate(ChessGame.TeamColor color){
-        return game.isInStalemate(color);
-    }
-    private boolean gameResigned() {
-        return game.getResigned();
     }
 
 }
