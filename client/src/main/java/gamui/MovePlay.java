@@ -42,7 +42,7 @@ public class MovePlay {
         Scanner scanner = new Scanner(System.in);
 
         while (true){
-            System.out.println(">>> You selected a pawn, chose an upgrade: ");
+            System.out.println(">>> Pawn on the promotion square, chose an upgrade: ");
             System.out.println("\t1. Queen\n\t2. Bishop\n\t3. Knight\n\t4. Rook");
             System.out.print(RESET_TEXT_COLOR + "\n>>> ");
 

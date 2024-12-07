@@ -81,6 +81,8 @@ public class GameClient {
 
     private void move(String[] params) {
         try {
+            currentGame = facade.getGame(currentGame, authToken);
+
             if (params.length < 1 || params.length > 3) {
                 outcome = params.length < 1 ? "too few parameters given\n<column,row> to <column,row>"
                         : "too many parameters given\n<column,row> to <column,row>";

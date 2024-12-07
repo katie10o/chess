@@ -103,7 +103,8 @@ public class WebSocketHandler {
             notification.addMessage(message);
             connections.boradcastNotification(visitorName, notification, false, gameID);
 
-            afterMove(gameData, session, gameID, visitorName);
+            GameData updatedGameData = getGameData(authToken, gameID);
+            afterMove(updatedGameData, gameID, visitorName);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: move cannot be made" );
@@ -204,13 +205,8 @@ public class WebSocketHandler {
             connections.singleNotification(session, errorMessage, gameID);
         }
     }
-    private void afterMove(GameData gameData, Session session, Integer gameID, String visitorName) throws IOException {
-        if (check(gameData)){
-            String message = "king in check";
-            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-            notification.addMessage(message);
-            connections.boradcastNotification(visitorName, notification, true, gameID);
-        }
+    private void afterMove(GameData gameData, Integer gameID, String visitorName) throws IOException {
+
         if (checkMate(gameData)){
             String message = "king in checkmate, game over";
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -219,6 +215,12 @@ public class WebSocketHandler {
         }
         if (checkStale(gameData)){
             String message = "king in stalemate, game tied";
+            var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.addMessage(message);
+            connections.boradcastNotification(visitorName, notification, true, gameID);
+        }
+        if (check(gameData)){
+            String message = "king in check";
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
             connections.boradcastNotification(visitorName, notification, true, gameID);
