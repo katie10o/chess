@@ -3,13 +3,12 @@ package gamui;
 import chess.*;
 import draw.DrawBoard;
 import facade.ServerException;
+import facade.ServerFacade;
 import model.GameData;
 import responseex.ResponseException;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
 import websocket.commands.UserCommandMove;
-
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,12 +20,14 @@ public class GameClient {
     private final ChessGame.TeamColor teamColor;
     private final String authToken;
     private final boolean player;
-    private final GameData currentGame;
+    private GameData currentGame;
+    private boolean left = false;
+    private final ServerFacade facade;
 
     private String outcome;
 
     public GameClient(boolean player, ChessGame.TeamColor teamColor, String cmd, String[] params, NotificationHandler notificationHandler,
-                      String url, String authToken, GameData currentGame) throws ResponseException, ServerException {
+                      String url, String authToken, GameData currentGame, ServerFacade facade) throws ResponseException, ServerException {
 
         this.player = player;
         this.teamColor = teamColor;
@@ -34,13 +35,13 @@ public class GameClient {
         this.url = url;
         this.authToken = authToken;
         this.currentGame = currentGame;
+        this.facade = facade;
 
         if (player){
             switch (cmd) {
                 case "redraw" -> drawBoard();
                 case "leave" -> leave();
                 case "move" -> move(params);
-                case "turn" -> turn();
                 case "resign" -> resign();
                 case "highlight" -> possibleMoves(params);
                 default -> help();
@@ -48,7 +49,8 @@ public class GameClient {
         } else {
             switch (cmd) {
                 case "redraw" -> drawBoard();
-                case "leave" -> leaveObserver();
+                case "leave" -> leave();
+                case "highlight" -> possibleMoves(params);
                 default -> help();
             }
         }
@@ -94,8 +96,9 @@ public class GameClient {
             }
             if ((checkColumnValue(oldLocation[0].toLowerCase()) && checkColumnValue(newLocation[0])) &&
                 (checkRowValue(Integer.valueOf(oldLocation[1])) && checkRowValue(Integer.valueOf(newLocation[1])))) {
-                ChessPosition oldPosition = new ChessPosition(convertColumn(oldLocation[0]), Integer.parseInt(oldLocation[1]));
-                ChessPosition newPosition = new ChessPosition(convertColumn(newLocation[0]), Integer.parseInt(newLocation[1]));
+
+                ChessPosition oldPosition = new ChessPosition(Integer.parseInt(oldLocation[1]), convertColumn(oldLocation[0]));
+                ChessPosition newPosition = new ChessPosition(Integer.parseInt(newLocation[1]), convertColumn(newLocation[0]));
 
                 var movePlay = new MovePlay(currentGame.gameObject(), oldPosition, newPosition, teamColor);
                 ChessMove promoMove = movePlay.promoMoveChecker();
@@ -106,7 +109,7 @@ public class GameClient {
                 ws.makeMove(authToken, currentGame.gameID(), move);
             }
         } catch (Exception ex){
-            outcome = "Error: " + ex.getMessage();
+            outcome = "Error: row or column wrong" ;
         }
     }
 
@@ -115,8 +118,10 @@ public class GameClient {
         ws.resign(authToken, currentGame.gameID());
         outcome =  "";
     }
-    private void possibleMoves(String[] params) throws ResponseException {
+    private void possibleMoves(String[] params) {
         try {
+            currentGame = facade.getGame(currentGame, authToken);
+
             if (params.length != 1) {
                 outcome = params.length < 1 ? "too few parameters given\n<column,row>" : "too many parameters given\n<column,row>";
                 return;
@@ -142,13 +147,10 @@ public class GameClient {
             outcome = "Error highlighting";
         }
     }
-    private void drawBoard(){
+    private void drawBoard() throws ServerException, ResponseException {
+        currentGame = facade.getGame(currentGame, authToken);
         DrawBoard draw = new DrawBoard(teamColor, currentGame.gameObject().getBoard().toString(), false, new ArrayList<>());
         outcome =  draw.getDrawnBoard();
-    }
-    private void turn(){
-        ChessGame.TeamColor turn = currentGame.gameObject().getTeamTurn();
-        outcome = "currently " + turn.toString() + "'s turn";
     }
     private boolean checkColumnValue(String c) throws ResponseException {
         try{
@@ -177,17 +179,14 @@ public class GameClient {
             throw new ResponseException(400, "Incorrect row");
         }
     }
-    private void leaveObserver() throws ResponseException {
-        WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
-        ws.leaveGame(authToken, currentGame.gameID());
-        outcome =  "";
-    }
+
     private void leave() {
         try {
-
             WebSocketFacade ws = new WebSocketFacade(url, notificationHandler);
             ws.leaveGame(authToken, currentGame.gameID());
             outcome =  "";
+            left = true;
+
         } catch (ResponseException ex){
             outcome =  "Error: " + ex.getMessage();
         }
@@ -203,17 +202,20 @@ public class GameClient {
                     * move <column,row> to <column,row> - begins to move chess peice, will prompt the column and row
                     * resign - forfeits game, automatic loss
                     * highlight <column,row> - highlights the possible moves for a piece
-                    * turn - returns what team color is in turn
                     """;
         }
         else {
             outcome = """
                     * redraw - redraws chessboard
                     * leave - leaves the game
+                    * highlight <column,row> - highlights the possible moves for a piece
                     """;
         }
     }
     public String toString(){
         return outcome;
+    }
+    public boolean getLeft(){
+        return left;
     }
 }

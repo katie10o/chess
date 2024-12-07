@@ -34,10 +34,10 @@ public class Repl implements NotificationHandler {
     }
     public void notify(ServerMessage notification) {
         if (notification.getServerMessageType() == ServerMessage.ServerMessageType.ERROR){
-            System.out.println(SET_TEXT_COLOR_RED + "Error: " + notification.getErrorMessage());
+            System.out.println(SET_TEXT_COLOR_RED + notification.getErrorMessage());
         } else if (notification.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME){
             System.out.println(SET_TEXT_COLOR_BLUE +  "Current Game:");
-            System.out.println(SET_TEXT_COLOR_BLUE + "\n" + notification.getMessage());
+            System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage());
         }
         else {
             System.out.println(SET_TEXT_COLOR_BLUE + notification.getMessage());

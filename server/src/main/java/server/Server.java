@@ -36,13 +36,25 @@ public class Server {
         Spark.post("/game", this::createGame);
         Spark.put("/game", this::joinGame);
         Spark.get("/game", this::getGames);
-        Spark.put("/currentgame", this::updateGame);
-        Spark.put("/leavegame", this::leaveGame);
+        Spark.put("/update", this::getGame);
+
 
 
         Spark.exception(ResponseException.class, this::exceptionHandler);
         Spark.awaitInitialization();
         return Spark.port();
+    }
+
+    private Object getGame(Request request, Response response) {
+        try{
+            return handler.getGame(request);
+        }
+        catch (ResponseException e) {
+            return exceptionHandler(e, request, response);
+        }
+        catch (DataAccessException e){
+            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
+        }
     }
 
     private Object exceptionHandler(ResponseException e, Request request, Response response) {
@@ -120,28 +132,6 @@ public class Server {
     private Object joinGame(Request request, Response response){
         try{
             return handler.joinGame(request);
-        }
-        catch (ResponseException e) {
-            return exceptionHandler(e, request, response);
-        }
-        catch (DataAccessException e){
-            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
-        }
-    }
-    private Object updateGame(Request request, Response response){
-        try{
-            return handler.updateGame(request);
-        }
-        catch (ResponseException e) {
-            return exceptionHandler(e, request, response);
-        }
-        catch (DataAccessException e){
-            return exceptionHandler(new ResponseException(500, e.getMessage()), request, response);
-        }
-    }
-    private Object leaveGame(Request request, Response response){
-        try{
-            return handler.leaveGame(request);
         }
         catch (ResponseException e) {
             return exceptionHandler(e, request, response);

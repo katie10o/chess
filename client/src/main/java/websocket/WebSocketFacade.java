@@ -2,6 +2,8 @@ package websocket;
 
 import chess.ChessGame;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import draw.DrawBoard;
 import responseex.ResponseException;
 import websocket.commands.UserCommandMove;
@@ -75,7 +77,13 @@ public class WebSocketFacade extends Endpoint {
             var connect = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, gameID);
             String message = new Gson().toJson(connect);
             String moveMessage = new Gson().toJson(move);
-            this.session.getBasicRemote().sendText(message + moveMessage);
+            JsonObject messageJson = JsonParser.parseString(message).getAsJsonObject();
+            JsonObject moveMessageJson = JsonParser.parseString(moveMessage).getAsJsonObject();
+            for (String key : moveMessageJson.keySet()) {
+                messageJson.add(key, moveMessageJson.get(key));
+            }
+
+            this.session.getBasicRemote().sendText(new Gson().toJson(messageJson));
         } catch (IOException ex) {
             throw new ResponseException(500, ex.getMessage());
         }

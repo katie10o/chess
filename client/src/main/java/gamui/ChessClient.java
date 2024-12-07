@@ -42,9 +42,9 @@ public class ChessClient {
             if (inGamePlay || inGameObserve){
                 listGame();
                 GameClient game = new GameClient(inGamePlay, teamColor, cmd, params,
-                        notificationHandler, url, authToken, currentGame);
+                        notificationHandler, url, authToken, currentGame, facade);
                 String outcome = game.toString();
-                if (Objects.equals(outcome, "Game successfully left\n")){
+                if (game.getLeft()){
                     inGameObserve = false;
                     inGamePlay = false;
                 }

@@ -21,11 +21,9 @@ import java.io.IOException;
 @WebSocket
 public class WebSocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
-    private final ServerHandler serverHandler;
     private final Service service;
 
     public WebSocketHandler(ServerHandler serverHandler){
-        this.serverHandler = serverHandler;
         this.service = serverHandler.getService();
     }
 
@@ -51,13 +49,13 @@ public class WebSocketHandler {
             if (checkResign(gameData)){
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
                 errorMessage.addErrorMessage("errorMessage: " + "game is over, previous player resigned");
-                connections.singleNotification(session, errorMessage, gameID);
+                connections.singleNotification(session,  errorMessage, gameID);
                 return;
             }
             if (teamColor == null) {
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
                 errorMessage.addErrorMessage("errorMessage: " + "observers cannot resign game");
-                connections.singleNotification(session, errorMessage, gameID);
+                connections.singleNotification(session,  errorMessage, gameID);
                 return;
             }
             gameData.gameObject().resignGame();
@@ -67,7 +65,7 @@ public class WebSocketHandler {
             var message = String.format("%s (%s player) resigned. %s wins!", visitorName, teamColor, winner);
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, true, gameID);
+            connections.boradcastNotification(visitorName, notification, true, gameID);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
@@ -84,31 +82,31 @@ public class WebSocketHandler {
             if (!moveChecks(gameData, visitorName, gameID, session, teamColor, move)){
                 return;
             }
-            afterMove(gameData, session, gameID);
+//            afterMove(gameData, session, gameID, visitorName);
 
             try{
                 gameData.gameObject().makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), move.getPieceType()));
                 service.updateGame(gameData, authToken);
             } catch (InvalidMoveException ex){
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-                errorMessage.addErrorMessage("errorMessage: " + ex);
+                errorMessage.addErrorMessage("errorMessage: move cannot be made");
                 connections.singleNotification(session, errorMessage, gameID);
                 return;
             }
 
             var loadGame = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME);
             loadGame.addGame(gameData.gameObject());
-            connections.broadcastGame(teamColor, loadGame, gameID);
+            connections.broadcastGame(loadGame, gameID);
 
             var message = String.format("\n%s (%s player) moved", visitorName, teamColor);
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, false, gameID);
+            connections.boradcastNotification(visitorName, notification, false, gameID);
 
-//            afterMove(gameData, session, gameID);
+            afterMove(gameData, session, gameID, visitorName);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
-            errorMessage.addErrorMessage("errorMessage: " + ex);
+            errorMessage.addErrorMessage("errorMessage: move cannot be made" );
             connections.singleNotification(session, errorMessage, gameID);
         }
     }
@@ -131,44 +129,46 @@ public class WebSocketHandler {
                 service.leaveGame(newGameData, authToken);
             }
 
-            connections.remove(session, gameID);
+            connections.remove(visitorName, gameID);
             var message = String.format("%s left the game", visitorName);
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, false, gameID);
+            connections.boradcastNotification(visitorName, notification, false, gameID);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
-            connections.singleNotification(session, errorMessage, gameID);
+            connections.singleNotification(session,  errorMessage, gameID);
         }
     }
 
     private void connect(Session session, String authToken, Integer gameID) throws IOException {
         try {
-            connections.add(session, gameID);
             String visitorName = getUserName(authToken);
             GameData gameData = getGameData(authToken, gameID);
             ChessGame.TeamColor teamColor = getTeamColor(gameData, visitorName);
             if (teamColor == null) {
-                observeGame(session, visitorName, ChessGame.TeamColor.WHITE, gameData.gameObject(), gameID);
+                connections.add(session, gameID, ChessGame.TeamColor.WHITE, visitorName);
+                observeGame(session, visitorName, gameData.gameObject(), gameID);
             } else {
+                connections.add(session, gameID, teamColor, visitorName);
                 joinGame(session, visitorName, teamColor, gameData.gameObject(), gameID);
             }
+
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
-            connections.singleNotification(session, errorMessage, gameID);
+            connections.singleNotification(session,  errorMessage, gameID);
         }
     }
 
-    private void observeGame(Session session, String visitorName, ChessGame.TeamColor teamColor, ChessGame game, Integer gameID) throws IOException {
+    private void observeGame(Session session, String visitorName, ChessGame game, Integer gameID) throws IOException {
         try {
-            loadGame(session, visitorName, teamColor, game, gameID);
+            loadGame(session, visitorName, ChessGame.TeamColor.WHITE, game, gameID);
 
             var message = String.format("%s joined the game as an observer", visitorName);
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, false, gameID);
+            connections.boradcastNotification(visitorName, notification, false, gameID);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
@@ -183,7 +183,7 @@ public class WebSocketHandler {
             var message = String.format("%s joined the game as %s player", visitorName, teamColor);
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, false, gameID);
+            connections.boradcastNotification(visitorName, notification, false, gameID);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
@@ -197,31 +197,31 @@ public class WebSocketHandler {
             loadGame.addUser(visitorName);
             loadGame.addTeamColor(teamColor);
             loadGame.addGame(game);
-            connections.singleNotification(session, loadGame, gameID);
+            connections.singleNotification(session,  loadGame, gameID);
         } catch (Exception ex){
             var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
             errorMessage.addErrorMessage("errorMessage: " + ex);
             connections.singleNotification(session, errorMessage, gameID);
         }
     }
-    private void afterMove(GameData gameData, Session session, Integer gameID) throws IOException {
+    private void afterMove(GameData gameData, Session session, Integer gameID, String visitorName) throws IOException {
         if (check(gameData)){
             String message = "king in check";
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, true, gameID);
+            connections.boradcastNotification(visitorName, notification, true, gameID);
         }
         if (checkMate(gameData)){
             String message = "king in checkmate, game over";
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, true, gameID);
+            connections.boradcastNotification(visitorName, notification, true, gameID);
         }
         if (checkStale(gameData)){
             String message = "king in stalemate, game tied";
             var notification = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.addMessage(message);
-            connections.boradcastNotification(session, notification, true, gameID);
+            connections.boradcastNotification(visitorName, notification, true, gameID);
         }
 
     }
@@ -262,7 +262,7 @@ public class WebSocketHandler {
             if (!gameData.whiteUsername().equals(visitorName) && !gameData.blackUsername().equals(visitorName)) {
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
                 errorMessage.addErrorMessage("errorMessage: " + "observers cannot make a move");
-                connections.singleNotification(session, errorMessage, gameID);
+                connections.singleNotification(session,  errorMessage, gameID);
                 return false;
             }
             if (!gameData.gameObject().getTeamTurn().equals(teamColor)) {
@@ -286,7 +286,7 @@ public class WebSocketHandler {
             if (checkResign(gameData)) {
                 var errorMessage = new ServerMessage(ServerMessage.ServerMessageType.ERROR);
                 errorMessage.addErrorMessage("errorMessage: " + "game is over, previous player resigned");
-                connections.singleNotification(session, errorMessage, gameID);
+                connections.singleNotification(session,  errorMessage, gameID);
                 return false;
             }
             if (checkStale(gameData)) {
