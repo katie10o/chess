@@ -84,6 +84,7 @@ public class WebSocketHandler {
             if (!moveChecks(gameData, visitorName, gameID, session, teamColor, move)){
                 return;
             }
+            afterMove(gameData, session, gameID);
 
             try{
                 gameData.gameObject().makeMove(new ChessMove(move.getStartPosition(), move.getEndPosition(), move.getPieceType()));
